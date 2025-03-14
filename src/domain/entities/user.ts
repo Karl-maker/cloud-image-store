@@ -7,4 +7,5 @@ export interface User extends Persistent {
     hashPassword: string;
     salt: string;
     confirmed: boolean;
+    stripeId: string | null;
 }

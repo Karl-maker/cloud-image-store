@@ -12,6 +12,7 @@ export const UserSchema = new Schema<UserDocument>(
         first_name: { type: String, required: true },
         last_name: { type: String, required: true },
         clientId: { type: String, unique: true, default: () => generateUuid() },
+        stripeId: { type: String, required: false, default: null },
         email: { type: String, required: true, unique: true },
         hashPassword: { type: String, required: true },
         salt: { type: String, required: true },

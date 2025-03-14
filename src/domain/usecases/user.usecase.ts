@@ -18,6 +18,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy> {
             hashPassword: hashResults.pass,
             confirmed: false,
             id: null,
+            stripeId: null,
             salt: hashResults.salt,
             createdAt: new Date(),
             updatedAt: new Date()
