@@ -17,7 +17,8 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy> {
             createdByUserId: data.createdByUserId,
             usedMegabytes: 0,
             totalMegabytes: data.totalMegabytes,
-            subscriptionPlanId: data.subscriptionPlanId
+            subscriptionPlanId: data.subscriptionPlanId,
+            stripeSubscriptionId: null
         }
 
         return space;

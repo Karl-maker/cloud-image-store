@@ -10,4 +10,5 @@ export interface Space extends Persistent {
     usedMegabytes: number;
     totalMegabytes: number;
     subscriptionPlanId: string;
+    stripeSubscriptionId: string | null;
 }

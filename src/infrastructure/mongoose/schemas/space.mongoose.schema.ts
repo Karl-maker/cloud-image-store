@@ -12,6 +12,7 @@ export const SpaceSchema = new Schema<SpaceDocument>(
         name: { type: String, required: true },
         description: { type: String, required: true },
         userIds: { type: [String], required: true },
+        stripeSubscriptionId: { type: String, required: false, default: null },
         createdByUserId: { type: String, required: true },
         pausedAt: { type: Date, default: null },
         deactivatedAt: { type: Date, default: null },
