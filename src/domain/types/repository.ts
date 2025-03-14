@@ -30,3 +30,8 @@ export type FindResponse<E> = {
     data: E[]; 
     pagination: Pagination; 
 };
+
+export type DeleteResponse<D> = {
+    data: D;
+    error?: Error;
+}
