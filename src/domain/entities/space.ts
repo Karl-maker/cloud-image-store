@@ -9,4 +9,5 @@ export interface Space extends Persistent {
     deactivatedAt?: Date;
     usedMegabytes: number;
     totalMegabytes: number;
+    subscriptionPlanId: string;
 }

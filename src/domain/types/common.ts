@@ -9,4 +9,4 @@ export type Price = {
 export type Feature = {
     name: string;
     included: boolean;
-}
+};
