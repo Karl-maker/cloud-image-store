@@ -9,6 +9,10 @@ import cron from "node-cron";
 import errorHandler from "./middlewares/error.middleware";
 import { setupSwagger, swaggerSpec } from "./swagger.doc";
 import swaggerYamlConverter from "../../bin/create.swagger.yaml";
+import { Routes } from "./routes";
+import { UserUsecase } from "../../domain/usecases/user.usecase";
+import { UserRepository } from "../../domain/repositories/user.repository";
+import { UserMongooseRepository } from "../../infrastructure/mongoose/repositories/user.mongoose.repository";
 
 /**
  * @NOTE Add events here 
@@ -24,6 +28,12 @@ export const app = express();
 export const initializeServer = async () => {
     await Database.connect(MONGO_URI!); // Connect to MongoDB
     const connection = Database.getConnection();
+
+    const userRepository : UserRepository = new UserMongooseRepository(connection);
+
+    const routes = new Routes(
+        new UserUsecase(userRepository)
+    )
 
     const allowedOrigins = [
         COMPANY_DOMAIN!,
@@ -63,6 +73,6 @@ if (process.env.NODE_ENV !== "test") {
 // CRON Job for upkeep
 
 cron.schedule("*/5 * * * *", async () => {
-    await sendRequest('/');
+    //
 });
   

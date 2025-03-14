@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { PEPPER } from '../../configuration';
 
 export class PasswordService {

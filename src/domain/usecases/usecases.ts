@@ -41,7 +41,7 @@ export abstract class Usecases<Entity extends Persistent, SortByKeys, FilterByKe
             sortOrder: params.order,
         }
         
-        const objectParams : Object = params as Object;
+        const objectParams = params as any;
 
         delete objectParams['page_number'];
         delete objectParams['page_size'];
