@@ -1,56 +1,5 @@
-export interface PaymentMethod {
-    id: string;
-    customerId: string;
-    name?: string;
-    address?: {
-        state: string | undefined,
-        city: string,
-        country: string,
-        postal_code: string,
-        line1: string,
-        line2: string
-    };
-    email?: string;
-    type: string;
-    phone?: string;
-    isDefault?: boolean;
-    lastFourDigits?: string;  // e.g., last 4 digits of the card
-    expirationDate?: Date;  // Expiration date for cards
-    brand?: string;           // Brand of the card (e.g., Visa, MasterCard)
-    country?: string;         // Country of the payment method
-}
-
-/**
- * Result of a deletion operation on a payment method.
- */
-export interface DeletePaymentMethodResult {
-    id: string;
-    success: boolean;
-    message?: string;
-}
-
-/**
- * Data structure for updating a payment method.
- */
-export interface PaymentMethodUpdate {
-    type?: string;
-    isDefault?: boolean;
-    lastFourDigits?: string;
-    expirationDate?: Date;
-    brand?: string;
-    country?: string;
-    email?: string;
-    phone?: string;
-    name?: string;
-    address?: {
-        state: string | undefined,
-        city: string,
-        country: string,
-        postal_code: string,
-        line1: string,
-        line2: string
-    }
-}
+import { PaymentMethod } from "../../../domain/entities/payment.method";
+import { DeletePaymentMethodResult, PaymentMethodUpdate } from "../../../domain/types/payment.method";
 
 /**
  * Interface for managing payment methods.

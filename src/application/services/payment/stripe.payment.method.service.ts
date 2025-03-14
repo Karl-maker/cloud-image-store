@@ -1,5 +1,7 @@
 import Stripe from 'stripe';
-import { PaymentMethod, PaymentMethodService, PaymentMethodUpdate, DeletePaymentMethodResult } from './interface.payment.method.service';
+import { PaymentMethodService } from './interface.payment.method.service';
+import { DeletePaymentMethodResult, PaymentMethodUpdate } from '../../../domain/types/payment.method';
+import { PaymentMethod } from '../../../domain/entities/payment.method';
 
 export class StripePaymentMethodService implements PaymentMethodService {
     private stripe: Stripe;
@@ -135,6 +137,8 @@ export class StripePaymentMethodService implements PaymentMethodService {
                 : undefined,
             brand: stripePaymentMethod.card?.brand,
             country: stripePaymentMethod.card?.country!,
+            createdAt: stripePaymentMethod.created ? new Date(stripePaymentMethod.created * 1000) : new Date(), // Assuming `created` is in seconds
+            updatedAt: stripePaymentMethod.created ? new Date(stripePaymentMethod.created * 1000) : new Date(), // Assuming `updated` is in seconds
         };      
     }
     
