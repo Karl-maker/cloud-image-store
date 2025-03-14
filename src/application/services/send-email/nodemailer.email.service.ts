@@ -27,9 +27,16 @@ export class SendEmail {
         const headerSource = fs.readFileSync(path.join(partialsDir, "header.hbs"), "utf-8");
         const footerSource = fs.readFileSync(path.join(partialsDir, "footer.hbs"), "utf-8");
         const templateSource = fs.readFileSync(path.join(templatesDir, `${templateName}.hbs`), "utf-8");
-
-        const header = handlebars.compile(headerSource)({});
-        const footer = handlebars.compile(footerSource)({});
+        const common = {
+            year: '2025',
+            companyName: '',
+            companyWebsite: '',
+            privacyPolicy: '',
+            termsOfServices: '',
+            cookiePolicy: ''
+        }
+        const header = handlebars.compile(headerSource)({ ...common });
+        const footer = handlebars.compile(footerSource)({ ...common });
         const template = handlebars.compile(templateSource);
 
         return `${header}${template({
