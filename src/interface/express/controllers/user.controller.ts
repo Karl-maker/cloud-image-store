@@ -27,7 +27,7 @@ export class UserController {
     async deleteById (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
             const user = await this.usecase.findById(req.params[USER_PARAM]);
-            await this.usecase.deleteById(req.params.user_id)
+            await this.usecase.deleteById(req.params[USER_PARAM])
 
             eventBus.emit(USER_DELETED, { user })
 

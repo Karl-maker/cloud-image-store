@@ -1,6 +1,6 @@
 import { Connection } from "mongoose";
 import { MongooseRepository } from "./mongoose.repository";
-import { UserDocument, UserSchema } from "../schemas/mongoose.schema";
+import { UserDocument, UserSchema } from "../schemas/user.mongoose.schema";
 import { User } from "../../../domain/entities/user";
 import { UserFilterBy, UserSortBy } from "../../../domain/types/user";
 import { USER_SCHEMA } from "../../../domain/constants/schema.names";

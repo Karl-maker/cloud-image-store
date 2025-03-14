@@ -8,7 +8,7 @@ export function convertToFilters<T>(obj: T): Filters<T> {
         const value = obj[key];
   
         if (typeof value === "string") {
-          if (key.endsWith("Id")) {
+          if (key.endsWith("Id") || key.endsWith("Ids")) {
             filters[key] = { exact: value }; // Exact match for keys ending in "Id"
           } else {
             filters[key] = { contains: value }; // Contains for regular strings

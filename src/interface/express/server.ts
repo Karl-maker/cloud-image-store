@@ -13,6 +13,9 @@ import { Routes } from "./routes";
 import { UserUsecase } from "../../domain/usecases/user.usecase";
 import { UserRepository } from "../../domain/repositories/user.repository";
 import { UserMongooseRepository } from "../../infrastructure/mongoose/repositories/user.mongoose.repository";
+import { SpaceRepository } from "../../domain/repositories/space.repository";
+import { SpaceMongooseRepository } from "../../infrastructure/mongoose/repositories/space.mongoose.repository";
+import { SpaceUsecase } from "../../domain/usecases/space.usecase";
 
 /**
  * @NOTE Add events here 
@@ -30,9 +33,11 @@ export const initializeServer = async () => {
     const connection = Database.getConnection();
 
     const userRepository : UserRepository = new UserMongooseRepository(connection);
+    const spaceRepository : SpaceRepository = new SpaceMongooseRepository(connection);
 
     const routes = new Routes(
-        new UserUsecase(userRepository)
+        new UserUsecase(userRepository),
+        new SpaceUsecase(spaceRepository)
     )
 
     const allowedOrigins = [
