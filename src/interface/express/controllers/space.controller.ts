@@ -3,9 +3,9 @@ import { eventBus } from '../../../infrastructure/event/event.bus';
 import { SPACE_CREATED, SPACE_DELETED, USER_CREATED, USER_DELETED } from '../../../domain/constants/event.names';
 import { SPACE_PARAM } from '../../../domain/constants/api.routes';
 import { SpaceUsecase } from '../../../domain/usecases/space.usecase';
-import { CreateSpaceDTO } from '../../../application/interfaces/presenters/dtos/create.space.dto';
-import { UpdateSpaceDTO } from '../../../application/interfaces/presenters/dtos/update.space.dto';
-import { FindManySpaceDTO } from '../../../application/interfaces/presenters/dtos/find.many.space.dto';
+import { CreateSpaceDTO } from '../../../domain/interfaces/presenters/dtos/create.space.dto';
+import { UpdateSpaceDTO } from '../../../domain/interfaces/presenters/dtos/update.space.dto';
+import { FindManySpaceDTO } from '../../../domain/interfaces/presenters/dtos/find.many.space.dto';
 
 export class SpaceController {
     constructor(

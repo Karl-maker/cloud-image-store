@@ -5,11 +5,11 @@ import authentication from "../middlewares/authentication.middleware";
 import { TOKEN_SECRET } from "../../../application/configuration";
 import { JwtTokenService } from "../../../application/services/token/jwt.token.service";
 import { validateDTO } from "../middlewares/validation.middleware";
-import { createUserSchema } from "../../../application/interfaces/presenters/dtos/create.user.dto";
+import { createUserSchema } from "../../../domain/interfaces/presenters/dtos/create.user.dto";
 import { UserController } from "../controllers/user.controller";
-import { findManySchema } from "../../../application/interfaces/presenters/dtos/find.many.dto";
-import { userFilterBySchema } from "../../../application/interfaces/presenters/dtos/find.many.user.dto";
-import { updateUserSchema } from "../../../application/interfaces/presenters/dtos/update.user.dto";
+import { findManySchema } from "../../../domain/interfaces/presenters/dtos/find.many.dto";
+import { userFilterBySchema } from "../../../domain/interfaces/presenters/dtos/find.many.user.dto";
+import { updateUserSchema } from "../../../domain/interfaces/presenters/dtos/update.user.dto";
 
 const router = express.Router();
 

@@ -4,11 +4,11 @@ import authentication from "../middlewares/authentication.middleware";
 import { TOKEN_SECRET } from "../../../application/configuration";
 import { JwtTokenService } from "../../../application/services/token/jwt.token.service";
 import { validateDTO } from "../middlewares/validation.middleware";
-import { findManySchema } from "../../../application/interfaces/presenters/dtos/find.many.dto";
+import { findManySchema } from "../../../domain/interfaces/presenters/dtos/find.many.dto";
 import { SpaceUsecase } from "../../../domain/usecases/space.usecase";
 import { SpaceController } from "../controllers/space.controller";
-import { spaceFilterBySchema } from "../../../application/interfaces/presenters/dtos/find.many.space.dto";
-import { updateSpaceSchema } from "../../../application/interfaces/presenters/dtos/update.space.dto";
+import { spaceFilterBySchema } from "../../../domain/interfaces/presenters/dtos/find.many.space.dto";
+import { updateSpaceSchema } from "../../../domain/interfaces/presenters/dtos/update.space.dto";
 
 const router = express.Router();
 

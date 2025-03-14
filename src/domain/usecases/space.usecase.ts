@@ -1,5 +1,5 @@
-import { CreateSpaceDTO } from "../../application/interfaces/presenters/dtos/create.space.dto";
-import { UpdateSpaceDTO } from "../../application/interfaces/presenters/dtos/update.space.dto";
+import { CreateSpaceDTO } from "../../domain/interfaces/presenters/dtos/create.space.dto";
+import { UpdateSpaceDTO } from "../../domain/interfaces/presenters/dtos/update.space.dto";
 import { Space } from "../entities/space";
 import { SpaceFilterBy, SpaceSortBy } from "../types/space";
 import { Usecases } from "./usecases";
