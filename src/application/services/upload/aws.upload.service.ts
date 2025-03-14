@@ -1,4 +1,5 @@
-import { S3Client, PutObjectCommand, PutObjectCommandInput, S3ClientConfig } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommandInput, S3ClientConfig } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 import IUploadService from './i.upload.service';
 import ffmpeg from 'fluent-ffmpeg';
 import { promises as fsPromises } from 'fs';
@@ -14,7 +15,11 @@ export default class S3UploadService implements IUploadService {
         this.bucketName = bucketName;
     }
 
-    async upload(input: UploadServiceInput, cd: (err: Error | null, data?: UploadServiceResponse) => void): Promise<void> {
+    async upload(
+        input: UploadServiceInput, 
+        cd: (err: Error | null, data?: UploadServiceResponse) => void,
+        load?: (percentage?: number) => void
+    ): Promise<void> {
         const { fileBuffer, fileName, mimeType, metadata } = input;
         let length: number | undefined;
 
@@ -33,8 +38,19 @@ export default class S3UploadService implements IUploadService {
         };
 
         try {
-            const command = new PutObjectCommand(params);
-            const uploadResult = await this.s3.send(command);
+            const parallelUploads3 = new Upload({
+                client: this.s3,
+                params,
+            });
+
+            parallelUploads3.on("httpUploadProgress", (progress) => {
+                if (load) {
+                    const percentage = Math.round((progress.loaded! / progress.total!));
+                    load(percentage);
+                }
+            });
+
+            const uploadResult = await parallelUploads3.done();
 
             // Create the response object
             const response: UploadServiceResponse = {

@@ -6,6 +6,8 @@ export interface Content extends Persistent {
     key: string;
     mimeType: string;
     location: string;
+    uploadCompletion: number;
+    uploadError?: string;
     spaceId: string;
 }
 
