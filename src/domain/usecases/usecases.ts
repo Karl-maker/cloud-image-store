@@ -10,13 +10,15 @@ export abstract class Usecases<Entity extends Persistent, SortByKeys, FilterByKe
     constructor (private repository: Repository<Entity, SortByKeys, FilterByKeys>) {}
 
     async create <CreateDTO>(data: CreateDTO) : Promise<Entity> {
-        const entity: Entity = this.mapCreateDtoToEntity(data)
+        const entity: Entity = await this.mapCreateDtoToEntity(data)
         const saved = await this.repository.save(entity);
         return saved;
     }
 
     async update <UpdateDTO>(id: string, data: UpdateDTO) : Promise<Entity> {
-        const entity: Entity = this.mapUpdateDtoToEntity(data);
+        const found = await this.repository.findById(id);
+        if(!found) throw new NotFoundException('No item found to update')
+        const entity: Entity = await this.mapUpdateDtoToEntity(data, found);
         entity.id = id;
         const saved = await this.repository.save(entity);
         return saved;
@@ -67,6 +69,6 @@ export abstract class Usecases<Entity extends Persistent, SortByKeys, FilterByKe
         if(deleted.error) throw deleted.error;
     }
 
-    abstract mapCreateDtoToEntity<CreateDTO>(data: CreateDTO) : Entity;
-    abstract mapUpdateDtoToEntity<UpdateDTO>(data: UpdateDTO) : Entity;
+    abstract mapCreateDtoToEntity(data: unknown) : Promise<Entity>;
+    abstract mapUpdateDtoToEntity(data: unknown, entity: Entity) : Promise<Entity>;
 }

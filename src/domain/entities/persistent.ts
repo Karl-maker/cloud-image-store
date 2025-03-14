@@ -1,5 +1,5 @@
 export interface Persistent {
-    id: string;
+    id: string | null;
     createdAt: Date;
     updatedAt: Date;
 }

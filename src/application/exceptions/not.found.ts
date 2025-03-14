@@ -1,8 +1,7 @@
-export class NotFoundException extends Error {
-    code: number;
+import { HttpException } from "./http.exception";
 
+export class NotFoundException extends HttpException {
     constructor(message: string) {
-        super(message)
-        this.name = 'Not Found'
+        super('Not Found', message, 404)
     }
 }

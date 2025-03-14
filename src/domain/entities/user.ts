@@ -5,5 +5,6 @@ export interface User extends Persistent {
     last_name: string;
     email: string;
     hashPassword: string;
+    salt: string;
     confirmed: boolean;
 }
