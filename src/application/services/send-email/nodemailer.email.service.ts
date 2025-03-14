@@ -3,24 +3,31 @@ import nodemailer from "nodemailer";
 import handlebars from "handlebars";
 import path from "path";
 import fs from "fs";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
+import { COMPANY_DOMAIN, COMPANY_NAME } from "../../configuration";
+import { COOKIE_POLICY_PATH, PRIVACY_POLICY_PATH, TERMS_OF_SERVICES_PATH } from "../../../domain/constants/client.routes";
 
 export class SendEmail {
+
+    private transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo, SMTPTransport.Options> ;
+
     constructor(
         private emailService: string,
         private emailUser: string,
         private emailPass: string
-    ) {}
+    ) {
 
-    private transporter = nodemailer.createTransport({
-        service: this.emailService,
-        auth: {
-            user: this.emailUser,
-            pass: this.emailPass,
-        }
-    });
+        this.transporter = nodemailer.createTransport({
+            service: this.emailService,
+            auth: {
+                user: this.emailUser,
+                pass: this.emailPass,
+            }
+        });
+    }
 
     private async loadTemplate(templateName: string, content: any): Promise<string> {
-        // Using absolute paths for templates and partials
+
         const partialsDir = path.resolve("src/application/templates/partials"); // Absolute path to partials
         const templatesDir = path.resolve("src/application/templates/templates"); // Absolute path to templates
 
@@ -28,12 +35,12 @@ export class SendEmail {
         const footerSource = fs.readFileSync(path.join(partialsDir, "footer.hbs"), "utf-8");
         const templateSource = fs.readFileSync(path.join(templatesDir, `${templateName}.hbs`), "utf-8");
         const common = {
-            year: '2025',
-            companyName: '',
-            companyWebsite: '',
-            privacyPolicy: '',
-            termsOfServices: '',
-            cookiePolicy: ''
+            year: new Date().getFullYear(),
+            companyName: COMPANY_NAME,
+            companyWebsite: COMPANY_DOMAIN,
+            privacyPolicy: COMPANY_DOMAIN + PRIVACY_POLICY_PATH,
+            termsOfServices: COMPANY_DOMAIN + TERMS_OF_SERVICES_PATH,
+            cookiePolicy: COMPANY_DOMAIN + COOKIE_POLICY_PATH
         }
         const header = handlebars.compile(headerSource)({ ...common });
         const footer = handlebars.compile(footerSource)({ ...common });
