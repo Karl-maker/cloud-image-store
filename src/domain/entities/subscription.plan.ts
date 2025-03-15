@@ -5,6 +5,7 @@ export interface SubscriptionPlan extends Persistent {
     name: string;
     description: string;
     megabytes: number;
+    users: number;
     prices: Price [];
     features: Feature [];
 }       

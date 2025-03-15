@@ -4,9 +4,14 @@ import { PasswordService } from "../../application/services/password/password.se
 import { User } from "../entities/user";
 import { UserFilterBy, UserSortBy } from "../types/user";
 import { Usecases } from "./usecases";
+import { Repository } from "../repositories/repository";
+import { UserRepository } from "../repositories/user.repository";
 
-export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy> {
-    
+export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRepository> {
+    constructor (repository: UserRepository) {
+        super(repository);
+    }
+
     async mapCreateDtoToEntity(data: CreateUserDTO): Promise<User> {
 
         const hashResults = await PasswordService.hash(data.password);

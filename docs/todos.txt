@@ -1,0 +1,2 @@
+1. Ensure payment intent knows what space its going to
+2. If space not found on subscription creation then give refund / cancel

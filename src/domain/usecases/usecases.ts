@@ -6,8 +6,8 @@ import { Repository } from "../repositories/repository";
 import { FindParams } from "../types/repository";
 import { FindManyResponse } from "../types/usecase";
 
-export abstract class Usecases<Entity extends Persistent, SortByKeys, FilterByKeys> {
-    constructor (private repository: Repository<Entity, SortByKeys, FilterByKeys>) {}
+export abstract class Usecases<Entity extends Persistent, SortByKeys, FilterByKeys, R extends Repository<Entity, SortByKeys, FilterByKeys>> {
+    constructor (protected repository: R) {}
 
     async create <CreateDTO>(data: CreateDTO) : Promise<Entity> {
         const entity: Entity = await this.mapCreateDtoToEntity(data)

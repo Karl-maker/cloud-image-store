@@ -22,6 +22,7 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
             metadata: {
                 megabytes: plan.megabytes.toString(),
                 features: JSON.stringify(plan.features),
+                users: plan.users.toString(),
             },
         });
 
@@ -142,6 +143,7 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
             name: product.name,
             description: product.description ?? "",
             megabytes: parseInt(product.metadata.megabytes) || 0,
+            users: parseInt(product.metadata.users) || 1,
             features: JSON.parse(product.metadata.features || "[]") as Feature[],
             prices: prices.map((price) => ({
                 period: price.recurring?.interval as "day" | "week" | "month" | "year",
