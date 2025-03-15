@@ -131,6 +131,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
         })).data[0];
 
         if(!user) throw new NotFoundException('user not found');
+        if(user.lastPasswordUpdate && wasMinutesAgo(user.lastPasswordUpdate, 15)) throw new ValidationException('cannot recover right now');
 
         const config : TokenServiceConfiguration = {
             issuer: "recovery",

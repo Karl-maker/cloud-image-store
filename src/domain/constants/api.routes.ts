@@ -2,6 +2,7 @@ export const USER_PATH = '/user';
 export const USER_PARAM = 'user_id';
 export const USER_PARAM_PATH = '/' + USER_PARAM;
 export const CONFIRMATION_PATH = '/confirmation';
+export const RECOVER_PATH = '/recover';
 
 export const SPACE_PATH = '/space';
 export const SPACE_PARAM = 'space_id';

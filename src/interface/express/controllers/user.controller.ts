@@ -10,6 +10,7 @@ import { SendConfirmationEmailDTO } from '../../../domain/interfaces/presenters/
 import { VerifyConfirmationDTO } from '../../../domain/interfaces/presenters/dtos/verify.confirmation.dto';
 import { COMPANY_DOMAIN } from '../../../application/configuration';
 import { FAILED_CONFIRMATION, SUCCESSFUL_CONFIRMATION } from '../../../domain/constants/client.routes';
+import { RecoverUserDTO } from '../../../domain/interfaces/presenters/dtos/recover.user.dto';
 
 export class UserController {
     constructor(
@@ -71,8 +72,17 @@ export class UserController {
 
     async generateConfirmation (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
-            const results = await this.usecase.sendConfirmationEmail(req.body as SendConfirmationEmailDTO)
-            res.status(201).json(results);
+            await this.usecase.sendConfirmationEmail(req.body as SendConfirmationEmailDTO)
+            res.status(201);
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async generateRecover (req: Request, res: Response, next: NextFunction) : Promise<void>  {
+        try {
+            await this.usecase.recover(req.body as RecoverUserDTO)
+            res.status(201);
         } catch (error) {
             next(error)
         }
