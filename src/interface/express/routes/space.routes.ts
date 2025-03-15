@@ -9,12 +9,14 @@ import { SpaceUsecase } from "../../../domain/usecases/space.usecase";
 import { SpaceController } from "../controllers/space.controller";
 import { spaceFilterBySchema } from "../../../domain/interfaces/presenters/dtos/find.many.space.dto";
 import { updateSpaceSchema } from "../../../domain/interfaces/presenters/dtos/update.space.dto";
+import { createSpaceSchema } from "../../../domain/interfaces/presenters/dtos/create.space.dto";
 
 const router = express.Router();
 
 export const SpaceRoutes = (usecase: SpaceUsecase) => {
     const controller = new SpaceController(usecase);
 
+    router.post(SPACE_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateDTO(createSpaceSchema), controller.create.bind(controller)); 
     router.get(SPACE_PATH + SPACE_PARAM_PATH, controller.findById.bind(controller)); 
     router.get(SPACE_PATH, validateDTO(findManySchema.concat(spaceFilterBySchema)), controller.findMany.bind(controller)); 
     router.patch(SPACE_PATH + SPACE_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateDTO(updateSpaceSchema), controller.updateById.bind(controller));

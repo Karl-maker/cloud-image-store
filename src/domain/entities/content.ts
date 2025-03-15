@@ -8,6 +8,8 @@ export interface Content extends Persistent {
     location: string;
     uploadCompletion: number;
     uploadError?: string;
+    length?: number;
     spaceId: string;
+    size: number;
 }
 

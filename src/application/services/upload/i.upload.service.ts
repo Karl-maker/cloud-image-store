@@ -3,7 +3,7 @@ import { UploadServiceInput, UploadServiceResponse } from "../../../domain/types
 export default interface IUploadService {
     upload: (
         input: UploadServiceInput, 
-        cd: (err: Error | null, data?: UploadServiceResponse) => void, 
-        load?: (precentage?: number) => void
+        cd: (err: Error | null, data?: UploadServiceResponse) => Promise<void>, 
+        load?: (precentage?: number) => Promise<void>
     ) => Promise<void>
 }

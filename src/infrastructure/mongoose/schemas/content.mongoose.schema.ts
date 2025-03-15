@@ -17,6 +17,8 @@ export const ContentSchema = new Schema<ContentDocument>(
         uploadCompletion: { type: Number, required: true, default: 0 },
         uploadError: { type: String, required: false },
         spaceId: { type: String, required: true },
+        length: { type: Number, required: false },
+        size: { type: Number, required: true },
         clientId: { type: String, unique: true, default: () => generateUuid() }
     },
     { timestamps: true }

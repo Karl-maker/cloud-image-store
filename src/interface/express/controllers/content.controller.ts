@@ -1,11 +1,12 @@
 import { Response, Request, NextFunction } from 'express';
 import { eventBus } from '../../../infrastructure/event/event.bus';
-import { CONTENT_CREATED, CONTENT_DELETED, SPACE_DELETED } from '../../../domain/constants/event.names';
+import { CONTENT_CREATED, CONTENT_DELETED } from '../../../domain/constants/event.names';
 import { CONTENT_PARAM } from '../../../domain/constants/api.routes';
 import { UpdateSpaceDTO } from '../../../domain/interfaces/presenters/dtos/update.space.dto';
 import { ContentUsecase } from '../../../domain/usecases/content.usecase';
 import { CreateContentDTO } from '../../../domain/interfaces/presenters/dtos/create.content.dto';
 import { FindManyContentsDTO } from '../../../domain/interfaces/presenters/dtos/find.many.content.dto';
+import { UploadContentDTO } from '../../../domain/interfaces/presenters/dtos/upload.content.dto';
 
 export class ContentController {
     constructor(
@@ -17,6 +18,19 @@ export class ContentController {
             const content = await this.usecase.create(req.body as CreateContentDTO)
 
             eventBus.emit(CONTENT_CREATED, { content })
+
+            res.status(201);
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async upload (req: Request, res: Response, next: NextFunction) : Promise<void>  {
+        try {
+            await this.usecase.upload({
+                spaceId: (req.body as unknown as UploadContentDTO).spaceId,
+                files: req.files as Express.Multer.File[]
+            })
 
             res.status(201);
         } catch (error) {

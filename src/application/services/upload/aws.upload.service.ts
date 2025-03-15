@@ -17,8 +17,8 @@ export default class S3UploadService implements IUploadService {
 
     async upload(
         input: UploadServiceInput, 
-        cd: (err: Error | null, data?: UploadServiceResponse) => void,
-        load?: (percentage?: number) => void
+        cd: (err: Error | null, data?: UploadServiceResponse) => Promise<void>,
+        load?: (percentage?: number) => Promise<void>
     ): Promise<void> {
         const { fileBuffer, fileName, mimeType, metadata } = input;
         let length: number | undefined;
@@ -43,10 +43,10 @@ export default class S3UploadService implements IUploadService {
                 params,
             });
 
-            parallelUploads3.on("httpUploadProgress", (progress) => {
+            parallelUploads3.on("httpUploadProgress", async (progress) => {
                 if (load) {
                     const percentage = Math.round((progress.loaded! / progress.total!));
-                    load(percentage);
+                    await load(percentage);
                 }
             });
 
@@ -62,10 +62,10 @@ export default class S3UploadService implements IUploadService {
             };
 
             // Call the callback with the response data
-            cd(null, response);
+            await cd(null, response);
         } catch (error) {
             // Handle error and call callback with the error
-            cd(error as Error);
+            await cd(error as Error);
         }
     }
 
