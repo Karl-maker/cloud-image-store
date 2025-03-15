@@ -17,6 +17,7 @@ export const UserSchema = new Schema<UserDocument>(
         hashPassword: { type: String, required: true },
         salt: { type: String, required: true },
         confirmed: { type: Boolean, required: true, default: false },
+        lastPasswordUpdate: { type: Date, required: false }
     },
     { timestamps: true }
 );

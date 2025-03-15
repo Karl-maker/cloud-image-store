@@ -8,4 +8,5 @@ export interface User extends Persistent {
     salt: string;
     confirmed: boolean;
     stripeId: string | null;
+    lastPasswordUpdate?: Date;
 }

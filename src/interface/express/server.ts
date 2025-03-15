@@ -1,7 +1,7 @@
 import express, { ErrorRequestHandler } from "express";
 import authenticateClient from "./middlewares/authenticate.client.middleware";
 import { Database } from "../../application/configuration/mongodb";
-import { API_KEY_SECRET, COMPANY_DOMAIN, MONGO_URI, PORT } from "../../application/configuration";
+import { ACCESS_KEY_ID_AWS, API_KEY_SECRET, COMPANY_DOMAIN, MONGO_URI, PORT, REGION_AWS, S3_BUCKET_VIDEO_CONTENT_NAME_AWS, SECRET_ACCESS_KEY_AWS } from "../../application/configuration";
 import { JwtTokenService } from "../../application/services/token/jwt.token.service";
 import cors from 'cors';
 import helmet from 'helmet';
@@ -19,6 +19,9 @@ import { SpaceUsecase } from "../../domain/usecases/space.usecase";
 import { ContentUsecase } from "../../domain/usecases/content.usecase";
 import { ContentMongooseRepository } from "../../infrastructure/mongoose/repositories/content.mongoose.repository";
 import { ContentRepository } from "../../domain/repositories/content.repository";
+import IUploadService from "../../application/services/upload/i.upload.service";
+import S3UploadService from "../../application/services/upload/aws.upload.service";
+import { S3ClientConfig } from "@aws-sdk/client-s3";
 
 /**
  * @NOTE Add events here 
@@ -38,10 +41,24 @@ export const initializeServer = async () => {
     const userRepository : UserRepository = new UserMongooseRepository(connection);
     const spaceRepository : SpaceRepository = new SpaceMongooseRepository(connection);
     const contentRepository : ContentRepository = new ContentMongooseRepository(connection)
+
+    const s3Config: S3ClientConfig = {
+        region: REGION_AWS!,
+        credentials: {
+            accessKeyId: ACCESS_KEY_ID_AWS!,
+            secretAccessKey: SECRET_ACCESS_KEY_AWS!,
+        }
+    }
+    const bucketName = S3_BUCKET_VIDEO_CONTENT_NAME_AWS!;
+    const uploadService : IUploadService = new S3UploadService(s3Config, bucketName);
+
     const routes = new Routes(
         new UserUsecase(userRepository),
         new SpaceUsecase(spaceRepository),
-        new ContentUsecase(contentRepository)
+        new ContentUsecase(
+            contentRepository,
+            uploadService
+        )
     )
 
     const allowedOrigins = [

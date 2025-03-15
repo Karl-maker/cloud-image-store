@@ -6,6 +6,10 @@ import { eventBus } from '../../../infrastructure/event/event.bus';
 import { USER_CREATED, USER_DELETED } from '../../../domain/constants/event.names';
 import { UpdateUserDTO } from '../../../domain/interfaces/presenters/dtos/update.user.dto';
 import { USER_PARAM } from '../../../domain/constants/api.routes';
+import { SendConfirmationEmailDTO } from '../../../domain/interfaces/presenters/dtos/send.confirmation.email.dto';
+import { VerifyConfirmationDTO } from '../../../domain/interfaces/presenters/dtos/verify.confirmation.dto';
+import { COMPANY_DOMAIN } from '../../../application/configuration';
+import { FAILED_CONFIRMATION, SUCCESSFUL_CONFIRMATION } from '../../../domain/constants/client.routes';
 
 export class UserController {
     constructor(
@@ -62,6 +66,24 @@ export class UserController {
             res.status(200).json(results);
         } catch (error) {
             next(error)
+        }
+    }
+
+    async generateConfirmation (req: Request, res: Response, next: NextFunction) : Promise<void>  {
+        try {
+            const results = await this.usecase.sendConfirmationEmail(req.body as SendConfirmationEmailDTO)
+            res.status(201).json(results);
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async confirm (req: Request, res: Response, next: NextFunction) : Promise<void>  {
+        try {
+            await this.usecase.checkConfirmationToken(req.query as unknown as VerifyConfirmationDTO)
+            res.redirect(COMPANY_DOMAIN + SUCCESSFUL_CONFIRMATION)
+        } catch (error) {
+            res.redirect(COMPANY_DOMAIN + FAILED_CONFIRMATION)
         }
     }
 

@@ -4,11 +4,28 @@ import { PasswordService } from "../../application/services/password/password.se
 import { User } from "../entities/user";
 import { UserFilterBy, UserSortBy } from "../types/user";
 import { Usecases } from "./usecases";
-import { Repository } from "../repositories/repository";
 import { UserRepository } from "../repositories/user.repository";
+import { SendConfirmationEmailDTO } from "../interfaces/presenters/dtos/send.confirmation.email.dto";
+import { JwtTokenService } from "../../application/services/token/jwt.token.service";
+import { TokenServiceConfiguration } from "../types/token";
+import { dateToJwtExp } from "../../utils/jwt.time.util";
+import { NotFoundException } from "../../application/exceptions/not.found";
+import { COMPANY_DOMAIN, CONFIRMATION_SECRET, EMAIL_NO_REPLY_PASS, EMAIL_NO_REPLY_SERVICE, EMAIL_NO_REPLY_USER, MY_DOMAIN, TOKEN_SECRET } from "../../application/configuration";
+import { SendEmail } from "../../application/services/send-email/nodemailer.email.service";
+import { ConfirmationEmailContent, RecoveryEmailContent } from "../types/email";
+import { ConfirmationEmail } from "../entities/confirmation.email";
+import { Templates } from "../constants/templates";
+import { CONFIRMATION_PATH, USER_PATH } from "../constants/api.routes";
+import { VerifyConfirmationDTO } from "../interfaces/presenters/dtos/verify.confirmation.dto";
+import { RecoverUserDTO } from "../interfaces/presenters/dtos/recover.user.dto";
+import { RecoveryEmail } from "../entities/recovery.email";
+import { wasMinutesAgo } from "../../utils/x.mins.ago.util";
+import { ValidationException } from "../../application/exceptions/validation.exception";
 
 export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRepository> {
-    constructor (repository: UserRepository) {
+    constructor (
+        repository: UserRepository,
+    ) {
         super(repository);
     }
 
@@ -33,18 +50,124 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
     }
     async mapUpdateDtoToEntity(data: UpdateUserDTO, item: User): Promise<User> {
         if(data.password) {
+            if(item.lastPasswordUpdate && wasMinutesAgo(item.lastPasswordUpdate, 15)) throw new ValidationException('Cannot update password right not')
             const hashResults = await PasswordService.hash(data.password);
             delete data['password'];
             item.hashPassword = hashResults.pass;
             item.salt = hashResults.salt;
+            item.lastPasswordUpdate = new Date();
         }
-
 
         const user : User = {
             ...item
         }
 
         return user;
+    }
+    async sendConfirmationEmail(data: SendConfirmationEmailDTO): Promise<void> {
+            const user = await this.repository.findById(data.userId);
+
+            if(!user) throw new NotFoundException('user not found');
+
+            const config : TokenServiceConfiguration = {
+                issuer: "confirmation",
+                exp: (15 * 60) + dateToJwtExp(new Date()),
+                audience: 'cloud-photo-share'
+            }
+
+            const secret = CONFIRMATION_SECRET!
+
+            const confirmationToken = await new JwtTokenService().generate(
+                { userId: user.id! },
+                secret,
+                config
+            )
+
+            const content : ConfirmationEmailContent = {
+                link: `${MY_DOMAIN}/api/v1${USER_PATH}${CONFIRMATION_PATH}?token=` + confirmationToken,
+                name: user.first_name + " " + user.last_name,
+                expiresIn: "15 minutes"
+            }
+
+            const email : ConfirmationEmail = {
+                template: Templates.CONFIRMATION,
+                to: user.email,
+                from: EMAIL_NO_REPLY_USER!,
+                content,
+                subject: `Confirmation <${EMAIL_NO_REPLY_USER}>`,
+                id: null,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            }
+
+            await new SendEmail(
+                EMAIL_NO_REPLY_SERVICE!,
+                EMAIL_NO_REPLY_USER!,
+                EMAIL_NO_REPLY_PASS!
+            ).send(email);
+    }
+    async checkConfirmationToken(data: VerifyConfirmationDTO): Promise<void> {
+        const secret = CONFIRMATION_SECRET!
+
+        const payload = await new JwtTokenService<{ userId: string }>().validate(
+            data.token,
+            secret
+        )
+
+        const user = await this.repository.findById(payload.userId);
+        if(!user) throw new NotFoundException('no user found');
+
+        user.confirmed = true;
+
+        await this.repository.save(user);
+    }
+    async recover(data: RecoverUserDTO) : Promise<void> {
+        const user = (await this.repository.findMany({
+            filters: {
+                email: {
+                    exact: data.email
+                }
+            }
+        })).data[0];
+
+        if(!user) throw new NotFoundException('user not found');
+
+        const config : TokenServiceConfiguration = {
+            issuer: "recovery",
+            exp: (15 * 60) + dateToJwtExp(new Date()),
+            audience: 'cloud-photo-share'
+        }
+
+        const secret = TOKEN_SECRET!
+
+        const token = await new JwtTokenService().generate(
+            { id: user.id! },
+            secret,
+            config
+        )
+
+        const content : RecoveryEmailContent = {
+            link: `${COMPANY_DOMAIN}${CONFIRMATION_PATH}?token=` + token,
+            name: user.first_name + " " + user.last_name,
+            expiresIn: "15 minutes"
+        }
+
+        const email : RecoveryEmail = {
+            template: Templates.RECOVERY,
+            to: user.email,
+            from: EMAIL_NO_REPLY_USER!,
+            content,
+            subject: `Recover Password <${EMAIL_NO_REPLY_USER}>`,
+            id: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }
+
+        await new SendEmail(
+            EMAIL_NO_REPLY_SERVICE!,
+            EMAIL_NO_REPLY_USER!,
+            EMAIL_NO_REPLY_PASS!
+        ).send(email);
     }
     
 }

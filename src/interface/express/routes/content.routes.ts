@@ -2,7 +2,7 @@ import { CONTENT_PARAM_PATH, CONTENT_PATH, UPLOAD_PATH } from "../../../domain/c
 import authentication from "../middlewares/authentication.middleware";
 import { TOKEN_SECRET } from "../../../application/configuration";
 import { JwtTokenService } from "../../../application/services/token/jwt.token.service";
-import { validateDTO } from "../middlewares/validation.middleware";
+import { validateQueryDTO, validateBodyDTO } from "../middlewares/validation.middleware";
 import { findManySchema } from "../../../domain/interfaces/presenters/dtos/find.many.dto";
 import { ContentUsecase } from "../../../domain/usecases/content.usecase";
 import { ContentController } from "../controllers/content.controller";
@@ -20,10 +20,9 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
     const upload = multer({ storage: multer.memoryStorage() });
 
     router.get(CONTENT_PATH + CONTENT_PARAM_PATH, controller.findById.bind(controller)); 
-    router.get(CONTENT_PATH, validateDTO(findManySchema.concat(contentFilterBySchema)), controller.findMany.bind(controller)); 
-    router.patch(CONTENT_PATH + CONTENT_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateDTO(updateContentSchema), controller.updateById.bind(controller));
+    router.get(CONTENT_PATH, validateQueryDTO(findManySchema.concat(contentFilterBySchema)), controller.findMany.bind(controller)); 
+    router.patch(CONTENT_PATH + CONTENT_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateBodyDTO(updateContentSchema), controller.updateById.bind(controller));
     router.delete(CONTENT_PATH + CONTENT_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), controller.deleteById.bind(controller));
-
     router.post(CONTENT_PATH + UPLOAD_PATH, upload.array('files', 5), authentication(TOKEN_SECRET!, new JwtTokenService()), validateUploadEndpoint, controller.upload.bind(controller))
 
     return router;
