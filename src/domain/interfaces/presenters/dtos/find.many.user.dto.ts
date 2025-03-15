@@ -5,14 +5,14 @@ import Joi from "joi";
 export type FindManyUsersDTO = UserFilterBy & FindManyDTO<UserSortBy>;
 
 export const userFilterBySchema = Joi.object({
-    first_name: Joi.string().min(1).max(255).optional()
+    firstName: Joi.string().min(1).max(255).optional()
         .messages({
             "string.base": "first_name must be a string",
             "string.min": "first_name cannot be empty",
             "string.max": "first_name cannot exceed 255 characters"
         }),
 
-    last_name: Joi.string().min(1).max(255).optional()
+    lastName: Joi.string().min(1).max(255).optional()
         .messages({
             "string.base": "last_name must be a string",
             "string.min": "last_name cannot be empty",

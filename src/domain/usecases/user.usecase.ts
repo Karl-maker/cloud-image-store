@@ -17,8 +17,8 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
         const hashResults = await PasswordService.hash(data.password);
 
         const user : User = {
-            first_name: data.first_name,
-            last_name: data.last_name,
+            first_name: data.firstName,
+            last_name: data.lastName,
             email: data.email,
             hashPassword: hashResults.pass,
             confirmed: false,

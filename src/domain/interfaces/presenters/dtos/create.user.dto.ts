@@ -1,13 +1,13 @@
 import Joi from "joi";
 
 export const createUserSchema = Joi.object({
-    first_name: Joi.string().min(2).max(50).required().messages({
+    firstName: Joi.string().min(2).max(50).required().messages({
         "string.base": "First name must be a string",
         "string.empty": "First name is required",
         "string.min": "First name must be at least 2 characters",
         "any.required": "First name is required",
     }),
-    last_name: Joi.string().min(2).max(50).required().messages({
+    lastName: Joi.string().min(2).max(50).required().messages({
         "string.base": "Last name must be a string",
         "string.empty": "Last name is required",
         "string.min": "Last name must be at least 2 characters",
@@ -36,8 +36,8 @@ export const createUserSchema = Joi.object({
 
 
 export type CreateUserDTO = {
-    first_name: string;
-    last_name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     password: string;
 }
