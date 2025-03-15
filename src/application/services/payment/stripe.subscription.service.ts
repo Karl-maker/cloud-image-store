@@ -17,11 +17,13 @@ export class StripeSubscriptionService implements SubscriptionService {
      * @param planId - The ID of the subscription plan.
      * @returns A promise that resolves to the created subscription details.
      */
-    async createSubscription(customerId: string, planId: string): Promise<Subscription> {
+    async createSubscription(customerId: string, planId: string, trialDays?: number): Promise<Subscription> {
+        const trialEnd = trialDays ? Math.floor(Date.now() / 1000) + trialDays * 86400 : 'now';
         const stripeSubscription = await this.stripe.subscriptions.create({
             customer: customerId,
             items: [{ plan: planId }],
             expand: ['latest_invoice.payment_intent'],
+            trial_end: trialEnd
         });
 
         return this.mapStripeToSubscription(stripeSubscription);
@@ -160,6 +162,7 @@ export class StripeSubscriptionService implements SubscriptionService {
             autoRenew: stripeSubscription.cancel_at_period_end === false,
             createdAt: new Date(stripeSubscription.created * 1000),
             updatedAt: new Date(stripeSubscription.created * 1000),
+            trial: stripeSubscription.trial_end !== null ? new Date(stripeSubscription.trial_end * 1000) : undefined
         };
     }
 }

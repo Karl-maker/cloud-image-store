@@ -7,4 +7,5 @@ export interface Subscription extends Persistent {
     startDate: Date;
     endDate: Date;
     autoRenew: boolean;
+    trial?: Date;
 }

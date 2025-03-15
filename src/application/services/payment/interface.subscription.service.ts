@@ -7,7 +7,7 @@ export interface SubscriptionService {
      * @param planId - The ID of the subscription plan.
      * @returns A promise that resolves to the created subscription details.
      */
-    createSubscription(customerId: string, planId: string): Promise<Subscription>;
+    createSubscription(customerId: string, planId: string, trialDays?: number): Promise<Subscription>;
 
     /**
      * Pauses an active subscription.
