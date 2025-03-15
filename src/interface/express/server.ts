@@ -16,6 +16,9 @@ import { UserMongooseRepository } from "../../infrastructure/mongoose/repositori
 import { SpaceRepository } from "../../domain/repositories/space.repository";
 import { SpaceMongooseRepository } from "../../infrastructure/mongoose/repositories/space.mongoose.repository";
 import { SpaceUsecase } from "../../domain/usecases/space.usecase";
+import { ContentUsecase } from "../../domain/usecases/content.usecase";
+import { ContentMongooseRepository } from "../../infrastructure/mongoose/repositories/content.mongoose.repository";
+import { ContentRepository } from "../../domain/repositories/content.repository";
 
 /**
  * @NOTE Add events here 
@@ -34,10 +37,11 @@ export const initializeServer = async () => {
 
     const userRepository : UserRepository = new UserMongooseRepository(connection);
     const spaceRepository : SpaceRepository = new SpaceMongooseRepository(connection);
-
+    const contentRepository : ContentRepository = new ContentMongooseRepository(connection)
     const routes = new Routes(
         new UserUsecase(userRepository),
-        new SpaceUsecase(spaceRepository)
+        new SpaceUsecase(spaceRepository),
+        new ContentUsecase(contentRepository)
     )
 
     const allowedOrigins = [

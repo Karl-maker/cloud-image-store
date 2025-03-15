@@ -1,12 +1,9 @@
-import { CreateUserDTO } from "../../domain/interfaces/presenters/dtos/create.user.dto";
-import { UpdateUserDTO } from "../../domain/interfaces/presenters/dtos/update.user.dto";
-import { PasswordService } from "../../application/services/password/password.service";
-import { User } from "../entities/user";
 import { Usecases } from "./usecases";
 import { Content } from "../entities/content";
 import { ContentFilterBy, ContentSortBy } from "../types/content";
 import { ContentRepository } from "../repositories/content.repository";
 import { CreateContentDTO } from "../interfaces/presenters/dtos/create.content.dto";
+import { UpdateContentDTO } from "../interfaces/presenters/dtos/update.content.dto";
 
 export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilterBy, ContentRepository> {
     constructor (repository: ContentRepository) {
@@ -30,7 +27,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
 
         return content;
     }
-    async mapUpdateDtoToEntity(data: UpdateUserDTO, item: Content): Promise<Content> {
+    async mapUpdateDtoToEntity(data: UpdateContentDTO, item: Content): Promise<Content> {
 
         const content : Content = {
             ...item,
