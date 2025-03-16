@@ -1,6 +1,51 @@
 import { Express } from 'express';
 import Joi from 'joi';
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     UploadContentRequest:
+ *       type: object
+ *       properties:
+ *         spaceId:
+ *           type: string
+ *           description: The space ID where the file(s) will be uploaded.
+ *           example: "12345"
+ *         files:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               fieldname:
+ *                 type: string
+ *                 description: The name of the form field.
+ *               originalname:
+ *                 type: string
+ *                 description: The original name of the file.
+ *               encoding:
+ *                 type: string
+ *                 description: The encoding type of the file.
+ *               mimetype:
+ *                 type: string
+ *                 description: The MIME type of the file (must be an image or video).
+ *                 pattern: ^image\/.*$|^video\/.*$
+ *               size:
+ *                 type: integer
+ *                 description: The size of the file in bytes. The maximum allowed size is 100MB.
+ *                 example: 2048000
+ *               buffer:
+ *                 type: string
+ *                 description: The file data in binary format (base64 encoded).
+ *                 format: byte
+ *           minItems: 1
+ *           description: An array of files to be uploaded.
+ *       required:
+ *         - spaceId
+ *         - files
+ */
+
+
 export type UploadContentDTO = {
     files: Express.Multer.File[];
     spaceId: string;

@@ -1,5 +1,28 @@
 import Joi from "joi";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     UpdateUserRequest:
+ *       type: object
+ *       properties:
+ *         firstName:
+ *           type: string
+ *           description: The user's first name. Minimum length 2, maximum 50 characters.
+ *         lastName:
+ *           type: string
+ *           description: The user's last name. Minimum length 2, maximum 50 characters.
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: The user's email address. Must be a valid email format.
+ *         password:
+ *           type: string
+ *           description: The user's password. Minimum length 8, maximum 32 characters, must include at least one uppercase letter, one lowercase letter, one number, and one special character.
+ *       required: []
+ */
+
 export const updateUserSchema = Joi.object({
     firstName: Joi.string().min(2).max(50).optional().messages({
         "string.base": "First name must be a string",

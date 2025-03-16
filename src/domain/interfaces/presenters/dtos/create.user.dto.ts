@@ -1,5 +1,43 @@
 import Joi from "joi";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     CreateUserRequest:
+ *       type: object
+ *       properties:
+ *         firstName:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 50
+ *           description: First name of the user
+ *         lastName:
+ *           type: string
+ *           minLength: 2
+ *           maxLength: 50
+ *           description: Last name of the user
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: Email address of the user
+ *         password:
+ *           type: string
+ *           minLength: 8
+ *           maxLength: 32
+ *           description: >
+ *             User password. Must be at least 8 characters long and contain:
+ *             - One uppercase letter
+ *             - One lowercase letter
+ *             - One number
+ *             - One special character
+ *       required:
+ *         - firstName
+ *         - lastName
+ *         - email
+ *         - password
+ */
+
 export const createUserSchema = Joi.object({
     firstName: Joi.string().min(2).max(50).required().messages({
         "string.base": "First name must be a string",

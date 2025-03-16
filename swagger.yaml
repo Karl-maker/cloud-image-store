@@ -11,6 +11,68 @@ components:
       name: x-api-key
       description: API key needed to access endpoints
   schemas:
+    Content:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the content
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the content was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the content was last updated
+        name:
+          type: string
+          description: Name of the content
+        description:
+          type: string
+          nullable: true
+          description: Optional description of the content
+        key:
+          type: string
+          description: Unique storage key for the content in the storage provider
+        mimeType:
+          type: string
+          description: MIME type of the content (e.g., image/png, video/mp4)
+        location:
+          type: string
+          description: URL or storage location of the content
+        uploadCompletion:
+          type: number
+          description: Upload progress percentage (0 to 100)
+        uploadError:
+          type: string
+          nullable: true
+          description: Error message if the upload fails
+        length:
+          type: number
+          nullable: true
+          description: >-
+            Length of the content (e.g., duration for videos, pages for
+            documents)
+        spaceId:
+          type: string
+          format: uuid
+          description: The ID of the space to which this content belongs
+        size:
+          type: number
+          description: Size of the content in bytes
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - name
+        - key
+        - mimeType
+        - location
+        - uploadCompletion
+        - spaceId
+        - size
     Space:
       type: object
       properties:
@@ -173,6 +235,242 @@ components:
         - last_name
         - email
         - confirmed
+    CreateSpaceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Name of the space
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+          description: Optional description of the space
+        createdByUserId:
+          type: string
+          format: uuid
+          description: ID of the user creating the space
+      required:
+        - name
+        - createdByUserId
+    CreateUserRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: First name of the user
+        lastName:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: Last name of the user
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+        password:
+          type: string
+          minLength: 8
+          maxLength: 32
+          description: >
+            User password. Must be at least 8 characters long and contain: - One
+            uppercase letter - One lowercase letter - One number - One special
+            character
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+    ContentFilterRequest:
+      type: object
+      properties:
+        spaceId:
+          type: string
+          description: Optional space ID to filter content
+        mimeType:
+          type: string
+          description: Optional MIME type to filter content
+    FindManyRequest:
+      type: object
+      properties:
+        page_size:
+          type: integer
+          minimum: 1
+          description: Number of items per page (must be at least 1)
+        page_number:
+          type: integer
+          minimum: 1
+          description: The page number to fetch (must be at least 1)
+        order:
+          type: string
+          enum:
+            - asc
+            - desc
+          description: Sort order (ascending or descending)
+        by:
+          type: string
+          description: The field to sort by
+      required:
+        - page_size
+        - page_number
+        - order
+    SpaceFilterRequest:
+      type: object
+      properties:
+        userIds:
+          type: string
+          description: Optional user ID(s) to filter spaces
+        createdByUserId:
+          type: string
+          description: Optional creator user ID to filter spaces
+        subscriptionPlanId:
+          type: string
+          description: Optional subscription plan ID to filter spaces
+    UserFilterRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: Optional first name to filter users
+        lastName:
+          type: string
+          description: Optional last name to filter users
+        email:
+          type: string
+          format: email
+          description: Optional email to filter users
+        confirmed:
+          type: boolean
+          description: Optional flag to filter users based on confirmation status
+    RecoverUserRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address of the user requesting account recovery.
+    SendConfirmationEmailRequest:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+          description: The ID of the user to whom the confirmation email will be sent.
+    UpdateContentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the content. Maximum length of 255 characters.
+        description:
+          type: string
+          description: A description of the content. Maximum length of 1000 characters.
+        spaceId:
+          type: integer
+          description: The ID of the space associated with the content.
+      required: []
+    UpdateSpaceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the space. Maximum length of 255 characters.
+        description:
+          type: string
+          description: A description of the space. Maximum length of 1000 characters.
+        totalMegabytes:
+          type: integer
+          description: The total allocated megabytes for the space. Positive integer.
+        usedMegabytes:
+          type: integer
+          description: The used megabytes in the space. Must be a non-negative integer.
+        subscriptionPlanId:
+          type: string
+          format: uuid
+          description: The UUID of the subscription plan associated with the space.
+        userIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: List of user IDs associated with the space.
+      required: []
+    UpdateUserRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: The user's first name. Minimum length 2, maximum 50 characters.
+        lastName:
+          type: string
+          description: The user's last name. Minimum length 2, maximum 50 characters.
+        email:
+          type: string
+          format: email
+          description: The user's email address. Must be a valid email format.
+        password:
+          type: string
+          description: >-
+            The user's password. Minimum length 8, maximum 32 characters, must
+            include at least one uppercase letter, one lowercase letter, one
+            number, and one special character.
+      required: []
+    UploadContentRequest:
+      type: object
+      properties:
+        spaceId:
+          type: string
+          description: The space ID where the file(s) will be uploaded.
+          example: '12345'
+        files:
+          type: array
+          items:
+            type: object
+            properties:
+              fieldname:
+                type: string
+                description: The name of the form field.
+              originalname:
+                type: string
+                description: The original name of the file.
+              encoding:
+                type: string
+                description: The encoding type of the file.
+              mimetype:
+                type: string
+                description: The MIME type of the file (must be an image or video).
+                pattern: ^image\/.*$|^video\/.*$
+              size:
+                type: integer
+                description: >-
+                  The size of the file in bytes. The maximum allowed size is
+                  100MB.
+                example: 2048000
+              buffer:
+                type: string
+                description: The file data in binary format (base64 encoded).
+                format: byte
+          minItems: 1
+          description: An array of files to be uploaded.
+      required:
+        - spaceId
+        - files
+    VerifyConfirmationRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          description: The confirmation token that needs to be verified.
+          example: abcd1234
+      required:
+        - token
     Price:
       type: object
       properties:

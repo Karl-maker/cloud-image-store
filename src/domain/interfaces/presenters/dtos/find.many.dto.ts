@@ -1,6 +1,34 @@
 import Joi from "joi";
 import { SortOrder } from "../../../../domain/types/repository";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     FindManyRequest:
+ *       type: object
+ *       properties:
+ *         page_size:
+ *           type: integer
+ *           minimum: 1
+ *           description: Number of items per page (must be at least 1)
+ *         page_number:
+ *           type: integer
+ *           minimum: 1
+ *           description: The page number to fetch (must be at least 1)
+ *         order:
+ *           type: string
+ *           enum: [asc, desc]
+ *           description: Sort order (ascending or descending)
+ *         by:
+ *           type: string
+ *           description: The field to sort by
+ *       required:
+ *         - page_size
+ *         - page_number
+ *         - order
+ */
+
 export type FindManyDTO<SortByKeys> = {
     page_size: number;
     page_number: number;
