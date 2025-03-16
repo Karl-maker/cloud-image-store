@@ -6,10 +6,7 @@ import { eventBus } from '../../../infrastructure/event/event.bus';
 import { USER_CREATED, USER_DELETED } from '../../../domain/constants/event.names';
 import { UpdateUserDTO } from '../../../domain/interfaces/presenters/dtos/update.user.dto';
 import { USER_PARAM } from '../../../domain/constants/api.routes';
-import { SendConfirmationEmailDTO } from '../../../domain/interfaces/presenters/dtos/send.confirmation.email.dto';
 import { VerifyConfirmationDTO } from '../../../domain/interfaces/presenters/dtos/verify.confirmation.dto';
-import { COMPANY_DOMAIN } from '../../../application/configuration';
-import { FAILED_CONFIRMATION, SUCCESSFUL_CONFIRMATION } from '../../../domain/constants/client.routes';
 import { RecoverUserDTO } from '../../../domain/interfaces/presenters/dtos/recover.user.dto';
 import { LoginUserDTO } from '../../../domain/interfaces/presenters/dtos/login.user.dto';
 

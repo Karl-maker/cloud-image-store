@@ -17,4 +17,9 @@ export const UPLOAD_PATH = '/upload'
 export const AUTH_PATH = '/auth'
 
 export const STRIPE_PATH = '/stripe';
+export const WEBHOOK_PATH = '/webhook';
 export const PAYMENT_LINK_PATH = '/payment-link';
+export const SUBSCRIPTION_PLAN_PATH = '/subscription-plan';
+export const UPGRADE_PATH = '/upgrade'
+export const DOWNGRADE_PATH = '/downgrade'
+export const CANCEL_PATH = '/cancel'
