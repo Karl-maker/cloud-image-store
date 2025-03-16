@@ -9,14 +9,13 @@ export class StripePaymentLinkService implements PaymentLinkService {
         this.stripe = stripe;
     }
 
-    async generateLink(priceId: string, user: User): Promise<string> {
+    async generateLink(priceId: string, spaceId: string): Promise<string> {
         try {
             const paymentLink = await this.stripe.paymentLinks.create({
                 line_items: [{ price: priceId, quantity: 1 }],
                 payment_intent_data: {
                     metadata: {
-                        user: user.id,
-                        email: user.email
+                        space_id: spaceId
                     }
                 }
             });

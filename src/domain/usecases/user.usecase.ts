@@ -15,13 +15,14 @@ import { SendEmail } from "../../application/services/send-email/nodemailer.emai
 import { ConfirmationEmailContent, RecoveryEmailContent } from "../types/email";
 import { ConfirmationEmail } from "../entities/confirmation.email";
 import { Templates } from "../constants/templates";
-import { CONFIRMATION_PATH, USER_PATH } from "../constants/api.routes";
+import { USER_PATH } from "../constants/api.routes";
 import { VerifyConfirmationDTO } from "../interfaces/presenters/dtos/verify.confirmation.dto";
 import { RecoverUserDTO } from "../interfaces/presenters/dtos/recover.user.dto";
 import { RecoveryEmail } from "../entities/recovery.email";
 import { wasMinutesAgo } from "../../utils/x.mins.ago.util";
 import { ValidationException } from "../../application/exceptions/validation.exception";
 import { LoginUserDTO } from "../interfaces/presenters/dtos/login.user.dto";
+import { CONFIRMATION_PATH, RECOVERY_PATH } from "../constants/client.routes";
 
 export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRepository> {
     constructor (
@@ -85,7 +86,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
             )
 
             const content : ConfirmationEmailContent = {
-                link: `${MY_DOMAIN}/api/v1${USER_PATH}${CONFIRMATION_PATH}?token=` + confirmationToken,
+                link: `${COMPANY_DOMAIN}${CONFIRMATION_PATH}?token=` + confirmationToken,
                 name: user.first_name + " " + user.last_name,
                 expiresIn: "15 minutes"
             }
@@ -149,7 +150,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
         )
 
         const content : RecoveryEmailContent = {
-            link: `${COMPANY_DOMAIN}${CONFIRMATION_PATH}?token=` + token,
+            link: `${COMPANY_DOMAIN}${RECOVERY_PATH}?token=` + token,
             name: user.first_name + " " + user.last_name,
             expiresIn: "15 minutes"
         }

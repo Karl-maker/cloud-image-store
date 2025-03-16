@@ -1,6 +1,7 @@
 export const USER_PATH = '/user';
 export const USER_PARAM = 'user_id';
 export const USER_PARAM_PATH = '/' + USER_PARAM;
+export const SEND_CONFIRMATION_PATH = '/send-confirmation';
 export const CONFIRMATION_PATH = '/confirmation';
 export const RECOVER_PATH = '/recover';
 
@@ -14,3 +15,6 @@ export const CONTENT_PARAM_PATH = '/' + CONTENT_PARAM;
 
 export const UPLOAD_PATH = '/upload'
 export const AUTH_PATH = '/auth'
+
+export const STRIPE_PATH = '/stripe';
+export const PAYMENT_LINK_PATH = '/payment-link';

@@ -37,7 +37,7 @@ export class UserController {
 
             eventBus.emit(USER_DELETED, { user })
 
-            res.status(201);
+            res.status(204);
         } catch (error) {
             next(error)
         }
@@ -73,7 +73,10 @@ export class UserController {
 
     async generateConfirmation (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
-            await this.usecase.sendConfirmationEmail(req.body as SendConfirmationEmailDTO)
+            const user = (req as any).user?.id
+            await this.usecase.sendConfirmationEmail({
+                userId: user
+            })
             res.status(201);
         } catch (error) {
             next(error)
@@ -92,9 +95,9 @@ export class UserController {
     async confirm (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
             await this.usecase.checkConfirmationToken(req.query as unknown as VerifyConfirmationDTO)
-            res.redirect(COMPANY_DOMAIN + SUCCESSFUL_CONFIRMATION)
+            res.status(201)
         } catch (error) {
-            res.redirect(COMPANY_DOMAIN + FAILED_CONFIRMATION)
+            next(error)
         }
     }
 

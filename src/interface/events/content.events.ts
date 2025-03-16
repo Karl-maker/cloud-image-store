@@ -26,4 +26,4 @@ eventBus.on<{ content: Content }>(CONTENT_DELETED, async ({ content } : { conten
 
     }
 
-})
+});

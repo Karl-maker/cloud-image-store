@@ -78,7 +78,7 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
 
     /**
      * @swagger
-     * /content/:
+     * /content:
      *   get:
      *     tags:
      *       - Content

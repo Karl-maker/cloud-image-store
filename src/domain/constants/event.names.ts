@@ -6,3 +6,5 @@ export const SPACE_DELETED = 'space_deleted';
 
 export const CONTENT_CREATED = 'content_created';
 export const CONTENT_DELETED = 'content_deleted';
+
+export const PAYMENT_INTENT_SUCCEEDED = 'payment_intent.succeeded';

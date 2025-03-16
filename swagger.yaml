@@ -313,14 +313,6 @@ components:
           type: string
           format: email
           description: The email address of the user requesting account recovery.
-    SendConfirmationEmailRequest:
-      type: object
-      required:
-        - userId
-      properties:
-        userId:
-          type: string
-          description: The ID of the user to whom the confirmation email will be sent.
     UpdateContentRequest:
       type: object
       properties:
@@ -601,7 +593,7 @@ paths:
                   message:
                     type: string
                     example: Internal server error
-  /content/:
+  /content:
     get:
       tags:
         - Content
@@ -1041,6 +1033,43 @@ paths:
                     example: Internal server error
       security:
         - BearerAuth: []
+  /user/confirmation:
+    post:
+      tags:
+        - User
+      summary: Verify user confirmation
+      description: Verifies a user's confirmation using a token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyConfirmationRequest'
+      responses:
+        '201':
+          description: Confirmation verified successfully. No content returned.
+        '400':
+          description: Invalid or missing token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid or missing token.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+      security:
+        - BearerAuth: []
   /user/{user_id}:
     get:
       tags:
@@ -1083,6 +1112,120 @@ paths:
                     example: Internal server error
       security:
         - BearerAuth: []
+    patch:
+      tags:
+        - User
+      summary: Update user by ID
+      description: Updates user details for the specified user ID.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the user to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: Successfully updated user details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid request body.
+        '401':
+          description: Unauthorized - missing or invalid token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized.
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error.
+    delete:
+      tags:
+        - User
+      summary: Delete user by ID
+      description: Permanently deletes the specified user.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the user to delete.
+      responses:
+        '204':
+          description: User successfully deleted. No content returned.
+        '401':
+          description: Unauthorized - missing or invalid token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized.
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error.
   /user:
     get:
       tags:
@@ -1199,6 +1342,179 @@ paths:
                     example: Internal server error
       security:
         - BearerAuth: []
+    post:
+      tags:
+        - User
+      summary: Register a new user
+      description: Creates a new user in the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Successfully registered the user, no content returned.
+        '400':
+          description: Bad request, invalid input.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid input data
+        '409':
+          description: Conflict, user already exists.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User already exists
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+  /user/recover:
+    post:
+      tags:
+        - User
+      summary: Recover user account
+      description: Initiates the user account recovery process.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecoverUserRequest'
+      responses:
+        '201':
+          description: Recovery request accepted. No content returned.
+        '400':
+          description: Invalid or missing request parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid request parameters.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+  /user/auth:
+    post:
+      tags:
+        - User
+      summary: Authenticate user
+      description: Logs in a user and returns an access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginUserRequest'
+      responses:
+        '200':
+          description: Successfully authenticated user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '400':
+          description: Invalid credentials or missing parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid email or password.
+        '401':
+          description: Unauthorized - incorrect credentials.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error.
+  /user/send-confirmation:
+    post:
+      tags:
+        - User
+      summary: Send confirmation email
+      description: Sends a confirmation email to the user.
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Confirmation email sent successfully.
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid email format.
+        '401':
+          description: Unauthorized - missing or invalid token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error.
 tags:
   - name: Content
     description: Endpoints related to content management and actions
