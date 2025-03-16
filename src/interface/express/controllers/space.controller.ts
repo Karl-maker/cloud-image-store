@@ -14,11 +14,12 @@ export class SpaceController {
     
     async create (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
-            const space = await this.usecase.create(req.body as CreateSpaceDTO)
+            const user_id = (req as any).user?.id;
+            const space = await this.usecase.create({ ...req.body as CreateSpaceDTO, createdByUserId: user_id })
 
             eventBus.emit(SPACE_CREATED, { space })
 
-            res.status(201);
+            res.status(201).json(space);
         } catch (error) {
             next(error)
         }
@@ -41,7 +42,7 @@ export class SpaceController {
         try {
             const space = await this.usecase.update(req.params[SPACE_PARAM], req.body as UpdateSpaceDTO)
 
-            res.status(200).json({ data: space });
+            res.status(200).json(space);
         } catch (error) {
             next(error)
         }

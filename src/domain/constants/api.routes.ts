@@ -13,3 +13,4 @@ export const CONTENT_PARAM = 'content_id';
 export const CONTENT_PARAM_PATH = '/' + CONTENT_PARAM;
 
 export const UPLOAD_PATH = '/upload'
+export const AUTH_PATH = '/auth'

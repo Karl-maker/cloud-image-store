@@ -5,13 +5,18 @@ info:
   description: RESTful API Docs
 components:
   securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token authentication
     ApiKeyAuth:
       type: apiKey
       in: header
       name: x-api-key
       description: API key needed to access endpoints
   schemas:
-    Content:
+    ContentResponse:
       type: object
       properties:
         id:
@@ -73,7 +78,7 @@ components:
         - uploadCompletion
         - spaceId
         - size
-    Space:
+    SpaceResponse:
       type: object
       properties:
         id:
@@ -143,7 +148,7 @@ components:
         - usersAllowed
         - usedMegabytes
         - totalMegabytes
-    SubscriptionPlan:
+    SubscriptionPlanResponse:
       type: object
       properties:
         id:
@@ -190,7 +195,7 @@ components:
         - users
         - prices
         - features
-    User:
+    UserResponse:
       type: object
       properties:
         id:
@@ -248,10 +253,6 @@ components:
           maxLength: 1000
           nullable: true
           description: Optional description of the space
-        createdByUserId:
-          type: string
-          format: uuid
-          description: ID of the user creating the space
       required:
         - name
         - createdByUserId
@@ -285,67 +286,24 @@ components:
         - lastName
         - email
         - password
-    ContentFilterRequest:
+    LoginUserRequest:
       type: object
       properties:
-        spaceId:
-          type: string
-          description: Optional space ID to filter content
-        mimeType:
-          type: string
-          description: Optional MIME type to filter content
-    FindManyRequest:
-      type: object
-      properties:
-        page_size:
-          type: integer
-          minimum: 1
-          description: Number of items per page (must be at least 1)
-        page_number:
-          type: integer
-          minimum: 1
-          description: The page number to fetch (must be at least 1)
-        order:
-          type: string
-          enum:
-            - asc
-            - desc
-          description: Sort order (ascending or descending)
-        by:
-          type: string
-          description: The field to sort by
-      required:
-        - page_size
-        - page_number
-        - order
-    SpaceFilterRequest:
-      type: object
-      properties:
-        userIds:
-          type: string
-          description: Optional user ID(s) to filter spaces
-        createdByUserId:
-          type: string
-          description: Optional creator user ID to filter spaces
-        subscriptionPlanId:
-          type: string
-          description: Optional subscription plan ID to filter spaces
-    UserFilterRequest:
-      type: object
-      properties:
-        firstName:
-          type: string
-          description: Optional first name to filter users
-        lastName:
-          type: string
-          description: Optional last name to filter users
         email:
           type: string
           format: email
-          description: Optional email to filter users
-        confirmed:
-          type: boolean
-          description: Optional flag to filter users based on confirmation status
+          description: Email address of the user
+        password:
+          type: string
+          minLength: 8
+          maxLength: 32
+          description: >
+            User password. Must be at least 8 characters long and contain: - One
+            uppercase letter - One lowercase letter - One number - One special
+            character
+      required:
+        - email
+        - password
     RecoverUserRequest:
       type: object
       required:
@@ -385,16 +343,6 @@ components:
         description:
           type: string
           description: A description of the space. Maximum length of 1000 characters.
-        totalMegabytes:
-          type: integer
-          description: The total allocated megabytes for the space. Positive integer.
-        usedMegabytes:
-          type: integer
-          description: The used megabytes in the space. Must be a non-negative integer.
-        subscriptionPlanId:
-          type: string
-          format: uuid
-          description: The UUID of the subscription plan associated with the space.
         userIds:
           type: array
           items:
@@ -512,10 +460,745 @@ components:
         - name
         - included
 security:
-  - ApiKeyAuth: []
+  - BearerAuth: []
+    ApiKeyAuth: []
 servers:
   - url: /api/v1
-paths: {}
+paths:
+  /content/{content_id}:
+    get:
+      tags:
+        - Content
+      summary: Get content by ID
+      description: Retrieve the content details by the specified content ID.
+      parameters:
+        - in: path
+          name: content_id
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the content to retrieve.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved content details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentResponse'
+        '404':
+          description: Content not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Content not found
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+    patch:
+      tags:
+        - Content
+      summary: Update content by ID
+      description: Update the details of a specific content by its content ID.
+      parameters:
+        - in: path
+          name: content_id
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the content to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContentRequest'
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successfully updated content details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentResponse'
+        '400':
+          description: Invalid request body or missing parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid content data
+        '404':
+          description: Content not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Content not found
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+    delete:
+      tags:
+        - Content
+      summary: Delete content by ID
+      description: Delete the content with the specified content ID.
+      parameters:
+        - in: path
+          name: content_id
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the content to delete.
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Successfully deleted content. No content returned.
+        '404':
+          description: Content not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Content not found
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+  /content/:
+    get:
+      tags:
+        - Content
+      summary: Find multiple contents with filters and pagination
+      description: Retrieve a list of contents with pagination and filtering options.
+      parameters:
+        - in: query
+          name: page_size
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The number of items per page.
+        - in: query
+          name: page_number
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The page number to retrieve.
+        - in: query
+          name: order
+          required: true
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: The order in which to sort the results (ascending or descending).
+        - in: query
+          name: by
+          required: true
+          schema:
+            type: string
+          description: The field by which to sort the results.
+        - in: query
+          name: spaceId
+          schema:
+            type: string
+          description: Filter content by space ID.
+        - in: query
+          name: mimeType
+          schema:
+            type: string
+          description: Filter content by MIME type.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved a list of contents.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ContentResponse'
+                  pagination:
+                    type: object
+                    properties:
+                      totalItems:
+                        type: integer
+                        example: 100
+                      totalPages:
+                        type: integer
+                        example: 10
+                      currentPage:
+                        type: integer
+                        example: 1
+                      pageSize:
+                        type: integer
+                        example: 10
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid query parameters
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+  /content/upload:
+    post:
+      tags:
+        - Content
+      summary: Upload multiple content files (images or videos)
+      description: >-
+        Upload multiple files (images or videos) to the specified space. The
+        files should be sent via form-data with the key 'files'.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: The files to upload (multiple files).
+                  required: true
+                spaceId:
+                  type: string
+                  description: The ID of the space where the content will be uploaded.
+                  required: true
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Successfully uploaded the content files with no content returned.
+        '400':
+          description: Bad request, invalid files or missing spaceId.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid file types or missing spaceId
+        '401':
+          description: Unauthorized, invalid or missing authentication token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+  /space:
+    post:
+      tags:
+        - Space
+      summary: Create a new space
+      description: >-
+        Create a new space using the provided data. Returns the details of the
+        newly created space.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSpaceRequest'
+      responses:
+        '201':
+          description: Successfully created the space.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpaceResponse'
+        '400':
+          description: Bad request, missing or invalid data in the request body.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid data provided
+        '401':
+          description: Unauthorized, invalid or missing authentication token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+      security:
+        - BearerAuth: []
+    get:
+      tags:
+        - Space
+      summary: Get multiple spaces with filters and pagination
+      description: >-
+        Retrieve a list of spaces with the ability to filter and paginate the
+        results.
+      parameters:
+        - in: query
+          name: page_size
+          required: true
+          schema:
+            type: integer
+          description: The number of spaces per page for pagination.
+        - in: query
+          name: page_number
+          required: true
+          schema:
+            type: integer
+          description: The page number for pagination.
+        - in: query
+          name: order
+          required: true
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          description: The sort order. Can be `asc` (ascending) or `desc` (descending).
+        - in: query
+          name: by
+          required: true
+          schema:
+            type: string
+            enum:
+              - createdAt
+              - name
+              - totalMegabytes
+              - usedMegabytes
+          description: >-
+            The field by which to sort the spaces. Options are `createdAt`,
+            `name`, `totalMegabytes`, or `usedMegabytes`.
+        - in: query
+          name: userIds
+          required: false
+          schema:
+            type: string
+          description: A comma-separated list of user IDs to filter spaces by.
+        - in: query
+          name: createdByUserId
+          required: false
+          schema:
+            type: string
+          description: The user ID that created the space.
+        - in: query
+          name: subscriptionPlanId
+          required: false
+          schema:
+            type: string
+          description: The subscription plan ID associated with the space.
+      responses:
+        '200':
+          description: Successfully retrieved list of spaces.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SpaceResponse'
+                  pagination:
+                    type: object
+                    properties:
+                      totalItems:
+                        type: integer
+                      totalPages:
+                        type: integer
+                      currentPage:
+                        type: integer
+                      pageSize:
+                        type: integer
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+      security:
+        - BearerAuth: []
+  /space/{space_id}:
+    get:
+      tags:
+        - Space
+      summary: Get space by ID
+      description: Retrieve the details of a space by the specified space ID.
+      parameters:
+        - in: path
+          name: space_id
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the space to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved space details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpaceResponse'
+        '404':
+          description: Space not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Space not found
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+      security:
+        - BearerAuth: []
+    patch:
+      tags:
+        - Space
+      summary: Update space details by ID
+      description: Update the details of an existing space by its ID.
+      parameters:
+        - in: path
+          name: space_id
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the space to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSpaceRequest'
+      responses:
+        '200':
+          description: Successfully updated space details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpaceResponse'
+        '400':
+          description: Bad request due to invalid input.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid request body
+        '404':
+          description: Space not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Space not found
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+      security:
+        - BearerAuth: []
+    delete:
+      tags:
+        - Space
+      summary: Delete space by ID
+      description: Delete the space with the specified `space_id`.
+      parameters:
+        - in: path
+          name: space_id
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the space to delete.
+      responses:
+        '204':
+          description: Successfully deleted the space. No content is returned.
+        '404':
+          description: Space not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Space not found
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+      security:
+        - BearerAuth: []
+  /user/{user_id}:
+    get:
+      tags:
+        - User
+      summary: Get user by ID
+      description: Retrieve the details of a user by their unique `user_id`.
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the user to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved user details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+      security:
+        - BearerAuth: []
+  /user:
+    get:
+      tags:
+        - User
+      summary: Get multiple users
+      description: Retrieve a list of users with optional filters, pagination, and sorting.
+      parameters:
+        - in: query
+          name: page_size
+          required: true
+          schema:
+            type: integer
+            example: 10
+          description: Number of users per page.
+        - in: query
+          name: page_number
+          required: true
+          schema:
+            type: integer
+            example: 1
+          description: The page number to retrieve.
+        - in: query
+          name: order
+          required: true
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            example: asc
+          description: Sorting order (either ascending or descending).
+        - in: query
+          name: by
+          required: true
+          schema:
+            type: string
+            enum:
+              - firstName
+              - lastName
+              - email
+              - confirmed
+            example: firstName
+          description: Field to sort by.
+        - in: query
+          name: firstName
+          required: false
+          schema:
+            type: string
+            example: John
+          description: Filter users by first name.
+        - in: query
+          name: lastName
+          required: false
+          schema:
+            type: string
+            example: Doe
+          description: Filter users by last name.
+        - in: query
+          name: email
+          required: false
+          schema:
+            type: string
+            example: john.doe@example.com
+          description: Filter users by email.
+        - in: query
+          name: confirmed
+          required: false
+          schema:
+            type: boolean
+            example: true
+          description: Filter users by confirmation status.
+      responses:
+        '200':
+          description: Successfully retrieved a list of users.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserResponse'
+                  pagination:
+                    type: object
+                    properties:
+                      totalItems:
+                        type: integer
+                      totalPages:
+                        type: integer
+                      currentPage:
+                        type: integer
+                      pageSize:
+                        type: integer
+        '400':
+          description: Invalid input parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid input parameters
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+      security:
+        - BearerAuth: []
 tags:
   - name: Content
     description: Endpoints related to content management and actions

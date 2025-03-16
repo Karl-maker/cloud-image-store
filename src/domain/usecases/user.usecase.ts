@@ -21,6 +21,7 @@ import { RecoverUserDTO } from "../interfaces/presenters/dtos/recover.user.dto";
 import { RecoveryEmail } from "../entities/recovery.email";
 import { wasMinutesAgo } from "../../utils/x.mins.ago.util";
 import { ValidationException } from "../../application/exceptions/validation.exception";
+import { LoginUserDTO } from "../interfaces/presenters/dtos/login.user.dto";
 
 export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRepository> {
     constructor (
@@ -170,5 +171,36 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
             EMAIL_NO_REPLY_PASS!
         ).send(email);
     }
+    async login(data: LoginUserDTO) : Promise<{
+        accessToken: string;
+    }> {
+        const user = (await this.repository.findMany({
+            filters: {
+                email: {
+                    exact: data.email
+                }
+            }
+        })).data[0];
+
+        if(!user) throw new NotFoundException('user not found');
+        if(!await PasswordService.compare(data.password, user.hashPassword, user.salt)) throw new ValidationException('invalid email or password')
+        
+        const config : TokenServiceConfiguration = {
+            issuer: "auth",
+            exp: (60 * 60 * 24 * 30) + dateToJwtExp(new Date()),
+            audience: 'cloud-photo-share'
+        }
     
+        const secret = TOKEN_SECRET!
+    
+        const token = await new JwtTokenService().generate(
+            { id: user.id! },
+            secret,
+            config
+        )
+
+        return {
+            accessToken: token
+        }
+    }
 }

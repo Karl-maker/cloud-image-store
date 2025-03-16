@@ -17,10 +17,6 @@ import Joi from 'joi';
  *           maxLength: 1000
  *           nullable: true
  *           description: Optional description of the space
- *         createdByUserId:
- *           type: string
- *           format: uuid
- *           description: ID of the user creating the space
  *       required:
  *         - name
  *         - createdByUserId
@@ -28,8 +24,7 @@ import Joi from 'joi';
 
 export const createSpaceSchema = Joi.object({
     name: Joi.string().min(1).max(255).required(),
-    description: Joi.string().max(1000).optional(),
-    createdByUserId: Joi.string().uuid().required()
+    description: Joi.string().max(1000).optional()
 });
 
 

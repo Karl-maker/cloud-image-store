@@ -1,3 +1,4 @@
 1. Ensure payment intent knows what space its going to
 2. If space not found on subscription creation then give refund / cancel
 3. Create templates
+4. Update confirmation, password etc to work through client due to API_KEY

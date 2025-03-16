@@ -5,7 +5,7 @@ import { Persistent } from "./persistent";
  * @swagger
  * components:
  *   schemas:
- *     SubscriptionPlan:
+ *     SubscriptionPlanResponse:
  *       type: object
  *       properties:
  *         id:

@@ -18,4 +18,19 @@ export class PasswordService {
             salt
         }
     }
+
+    /**
+     * Compares a plaintext password with the hashed password.
+     * @param pass The plaintext password to compare.
+     * @param hashedPassword The hashed password to compare against.
+     * @param salt The salt that was used to hash the password.
+     * @returns A boolean indicating whether the password matches the hashed password.
+     */
+        static async compare(pass: string, hashedPassword: string, salt: string): Promise<boolean> {
+            const pepper = PEPPER;
+
+            const hashedInputPassword = await bcrypt.hash(pass + pepper, salt);
+            
+            return hashedPassword === hashedInputPassword;
+        }
 }

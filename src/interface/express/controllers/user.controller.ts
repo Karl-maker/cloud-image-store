@@ -11,6 +11,7 @@ import { VerifyConfirmationDTO } from '../../../domain/interfaces/presenters/dto
 import { COMPANY_DOMAIN } from '../../../application/configuration';
 import { FAILED_CONFIRMATION, SUCCESSFUL_CONFIRMATION } from '../../../domain/constants/client.routes';
 import { RecoverUserDTO } from '../../../domain/interfaces/presenters/dtos/recover.user.dto';
+import { LoginUserDTO } from '../../../domain/interfaces/presenters/dtos/login.user.dto';
 
 export class UserController {
     constructor(
@@ -94,6 +95,15 @@ export class UserController {
             res.redirect(COMPANY_DOMAIN + SUCCESSFUL_CONFIRMATION)
         } catch (error) {
             res.redirect(COMPANY_DOMAIN + FAILED_CONFIRMATION)
+        }
+    }
+
+    async login (req: Request, res: Response, next: NextFunction) : Promise<void>  {
+        try {
+            const result = await this.usecase.login(req.body as LoginUserDTO)
+            res.status(200).json(result)
+        } catch (error) {
+            next(error)
         }
     }
 

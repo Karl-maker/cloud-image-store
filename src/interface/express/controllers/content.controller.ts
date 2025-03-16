@@ -45,7 +45,7 @@ export class ContentController {
 
             eventBus.emit(CONTENT_DELETED, { content })
 
-            res.status(201);
+            res.status(204);
         } catch (error) {
             next(error)
         }
@@ -55,7 +55,7 @@ export class ContentController {
         try {
             const content = await this.usecase.update(req.params[CONTENT_PARAM], req.body as UpdateSpaceDTO)
 
-            res.status(200).json({ data: content });
+            res.status(200).json(content);
         } catch (error) {
             next(error)
         }
