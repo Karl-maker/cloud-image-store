@@ -13,6 +13,13 @@ import { createSpaceSchema } from "../../../domain/interfaces/presenters/dtos/cr
 
 const router = express.Router();
 
+    /**
+     * @swagger
+     * tags:
+     *   - name: Space
+     *     description: Endpoints related to space management and actions
+     */
+
 export const SpaceRoutes = (usecase: SpaceUsecase) => {
     const controller = new SpaceController(usecase);
 

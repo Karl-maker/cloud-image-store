@@ -33,8 +33,8 @@ const options: Options = {
     ],
   },
   apis: [
-    path.join(__dirname,'./http/routes/*.ts'),
-    path.join(__dirname, './http/routes/*.js'), 
+    path.join(__dirname, '../../**/*.js'), 
+    path.join(__dirname, '../../**/*.ts'), 
 ], // Path to the API docs
 };
 

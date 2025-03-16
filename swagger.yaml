@@ -1,0 +1,227 @@
+openapi: 3.0.0
+info:
+  title: Photo Cloud API Endpoints
+  version: 1.0.0
+  description: RESTful API Docs
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: API key needed to access endpoints
+  schemas:
+    Space:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the space
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the space was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the space was last updated
+        name:
+          type: string
+          description: Name of the space
+        description:
+          type: string
+          description: Detailed description of the space
+        userIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: List of user IDs associated with the space
+        createdByUserId:
+          type: string
+          format: uuid
+          description: User ID of the creator of the space
+        usersAllowed:
+          type: integer
+          description: Maximum number of users allowed in the space
+        pausedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the space was paused, if applicable
+        deactivatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the space was deactivated, if applicable
+        usedMegabytes:
+          type: number
+          description: The amount of storage used in megabytes
+        totalMegabytes:
+          type: number
+          description: The total storage capacity in megabytes
+        subscriptionPlanId:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID of the associated subscription plan, if applicable
+        stripeSubscriptionId:
+          type: string
+          nullable: true
+          description: Stripe subscription ID linked to the space
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - name
+        - description
+        - userIds
+        - createdByUserId
+        - usersAllowed
+        - usedMegabytes
+        - totalMegabytes
+    SubscriptionPlan:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the subscription plan
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the subscription plan was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the subscription plan was last updated
+        name:
+          type: string
+          description: Name of the subscription plan
+        description:
+          type: string
+          description: Detailed description of the subscription plan
+        megabytes:
+          type: number
+          description: Amount of storage (in MB) allocated in the plan
+        users:
+          type: number
+          description: Maximum number of users allowed in this subscription
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Price'
+          description: List of pricing options available for this plan
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+          description: List of features included in the subscription plan
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - name
+        - description
+        - megabytes
+        - users
+        - prices
+        - features
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the user
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the user was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the user was last updated
+        first_name:
+          type: string
+          description: The first name of the user
+        last_name:
+          type: string
+          description: The last name of the user
+        email:
+          type: string
+          format: email
+          description: The email address of the user
+        confirmed:
+          type: boolean
+          description: Whether the user has confirmed their email
+        stripeId:
+          type: string
+          nullable: true
+          description: Stripe customer ID associated with the user
+        lastPasswordUpdate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the password was last updated
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - first_name
+        - last_name
+        - email
+        - confirmed
+    Price:
+      type: object
+      properties:
+        period:
+          type: string
+          enum:
+            - year
+            - month
+            - day
+            - week
+          description: The period for the price (e.g., monthly, yearly)
+        frequency:
+          type: number
+          description: Number of times the price is charged within the period
+        amount:
+          type: number
+          description: Cost of the subscription in the given currency
+        currency:
+          type: string
+          enum:
+            - usd
+            - euro
+          description: Currency of the price
+      required:
+        - period
+        - frequency
+        - amount
+        - currency
+    Feature:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the feature
+        included:
+          type: boolean
+          description: Indicates if the feature is included in the subscription
+      required:
+        - name
+        - included
+security:
+  - ApiKeyAuth: []
+servers:
+  - url: /api/v1
+paths: {}
+tags:
+  - name: Content
+    description: Endpoints related to content management and actions
+  - name: Space
+    description: Endpoints related to space management and actions
+  - name: User
+    description: Endpoints related to user management and actions

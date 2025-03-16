@@ -16,6 +16,14 @@ import { recoverUserSchema } from "../../../domain/interfaces/presenters/dtos/re
 
 const router = express.Router();
 
+    /**
+     * @swagger
+     * tags:
+     *   - name: User
+     *     description: Endpoints related to user management and actions
+     */
+
+
 export const UserRoutes = (usecase: UserUsecase) => {
     const controller = new UserController(usecase);
 

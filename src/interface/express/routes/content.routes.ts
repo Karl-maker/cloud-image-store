@@ -15,6 +15,13 @@ import express, { Response, Request, NextFunction } from 'express';
 
 const router = express.Router();
 
+    /**
+     * @swagger
+     * tags:
+     *   - name: Content
+     *     description: Endpoints related to content management and actions
+     */
+
 export const ContentRoutes = (usecase: ContentUsecase) => {
     const controller = new ContentController(usecase);
     const upload = multer({ storage: multer.memoryStorage() });
