@@ -1,3 +1,8 @@
-<footer style="background-color:#222; padding:10px; color:white; text-align:center;">
-  <p>© {{ year }} {{ companyName }} | All Rights Reserved</p>
+<footer style="background-color: #222; padding: 20px; color: white; text-align: center; font-size: 14px;">
+  <p>© {{ year }} <a href="{{ companyWebsite }}" style="color: white; text-decoration: none;">{{ companyName }}</a>. All rights reserved.</p>
+  <p>
+    <a href="{{ privacyPolicy }}" style="color: white; text-decoration: none; margin: 0 10px;">Privacy Policy</a> | 
+    <a href="{{ termsOfServices }}" style="color: white; text-decoration: none; margin: 0 10px;">Terms of Service</a> | 
+    <a href="{{ cookiePolicy }}" style="color: white; text-decoration: none; margin: 0 10px;">Cookie Policy</a>
+  </p>
 </footer>
