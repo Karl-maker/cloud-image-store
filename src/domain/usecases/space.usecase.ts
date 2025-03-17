@@ -155,7 +155,7 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
             });
 
             const space = spaces.data[0]
-            
+
             if(!space) return new NotFoundException('space not found by id');
 
             space.pausedAt = undefined;
@@ -169,5 +169,19 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
             if(err instanceof Error) return err;
             return new Error(`${err}`);
         }
+    }
+
+    async hasMemory(spaceId: string, amount: number) : Promise<boolean> {
+        const space = await this.repository.findById(spaceId);
+        if(!space) throw new NotFoundException('space not found');
+        return (space.usedMegabytes + amount) > space.totalMegabytes;
+    }
+
+    async addMemory(spaceId: string, amount: number) : Promise<void> {
+        const space = await this.repository.findById(spaceId);
+        if(!space) throw new NotFoundException('space not found');
+
+        space.usedMegabytes = space.usedMegabytes + amount;
+        await this.repository.save(space);
     }
 }

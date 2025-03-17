@@ -54,7 +54,7 @@ export const initializeServer = async () => {
     const routes = new Routes(
         new UserUsecase(userRepository),
         new SpaceUsecase(spaceRepository),
-        new ContentUsecase(contentRepository, uploadService),
+        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository)),
         new StripeUsecase(stripe, new SpaceUsecase(spaceRepository))
     )
 

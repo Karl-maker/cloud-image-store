@@ -8,11 +8,14 @@ import IUploadService from "../../application/services/upload/i.upload.service";
 import { UploadContentDTO } from "../interfaces/presenters/dtos/upload.content.dto";
 import { UploadServiceResponse } from "../types/upload.service.type";
 import { generateUuid } from "../../utils/generate.uuid.util";
+import { SpaceUsecase } from "./space.usecase";
+import { InsufficentStorageException } from "../../application/exceptions/insufficent.storage.exception";
 
 export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilterBy, ContentRepository> {
     constructor (
         repository: ContentRepository,
-        private uploadService: IUploadService
+        private uploadService: IUploadService,
+        private spaceUsecase: SpaceUsecase
     ) {
         super(repository);
     }
@@ -48,6 +51,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
     async upload(data: UploadContentDTO): Promise<void> {
         for (const item of data.files) {
             const name = generateUuid();
+            const spaceId = data.spaceId;
             let content : Content = {
                 name: name,
                 description: null,
@@ -61,6 +65,8 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                 updatedAt:  new Date(),
                 size: 0
             }
+
+            if(!await this.spaceUsecase.hasMemory(data.spaceId, item.size)) throw new InsufficentStorageException('out of memory in space')
             
             await this.uploadService.upload({
                 fileBuffer: item.buffer,
@@ -75,7 +81,8 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                     content.mimeType = data.mimeType;
                     content.size = item.size;
                     
-                    content = await this.repository.save(content)
+                    content = await this.repository.save(content);
+                    await this.spaceUsecase.addMemory(spaceId, item.size);
                 }
             }, 
             async (precentage?: number) => {
