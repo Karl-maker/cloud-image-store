@@ -195,6 +195,49 @@ components:
         - users
         - prices
         - features
+    SubscriptionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the subscription.
+        customerId:
+          type: string
+          description: The ID of the customer associated with the subscription.
+        planId:
+          type: string
+          description: The ID of the subscription plan.
+        status:
+          type: string
+          enum:
+            - active
+            - paused
+            - canceled
+          description: The current status of the subscription.
+        startDate:
+          type: string
+          format: date-time
+          description: The date when the subscription started.
+        endDate:
+          type: string
+          format: date-time
+          description: The date when the subscription ends.
+        autoRenew:
+          type: boolean
+          description: Whether the subscription will automatically renew.
+        trial:
+          type: string
+          format: date-time
+          nullable: true
+          description: The trial period end date, if applicable.
+        createdAt:
+          type: string
+          format: date-time
+          description: The timestamp when the subscription was created.
+        updatedAt:
+          type: string
+          format: date-time
+          description: The timestamp when the subscription was last updated.
     UserResponse:
       type: object
       properties:
@@ -240,6 +283,26 @@ components:
         - last_name
         - email
         - confirmed
+    CancelSubscriptionRequest:
+      type: object
+      properties:
+        subscriptionId:
+          type: string
+          description: The ID of the subscription to be canceled.
+      required:
+        - subscriptionId
+    CreatePaymentLinkRequest:
+      type: object
+      properties:
+        priceId:
+          type: string
+          description: The ID of the price for the payment link.
+        spaceId:
+          type: string
+          description: The ID of the space associated with the payment link.
+      required:
+        - priceId
+        - spaceId
     CreateSpaceRequest:
       type: object
       properties:
@@ -313,6 +376,18 @@ components:
           type: string
           format: email
           description: The email address of the user requesting account recovery.
+    TransformSubscriptionRequest:
+      type: object
+      properties:
+        subscriptionId:
+          type: string
+          description: The ID of the subscription to be transformed.
+        newPlanId:
+          type: string
+          description: The ID of the new subscription plan.
+      required:
+        - subscriptionId
+        - newPlanId
     UpdateContentRequest:
       type: object
       properties:
@@ -1033,6 +1108,132 @@ paths:
                     example: Internal server error
       security:
         - BearerAuth: []
+  /stripe/payment-link:
+    post:
+      tags:
+        - Stripe
+      summary: Create a payment link
+      description: Creates a payment link for a specified price and space.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentLinkRequest'
+      responses:
+        '200':
+          description: Payment link successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  link:
+                    type: string
+                    description: The URL of the created payment link.
+        '400':
+          description: Invalid input or missing parameters.
+        '500':
+          description: Internal server error.
+  /stripe/subscription-plan:
+    get:
+      tags:
+        - Stripe
+      summary: Get all subscription plans
+      description: Retrieves all available subscription plans.
+      responses:
+        '200':
+          description: Successfully retrieved all subscription plans.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SubscriptionPlanResponse'
+        '500':
+          description: Internal server error.
+  /stripe/upgrade:
+    post:
+      tags:
+        - Stripe
+      summary: Upgrade or downgrade a subscription
+      description: Allows a user to upgrade or downgrade their subscription plan.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransformSubscriptionRequest'
+      responses:
+        '200':
+          description: Successfully updated the subscription.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionResponse'
+        '400':
+          description: Invalid request data.
+        '401':
+          description: Unauthorized request.
+        '404':
+          description: Subscription not found.
+        '500':
+          description: Internal server error.
+  /stripe/cancel-renewal:
+    post:
+      tags:
+        - Stripe
+      summary: Cancel subscription renewal
+      description: Cancels the auto-renewal of an active subscription.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelSubscriptionRequest'
+      responses:
+        '200':
+          description: Subscription renewal successfully canceled. No content returned.
+        '400':
+          description: Invalid request data.
+        '401':
+          description: Unauthorized request.
+        '404':
+          description: Subscription not found.
+        '500':
+          description: Internal server error.
+  /stripe/cancel:
+    post:
+      tags:
+        - Stripe
+      summary: Cancel subscription immediately
+      description: Cancels an active subscription immediately.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelSubscriptionRequest'
+      responses:
+        '200':
+          description: Subscription successfully canceled. No content returned.
+        '400':
+          description: Invalid request data.
+        '401':
+          description: Unauthorized request.
+        '404':
+          description: Subscription not found.
+        '500':
+          description: Internal server error.
   /user/confirmation:
     post:
       tags:
@@ -1520,5 +1721,7 @@ tags:
     description: Endpoints related to content management and actions
   - name: Space
     description: Endpoints related to space management and actions
+  - name: Stripe
+    description: Endpoints related to stripe management and actions
   - name: User
     description: Endpoints related to user management and actions

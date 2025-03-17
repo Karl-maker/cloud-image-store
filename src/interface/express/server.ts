@@ -1,7 +1,7 @@
 import express, { ErrorRequestHandler } from "express";
 import authenticateClient from "./middlewares/authenticate.client.middleware";
 import { Database } from "../../application/configuration/mongodb";
-import { ACCESS_KEY_ID_AWS, API_KEY_SECRET, COMPANY_DOMAIN, MONGO_URI, PORT, REGION_AWS, S3_BUCKET_VIDEO_CONTENT_NAME_AWS, SECRET_ACCESS_KEY_AWS } from "../../application/configuration";
+import { ACCESS_KEY_ID_AWS, API_KEY_SECRET, COMPANY_DOMAIN, MONGO_URI, PORT, REGION_AWS, S3_BUCKET_NAME_AWS, SECRET_ACCESS_KEY_AWS, STRIPE_KEY } from "../../application/configuration";
 import { JwtTokenService } from "../../application/services/token/jwt.token.service";
 import cors from 'cors';
 import helmet from 'helmet';
@@ -22,6 +22,8 @@ import { ContentRepository } from "../../domain/repositories/content.repository"
 import IUploadService from "../../application/services/upload/i.upload.service";
 import S3UploadService from "../../application/services/upload/aws.upload.service";
 import { S3ClientConfig } from "@aws-sdk/client-s3";
+import { StripeUsecase } from "../../domain/usecases/stripe.usecase";
+import Stripe from "stripe";
 
 /**
  * @NOTE Add events here 
@@ -49,16 +51,16 @@ export const initializeServer = async () => {
             secretAccessKey: SECRET_ACCESS_KEY_AWS!,
         }
     }
-    const bucketName = S3_BUCKET_VIDEO_CONTENT_NAME_AWS!;
+
+    const bucketName = S3_BUCKET_NAME_AWS!;
+    const stripe = new Stripe(STRIPE_KEY!, { apiVersion: '2025-02-24.acacia' });
     const uploadService : IUploadService = new S3UploadService(s3Config, bucketName);
 
     const routes = new Routes(
         new UserUsecase(userRepository),
         new SpaceUsecase(spaceRepository),
-        new ContentUsecase(
-            contentRepository,
-            uploadService
-        )
+        new ContentUsecase(contentRepository, uploadService),
+        new StripeUsecase(stripe)
     )
 
     const allowedOrigins = [

@@ -23,3 +23,4 @@ export const SUBSCRIPTION_PLAN_PATH = '/subscription-plan';
 export const UPGRADE_PATH = '/upgrade'
 export const DOWNGRADE_PATH = '/downgrade'
 export const CANCEL_PATH = '/cancel'
+export const CANCEL_RENEWAL_PATH = '/cancel-renewal'

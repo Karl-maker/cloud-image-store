@@ -20,7 +20,7 @@ export class StripeUsecase {
     private paymentCustomerService: PaymentCustomerService;
 
     constructor(
-        private stripe: Stripe,
+        public stripe: Stripe,
     ) {
         this.subscriptionService = new StripeSubscriptionService(stripe);
         this.paymentLinkService = new StripePaymentLinkService(stripe);
