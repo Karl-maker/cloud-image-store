@@ -87,10 +87,18 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
     }
 
     async subscriptionEnd(
-        id: string,
+        stripSubscriptionId: string,
     ): Promise<Space | NotFoundException | Error> {
         try {
-            const space = await this.repository.findById(id);
+            const spaces = await this.repository.findMany({
+                filters: {
+                    stripeSubscriptionId: {
+                        exact: stripSubscriptionId
+                    }
+                }
+            });
+
+            const space = spaces.data[0]
     
             if(!space) return new NotFoundException('space not found by id');
 
@@ -107,11 +115,19 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
     }
     
     async subscriptionPaused(
-        id: string,
+        stripSubscriptionId: string,
     ): Promise<Space | NotFoundException | Error> {
         try {
-            const space = await this.repository.findById(id);
-    
+            const spaces = await this.repository.findMany({
+                filters: {
+                    stripeSubscriptionId: {
+                        exact: stripSubscriptionId
+                    }
+                }
+            });
+
+            const space = spaces.data[0]
+
             if(!space) return new NotFoundException('space not found by id');
 
             space.pausedAt = new Date();
@@ -127,11 +143,19 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
     }
 
     async subscriptionResumed(
-        id: string,
+        stripSubscriptionId: string,
     ): Promise<Space | NotFoundException | Error> {
         try {
-            const space = await this.repository.findById(id);
-    
+            const spaces = await this.repository.findMany({
+                filters: {
+                    stripeSubscriptionId: {
+                        exact: stripSubscriptionId
+                    }
+                }
+            });
+
+            const space = spaces.data[0]
+            
             if(!space) return new NotFoundException('space not found by id');
 
             space.pausedAt = undefined;

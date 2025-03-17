@@ -4,6 +4,7 @@ import { CreatePaymentLinkDTO } from "../../../domain/interfaces/presenters/dtos
 import { CancelSubscriptionDTO } from "../../../domain/interfaces/presenters/dtos/cancel.subscription.dto";
 import { TransformSubscriptionDTO } from "../../../domain/interfaces/presenters/dtos/transform.subscription.dto";
 import Stripe from "stripe";
+import { eventBus } from "../../../infrastructure/event/event.bus";
 
 export class StripeController {
     constructor(
@@ -100,7 +101,7 @@ export class StripeController {
             const payload = req.body; 
             const event = this.stripe.webhooks.constructEvent(payload, sig, this.endpointSecret);
 
-            await this.usecase.webhook(event)
+            await this.usecase.webhook(event, eventBus)
 
             res.status(200).send('Event received');
         } catch (error) {

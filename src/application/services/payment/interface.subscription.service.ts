@@ -53,4 +53,6 @@ export interface SubscriptionService {
      * @returns A promise that resolves to the updated subscription details.
      */
     downgradeSubscription(subscriptionId: string, newPlanId: string): Promise<Subscription>;
+
+    findById(id: string) : Promise<Subscription | null>
 }

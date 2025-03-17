@@ -134,7 +134,7 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
      * @param prices - The Stripe prices associated with the product.
      * @returns A SubscriptionPlan entity.
      */
-    private mapStripeToSubscriptionPlan(
+    public mapStripeToSubscriptionPlan(
         product: Stripe.Product,
         prices: Stripe.Price[]
     ): SubscriptionPlan {

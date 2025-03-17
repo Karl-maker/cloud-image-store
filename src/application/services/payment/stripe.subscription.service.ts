@@ -11,6 +11,11 @@ export class StripeSubscriptionService implements SubscriptionService {
         this.stripe = stripe;
     }
 
+    async findById(id: string): Promise<Subscription | null> {
+        const sub = await this.stripe.subscriptions.retrieve(id);
+        return sub ? this.mapStripeToSubscription(sub) : null;
+    }
+
     /**
      * Creates a new subscription for a user.
      * @param customerId - The ID of the customer.

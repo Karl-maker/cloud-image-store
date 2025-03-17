@@ -25,13 +25,8 @@ import { S3ClientConfig } from "@aws-sdk/client-s3";
 import { StripeUsecase } from "../../domain/usecases/stripe.usecase";
 import Stripe from "stripe";
 
-/**
- * @NOTE Add events here 
- * @example 
- * 
- * import '../path/to/event`
- */
-
+import "../events/content.events";
+import "../events/space.event";
 
 export const app = express();
 
@@ -60,7 +55,7 @@ export const initializeServer = async () => {
         new UserUsecase(userRepository),
         new SpaceUsecase(spaceRepository),
         new ContentUsecase(contentRepository, uploadService),
-        new StripeUsecase(stripe)
+        new StripeUsecase(stripe, new SpaceUsecase(spaceRepository))
     )
 
     const allowedOrigins = [

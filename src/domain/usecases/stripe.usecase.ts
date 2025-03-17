@@ -9,8 +9,11 @@ import { StripeSubscriptionService } from "../../application/services/payment/st
 import { StripePaymentLinkService } from "../../application/services/payment/stripe.payment.link.service";
 import { StripeSubscriptionPlanService } from "../../application/services/payment/stripe.subscription.plan.service";
 import { StripePaymentCustomer } from "../../application/services/payment/stripe.payment.customer.service";
-import { eventBus } from "../../infrastructure/event/event.bus";
 import { PAYMENT_INTENT_SUCCEEDED } from "../constants/event.names";
+import { EventBus } from "../../infrastructure/event/event.bus";
+import { PaymentIntentSucceededPayload } from "../types/webhook";
+import { SpaceUsecase } from "./space.usecase";
+import { NotFoundException } from "../../application/exceptions/not.found";
 
 
 export class StripeUsecase {
@@ -21,6 +24,7 @@ export class StripeUsecase {
 
     constructor(
         public stripe: Stripe,
+        private spaceUsecase: SpaceUsecase
     ) {
         this.subscriptionService = new StripeSubscriptionService(stripe);
         this.paymentLinkService = new StripePaymentLinkService(stripe);
@@ -28,19 +32,60 @@ export class StripeUsecase {
         this.paymentCustomerService = new StripePaymentCustomer(stripe);
     }
 
-    async webhook (event: Stripe.Event) {
+    async webhook (event: Stripe.Event, eventBus: EventBus) : Promise<void>{
         if(event.type === 'payment_intent.succeeded') {
             const paymentIntent = event.data.object as Stripe.PaymentIntent;
+
+            if(!paymentIntent.metadata.space_id) throw new Error('no space id found')
+
             const spaceId = paymentIntent.metadata.space_id;
-
-            /**
-             * @todo get subscription details and plan useful for the spaceId
-             */
-
-            eventBus.emit(PAYMENT_INTENT_SUCCEEDED, {
+            let payload : PaymentIntentSucceededPayload = {
                 spaceId,
+                updatedItems: {
+                    stripeSubscriptionId: "",
+                    subscriptionPlanId: "",
+                    usersAllowed: 0,
+                    totalMegabytes: 0
+                }
+            }
 
-            })
+            if(!paymentIntent.invoice) throw new Error('no invoice found')
+
+            const invoice = await this.stripe.invoices.retrieve(paymentIntent.invoice as string);
+            
+            if(!invoice.subscription) throw new Error('no subscription found')
+
+            const subscription = await this.subscriptionService.findById(invoice.subscription as string);
+            
+            if(!subscription) throw new Error('no subscription found');
+
+            payload.updatedItems.stripeSubscriptionId = subscription.id!;
+            payload.updatedItems.subscriptionPlanId = subscription.planId;
+            
+            const plan = await this.subscriptionPlanService.findById(subscription.planId);
+
+            if(!plan)  throw new Error('no plan found');
+
+            payload.updatedItems.totalMegabytes = plan.megabytes;
+            payload.updatedItems.usersAllowed = plan.users;
+
+            const result = await this.spaceUsecase.subscribedToPlan(payload.spaceId, subscription, plan);
+
+            if(result instanceof Error || result instanceof NotFoundException) throw result;
+
+            eventBus.emit(PAYMENT_INTENT_SUCCEEDED, payload)
+        } else if(event.type === 'customer.subscription.deleted') {
+            const subscription = event.data.object as Stripe.Subscription;
+            const result = await this.spaceUsecase.subscriptionEnd(subscription.id);
+            if(result instanceof Error || result instanceof NotFoundException) throw result;
+        } else if(event.type === 'customer.subscription.paused') {
+            const subscription = event.data.object as Stripe.Subscription;
+            const result = await this.spaceUsecase.subscriptionPaused(subscription.id);
+            if(result instanceof Error || result instanceof NotFoundException) throw result;
+        } else if(event.type === 'customer.subscription.resumed') {
+            const subscription = event.data.object as Stripe.Subscription;
+            const result = await this.spaceUsecase.subscriptionResumed(subscription.id);
+            if(result instanceof Error || result instanceof NotFoundException) throw result;
         }
     }
 
