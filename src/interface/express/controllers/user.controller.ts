@@ -21,7 +21,7 @@ export class UserController {
 
             eventBus.emit(USER_CREATED, { user })
 
-            res.status(201);
+            res.status(201).end();
         } catch (error) {
             next(error)
         }
@@ -34,7 +34,7 @@ export class UserController {
 
             eventBus.emit(USER_DELETED, { user })
 
-            res.status(204);
+            res.status(204).end();
         } catch (error) {
             next(error)
         }
@@ -74,7 +74,7 @@ export class UserController {
             await this.usecase.sendConfirmationEmail({
                 userId: user
             })
-            res.status(201);
+            res.status(201).end();
         } catch (error) {
             next(error)
         }
@@ -83,7 +83,7 @@ export class UserController {
     async generateRecover (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
             await this.usecase.recover(req.body as RecoverUserDTO)
-            res.status(201);
+            res.status(201).end();
         } catch (error) {
             next(error)
         }
@@ -92,7 +92,7 @@ export class UserController {
     async confirm (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
             await this.usecase.checkConfirmationToken(req.query as unknown as VerifyConfirmationDTO)
-            res.status(201)
+            res.status(201).end();
         } catch (error) {
             next(error)
         }

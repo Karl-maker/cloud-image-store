@@ -19,7 +19,7 @@ export class ContentController {
 
             eventBus.emit(CONTENT_CREATED, { content })
 
-            res.status(201);
+            res.status(201).end();
         } catch (error) {
             next(error)
         }
@@ -32,7 +32,7 @@ export class ContentController {
                 files: req.files as Express.Multer.File[]
             })
 
-            res.status(201);
+            res.status(201).end();
         } catch (error) {
             next(error)
         }
@@ -45,7 +45,7 @@ export class ContentController {
 
             eventBus.emit(CONTENT_DELETED, { content })
 
-            res.status(204);
+            res.status(204).end();
         } catch (error) {
             next(error)
         }

@@ -32,7 +32,7 @@ export class SpaceController {
 
             eventBus.emit(SPACE_DELETED, { space })
 
-            res.status(201);
+            res.status(201).end();
         } catch (error) {
             next(error)
         }

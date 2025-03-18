@@ -5,6 +5,7 @@ import { CancelSubscriptionDTO } from "../../../domain/interfaces/presenters/dto
 import { TransformSubscriptionDTO } from "../../../domain/interfaces/presenters/dtos/transform.subscription.dto";
 import Stripe from "stripe";
 import { eventBus } from "../../../infrastructure/event/event.bus";
+import { CreateSubscriptionPlanDTO } from "../../../domain/interfaces/presenters/dtos/create.subscription.plan.dto";
 
 export class StripeController {
     constructor(
@@ -26,6 +27,18 @@ export class StripeController {
         }
     }
 
+    async createSubscriptionPlan(req: Request, res: Response, next: NextFunction) : Promise<void> {
+        try {   
+            const params = req.body as CreateSubscriptionPlanDTO;
+            const response = await this.usecase.createSubscriptionPlan(params)
+            console.log(response)
+            res.status(201).end();
+        } catch (error) {
+            console.log(error)
+            next(error)
+        }
+    }
+
     async cancelRenewal(req: Request, res: Response, next: NextFunction) : Promise<void> {
         try {   
             const {
@@ -33,7 +46,7 @@ export class StripeController {
             } = req.body as CancelSubscriptionDTO;
             await this.usecase.cancelSubscriptionRenewal(subscriptionId)
 
-            res.status(200)
+            res.status(200).end();
         } catch (error) {
             next(error)
         }
@@ -46,7 +59,7 @@ export class StripeController {
             } = req.body as CancelSubscriptionDTO;
             await this.usecase.cancelSubscriptionImmediately(subscriptionId)
 
-            res.status(200);
+            res.status(200).end();
         } catch (error) {
             next(error)
         }

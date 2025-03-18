@@ -93,6 +93,10 @@ export class StripeUsecase {
         return this.paymentLinkService.generateLink(priceId, spaceId);
     }
 
+    async createSubscriptionPlan (plan: SubscriptionPlan) : Promise<string> {
+        return this.subscriptionPlanService.create(plan);
+    }
+
     async cancelSubscriptionRenewal (subscriptionId: string) : Promise<void> {
         await this.subscriptionService.cancelRenewal(subscriptionId);
     }

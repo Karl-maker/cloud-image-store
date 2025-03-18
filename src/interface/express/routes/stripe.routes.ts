@@ -10,6 +10,7 @@ import { STRIPE_WEBHOOK_SECRET, TOKEN_SECRET } from "../../../application/config
 import authentication from "../middlewares/authentication.middleware";
 import { transformSubscriptionSchema } from "../../../domain/interfaces/presenters/dtos/transform.subscription.dto";
 import { cancelSubscriptionSchema } from "../../../domain/interfaces/presenters/dtos/cancel.subscription.dto";
+import { subscriptionPlanSchema } from "../../../domain/interfaces/presenters/dtos/create.subscription.plan.dto";
 
 const router = express.Router();
 
@@ -88,7 +89,34 @@ export const StripeRoutes = (
      *         description: Internal server error.
      */
 
-    router.get(STRIPE_PATH + SUBSCRIPTION_PLAN_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), controller.findSubscriptionPlans.bind(controller))
+    router.get(STRIPE_PATH + SUBSCRIPTION_PLAN_PATH, controller.findSubscriptionPlans.bind(controller))
+
+    /**
+     * @swagger
+     * /stripe/subscription-plan:
+     *   post:
+     *     tags:
+     *       - Stripe
+     *     summary: Create a payment link
+     *     description: Creates a payment link for a specified price and space.
+     *     security:
+     *       - ApiKeyAuth: [] 
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/CreateSubscriptionPlanRequest'
+     *     responses:
+     *       200:
+     *         description: Subscription plan successfully created.
+     *       400:
+     *         description: Invalid input or missing parameters.
+     *       500:
+     *         description: Internal server error.
+     */
+
+    router.post(STRIPE_PATH + SUBSCRIPTION_PLAN_PATH, validateBodyDTO(subscriptionPlanSchema), controller.createSubscriptionPlan.bind(controller))
 
     /**
      * @swagger

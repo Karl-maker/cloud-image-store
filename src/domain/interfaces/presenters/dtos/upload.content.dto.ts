@@ -6,6 +6,9 @@ import Joi from 'joi';
  * components:
  *   schemas:
  *     UploadContentRequest:
+ *       required: 
+ *         - spaceId
+ *         - files
  *       type: object
  *       properties:
  *         spaceId:
@@ -40,9 +43,6 @@ import Joi from 'joi';
  *                 format: byte
  *           minItems: 1
  *           description: An array of files to be uploaded.
- *       required:
- *         - spaceId
- *         - files
  */
 
 

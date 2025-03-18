@@ -16,7 +16,7 @@ const authenticateClient = (secret: string, jwtService: TokenService<{ type: str
 
         const payload = await jwtService.validate(key, secret);
 
-        if (!payload?.type) {
+        if (!payload) {
             return next(new UnauthorizedException("Invalid key"));
         }
         next();

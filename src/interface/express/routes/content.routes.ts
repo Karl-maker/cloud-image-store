@@ -292,7 +292,9 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *     summary: Upload multiple content files (images or videos)
      *     description: Upload multiple files (images or videos) to the specified space. The files should be sent via form-data with the key 'files'.
      *     requestBody:
-     *       required: true
+     *       required: 
+     *          - spaceId
+     *          - files
      *       content:
      *         multipart/form-data:
      *           schema:
@@ -304,11 +306,9 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *                   type: string
      *                   format: binary
      *                 description: The files to upload (multiple files).
-     *                 required: true
      *               spaceId:
      *                 type: string
      *                 description: The ID of the space where the content will be uploaded.
-     *                 required: true
      *     security:
      *       - BearerAuth: []  # Bearer token authentication required
      *     responses:

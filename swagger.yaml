@@ -319,6 +319,10 @@ components:
       required:
         - name
         - createdByUserId
+    CreateSubscriptionPlanRequest:
+      type: object
+      $ref: '#/components/schemas/SubscriptionPlanResponse'
+      description: The request body for creating or updating a subscription plan.
     CreateUserRequest:
       type: object
       properties:
@@ -438,6 +442,9 @@ components:
             number, and one special character.
       required: []
     UploadContentRequest:
+      required:
+        - spaceId
+        - files
       type: object
       properties:
         spaceId:
@@ -474,9 +481,6 @@ components:
                 format: byte
           minItems: 1
           description: An array of files to be uploaded.
-      required:
-        - spaceId
-        - files
     VerifyConfirmationRequest:
       type: object
       properties:
@@ -772,7 +776,9 @@ paths:
         Upload multiple files (images or videos) to the specified space. The
         files should be sent via form-data with the key 'files'.
       requestBody:
-        required: true
+        required:
+          - spaceId
+          - files
         content:
           multipart/form-data:
             schema:
@@ -784,11 +790,9 @@ paths:
                     type: string
                     format: binary
                   description: The files to upload (multiple files).
-                  required: true
                 spaceId:
                   type: string
                   description: The ID of the space where the content will be uploaded.
-                  required: true
       security:
         - BearerAuth: []
       responses:
@@ -1153,6 +1157,26 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/SubscriptionPlanResponse'
+        '500':
+          description: Internal server error.
+    post:
+      tags:
+        - Stripe
+      summary: Create a payment link
+      description: Creates a payment link for a specified price and space.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubscriptionPlanRequest'
+      responses:
+        '200':
+          description: Subscription plan successfully created.
+        '400':
+          description: Invalid input or missing parameters.
         '500':
           description: Internal server error.
   /stripe/upgrade:
