@@ -60,7 +60,7 @@ export const initializeServer = async () => {
 
     const allowedOrigins = [
         COMPANY_DOMAIN!,
-        'localhost:3000'
+        'localhost:3001'
     ];
 
     app.use(helmet());

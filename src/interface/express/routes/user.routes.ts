@@ -1,4 +1,4 @@
-import { AUTH_PATH, CONFIRMATION_PATH, RECOVER_PATH, SEND_CONFIRMATION_PATH, USER_PARAM_PATH, USER_PATH } from "../../../domain/constants/api.routes";
+import { AUTH_PATH, CONFIRMATION_PATH, ME_PATH, RECOVER_PATH, SEND_CONFIRMATION_PATH, USER_PARAM_PATH, USER_PATH } from "../../../domain/constants/api.routes";
 import { UserUsecase } from "../../../domain/usecases/user.usecase";
 import express from "express";
 import authentication from "../middlewares/authentication.middleware";
@@ -72,6 +72,45 @@ export const UserRoutes = (usecase: UserUsecase) => {
 
     /**
      * @swagger
+     * /user/me:
+     *   get:
+     *     tags:
+     *       - User
+     *     summary: Get user by bearer token
+     *     description: Retrieve the details of a user by their token.
+     *     responses:
+     *       200:
+     *         description: Successfully retrieved user details.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/UserResponse'
+     *       404:
+     *         description: User not found.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "User not found"
+     *       500:
+     *         description: Internal server error.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Internal server error"
+     */
+       
+    router.get(USER_PATH + ME_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), controller.me.bind(controller)); 
+
+    /**
+     * @swagger
      * /user/{user_id}:
      *   get:
      *     tags:
@@ -112,8 +151,6 @@ export const UserRoutes = (usecase: UserUsecase) => {
      *                 message:
      *                   type: string
      *                   example: "Internal server error"
-     *     security:
-     *       - BearerAuth: []  # Bearer token authentication required
      */
         
     router.get(USER_PATH + USER_PARAM_PATH, controller.findById.bind(controller)); 
@@ -331,7 +368,6 @@ export const UserRoutes = (usecase: UserUsecase) => {
      *                   type: string
      *                   example: "Internal server error."
      */
-
 
     router.post(USER_PATH + AUTH_PATH, validateBodyDTO(loginUserSchema), controller.login.bind(controller)); 
 

@@ -1295,6 +1295,39 @@ paths:
                     example: Internal server error
       security:
         - BearerAuth: []
+  /user/me:
+    get:
+      tags:
+        - User
+      summary: Get user by bearer token
+      description: Retrieve the details of a user by their token.
+      responses:
+        '200':
+          description: Successfully retrieved user details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
   /user/{user_id}:
     get:
       tags:
@@ -1335,8 +1368,6 @@ paths:
                   message:
                     type: string
                     example: Internal server error
-      security:
-        - BearerAuth: []
     patch:
       tags:
         - User
