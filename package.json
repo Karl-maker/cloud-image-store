@@ -2,7 +2,7 @@
   "name": "storm",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/interfaces/server.ts",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/interface/express/server.ts",
     "start": "node dist/src/interface/express/server.js",
