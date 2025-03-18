@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { SortOrder } from "../../../../domain/types/repository";
+import { SortOrder } from "../../../types/repository";
 
 export type FindManyDTO<SortByKeys> = {
     page_size: number;

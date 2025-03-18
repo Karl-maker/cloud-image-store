@@ -1,6 +1,6 @@
 import { NotFoundException } from "../../application/exceptions/not.found";
-import { CreateSpaceDTO } from "../../domain/interfaces/presenters/dtos/create.space.dto";
-import { UpdateSpaceDTO } from "../../domain/interfaces/presenters/dtos/update.space.dto";
+import { CreateSpaceDTO } from "../interfaces/presenters/dtos/create.space.dto";
+import { UpdateSpaceDTO } from "../interfaces/presenters/dtos/update.space.dto";
 import { Space } from "../entities/space";
 import { Subscription } from "../entities/subscription";
 import { SubscriptionPlan } from "../entities/subscription.plan";

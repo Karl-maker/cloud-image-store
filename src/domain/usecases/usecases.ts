@@ -1,5 +1,5 @@
 import { NotFoundException } from "../../application/exceptions/not.found";
-import { FindManyDTO } from "../../domain/interfaces/presenters/dtos/find.many.dto";
+import { FindManyDTO } from "../interfaces/presenters/dtos/find.many.dto";
 import { convertToFilters } from "../../utils/convert.params.to.filters.util";
 import { Persistent } from "../entities/persistent";
 import { Repository } from "../repositories/repository";

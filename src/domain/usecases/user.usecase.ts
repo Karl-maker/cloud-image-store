@@ -1,5 +1,5 @@
-import { CreateUserDTO } from "../../domain/interfaces/presenters/dtos/create.user.dto";
-import { UpdateUserDTO } from "../../domain/interfaces/presenters/dtos/update.user.dto";
+import { CreateUserDTO } from "../interfaces/presenters/dtos/create.user.dto";
+import { UpdateUserDTO } from "../interfaces/presenters/dtos/update.user.dto";
 import { PasswordService } from "../../application/services/password/password.service";
 import { User } from "../entities/user";
 import { UserFilterBy, UserSortBy } from "../types/user";

@@ -1,4 +1,4 @@
-import { UserFilterBy, UserSortBy } from "../../../../domain/types/user";
+import { UserFilterBy, UserSortBy } from "../../../types/user";
 import { FindManyDTO } from "./find.many.dto";
 import Joi from "joi";
 

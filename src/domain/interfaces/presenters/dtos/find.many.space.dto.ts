@@ -1,4 +1,4 @@
-import { SpaceFilterBy, SpaceSortBy } from "../../../../domain/types/space";
+import { SpaceFilterBy, SpaceSortBy } from "../../../types/space";
 import { FindManyDTO } from "./find.many.dto";
 import Joi from "joi";
 
