@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/interface/express/server.ts",
-    "start": "node dist/interface/express/server.js",
+    "start": "node dist/src/interface/express/server.js",
     "build": "tsc",
     "create:api-key": "ts-node src/bin/create.api.key.ts"
   },
