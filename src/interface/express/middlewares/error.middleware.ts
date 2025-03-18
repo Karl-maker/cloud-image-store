@@ -7,7 +7,7 @@ import { HttpException } from "../../../application/exceptions/http.exception";
  * Uses a switch to determine error type and respond accordingly.
  */
 const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-
+    console.log(err);
     switch (true) {
         case err instanceof HttpException:
             res.status(err.code).json({ error: err.name, message: err.message });

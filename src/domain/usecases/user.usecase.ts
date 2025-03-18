@@ -23,6 +23,7 @@ import { wasMinutesAgo } from "../../utils/x.mins.ago.util";
 import { ValidationException } from "../../application/exceptions/validation.exception";
 import { LoginUserDTO } from "../interfaces/presenters/dtos/login.user.dto";
 import { CONFIRMATION_PATH, RECOVERY_PATH } from "../constants/client.routes";
+import { HttpException } from "../../application/exceptions/http.exception";
 
 export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRepository> {
     constructor (
@@ -203,5 +204,20 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
         return {
             accessToken: token
         }
+    }
+    async register (data: CreateUserDTO) : Promise<{
+        accessToken: string;
+        user: User;
+    }> {
+        const entity: User = await this.mapCreateDtoToEntity(data as CreateUserDTO)
+        const saved = await this.repository.save(entity);
+        if(!saved) throw new HttpException('Issue Registering', 'Issue occured', 500);
+
+        const loginResponse = await this.login({ email: data.email, password: data.password })
+        
+        await this.sendConfirmationEmail({
+            userId: saved.id!
+        })
+        return { ...loginResponse, user: saved };
     }
 }

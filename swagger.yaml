@@ -1581,6 +1581,14 @@ paths:
       responses:
         '201':
           description: Successfully registered the user, no content returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    example: eyFhowdihf2hjfi3e...
         '400':
           description: Bad request, invalid input.
           content:

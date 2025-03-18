@@ -17,11 +17,13 @@ export class UserController {
     
     async register (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
-            const user = await this.usecase.create(req.body as CreateUserDTO)
+            const { user, accessToken } = await this.usecase.register(req.body as CreateUserDTO)
 
             eventBus.emit(USER_CREATED, { user })
 
-            res.status(201).end();
+            res.status(201).json({
+                accessToken
+            });
         } catch (error) {
             next(error)
         }

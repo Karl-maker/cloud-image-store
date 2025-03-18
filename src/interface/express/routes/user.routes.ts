@@ -352,6 +352,14 @@ export const UserRoutes = (usecase: UserUsecase) => {
      *     responses:
      *       201:
      *         description: Successfully registered the user, no content returned.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 accessToken:
+     *                   type: string
+     *                   example: "eyFhowdihf2hjfi3e..."
      *       400:
      *         description: Bad request, invalid input.
      *         content:
@@ -384,7 +392,7 @@ export const UserRoutes = (usecase: UserUsecase) => {
      *                   example: "Internal server error"
      */
 
-    router.post(USER_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateBodyDTO(createUserSchema), controller.register.bind(controller)); 
+    router.post(USER_PATH, validateBodyDTO(createUserSchema), controller.register.bind(controller)); 
 
     /**
      * @swagger
