@@ -7,7 +7,7 @@ export type FindManySpaceDTO = SpaceFilterBy & FindManyDTO<SpaceSortBy>;
 export const spaceFilterBySchema = Joi.object({
     userIds: Joi.string().optional()
         .messages({
-            "string.base": "first_name must be a string"
+            "string.base": "firstName must be a string"
         }),
 
     createdByUserId: Joi.string().optional()

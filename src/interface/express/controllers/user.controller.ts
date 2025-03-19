@@ -43,10 +43,10 @@ export class UserController {
     }
 
     async updateById (req: Request, res: Response, next: NextFunction) : Promise<void>  {
-        try {
+        try {   
             const user = await this.usecase.update(req.params[USER_PARAM], req.body as UpdateUserDTO)
 
-            res.status(200).json({ data: user });
+            res.status(200).json(user);
         } catch (error) {
             next(error)
         }

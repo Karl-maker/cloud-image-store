@@ -19,10 +19,10 @@ import { Persistent } from "./persistent";
      *           type: string
      *           format: date-time
      *           description: Timestamp when the user was last updated
-     *         first_name:
+     *         firstName:
      *           type: string
      *           description: The first name of the user
-     *         last_name:
+     *         lastName:
      *           type: string
      *           description: The last name of the user
      *         email:
@@ -45,15 +45,15 @@ import { Persistent } from "./persistent";
      *         - id
      *         - createdAt
      *         - updatedAt
-     *         - first_name
-     *         - last_name
+     *         - firstName
+     *         - lastName
      *         - email
      *         - confirmed
      */
 
 export interface User extends Persistent {
-    first_name: string;
-    last_name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     hashPassword: string;
     salt: string;

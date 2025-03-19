@@ -479,8 +479,6 @@ export const UserRoutes = (usecase: UserUsecase) => {
      *       - User
      *     summary: Update user by ID
      *     description: Updates user details for the specified user ID.
-     *     security:
-     *       - BearerAuth: []
      *     parameters:
      *       - in: path
      *         name: user_id

@@ -7,16 +7,16 @@ export type FindManyUsersDTO = UserFilterBy & FindManyDTO<UserSortBy>;
 export const userFilterBySchema = Joi.object({
     firstName: Joi.string().min(1).max(255).optional()
         .messages({
-            "string.base": "first_name must be a string",
-            "string.min": "first_name cannot be empty",
-            "string.max": "first_name cannot exceed 255 characters"
+            "string.base": "firstName must be a string",
+            "string.min": "firstName cannot be empty",
+            "string.max": "firstName cannot exceed 255 characters"
         }),
 
     lastName: Joi.string().min(1).max(255).optional()
         .messages({
-            "string.base": "last_name must be a string",
-            "string.min": "last_name cannot be empty",
-            "string.max": "last_name cannot exceed 255 characters"
+            "string.base": "lastName must be a string",
+            "string.min": "lastName cannot be empty",
+            "string.max": "lastName cannot exceed 255 characters"
         }),
 
     email: Joi.string().email().optional()

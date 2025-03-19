@@ -9,8 +9,8 @@ export interface UserDocument extends Omit<User, 'id'>, Document {
 
 export const UserSchema = new Schema<UserDocument>(
     {
-        first_name: { type: String, required: true },
-        last_name: { type: String, required: true },
+        firstName: { type: String, required: true },
+        lastName: { type: String, required: true },
         clientId: { type: String, unique: true, default: () => generateUuid() },
         stripeId: { type: String, required: false, default: null },
         email: { type: String, required: true, unique: true },

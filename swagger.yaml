@@ -253,10 +253,10 @@ components:
           type: string
           format: date-time
           description: Timestamp when the user was last updated
-        first_name:
+        firstName:
           type: string
           description: The first name of the user
-        last_name:
+        lastName:
           type: string
           description: The last name of the user
         email:
@@ -279,8 +279,8 @@ components:
         - id
         - createdAt
         - updatedAt
-        - first_name
-        - last_name
+        - firstName
+        - lastName
         - email
         - confirmed
     CancelSubscriptionRequest:
@@ -430,10 +430,6 @@ components:
         lastName:
           type: string
           description: The user's last name. Minimum length 2, maximum 50 characters.
-        email:
-          type: string
-          format: email
-          description: The user's email address. Must be a valid email format.
         password:
           type: string
           description: >-
@@ -1371,8 +1367,6 @@ paths:
         - User
       summary: Update user by ID
       description: Updates user details for the specified user ID.
-      security:
-        - BearerAuth: []
       parameters:
         - in: path
           name: user_id

@@ -37,8 +37,8 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
         const hashResults = await PasswordService.hash(data.password);
 
         const user : User = {
-            first_name: data.firstName,
-            last_name: data.lastName,
+            firstName: data.firstName,
+            lastName: data.lastName,
             email: data.email,
             hashPassword: hashResults.pass,
             confirmed: false,
@@ -62,7 +62,8 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
         }
 
         const user : User = {
-            ...item
+            ...item,
+            ...data
         }
 
         return user;
@@ -88,7 +89,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
 
             const content : ConfirmationEmailContent = {
                 link: `${COMPANY_DOMAIN}${CONFIRMATION_PATH}?token=` + confirmationToken,
-                name: user.first_name + " " + user.last_name,
+                name: user.firstName + " " + user.lastName,
                 expiresIn: "15 minutes"
             }
 
@@ -152,7 +153,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
 
         const content : RecoveryEmailContent = {
             link: `${COMPANY_DOMAIN}${RECOVERY_PATH}?token=` + token,
-            name: user.first_name + " " + user.last_name,
+            name: user.firstName + " " + user.lastName,
             expiresIn: "15 minutes"
         }
 
