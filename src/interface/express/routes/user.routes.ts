@@ -64,8 +64,6 @@ export const UserRoutes = (usecase: UserUsecase) => {
      *                 message:
      *                   type: string
      *                   example: "Internal server error"
-     *     security:
-     *       - BearerAuth: []
      */
 
     router.post(USER_PATH + CONFIRMATION_PATH, validateBodyDTO(verifyConfirmationSchema), controller.confirm.bind(controller)); 
@@ -265,8 +263,6 @@ export const UserRoutes = (usecase: UserUsecase) => {
      *                 message:
      *                   type: string
      *                   example: "Internal server error"
-     *     security:
-     *       - BearerAuth: []  # Bearer token authentication required
      */
 
     router.get(USER_PATH, validateQueryDTO(findManySchema.concat(userFilterBySchema)), controller.findMany.bind(controller)); 
@@ -438,8 +434,6 @@ export const UserRoutes = (usecase: UserUsecase) => {
      *       - User
      *     summary: Send confirmation email
      *     description: Sends a confirmation email to the user.
-     *     security:
-     *       - BearerAuth: []
      *     responses:
      *       201:
      *         description: Confirmation email sent successfully.

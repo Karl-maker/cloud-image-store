@@ -93,7 +93,7 @@ export class UserController {
 
     async confirm (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
-            await this.usecase.checkConfirmationToken(req.query as unknown as VerifyConfirmationDTO)
+            await this.usecase.checkConfirmationToken(req.body as unknown as VerifyConfirmationDTO)
             res.status(201).end();
         } catch (error) {
             next(error)
@@ -108,7 +108,7 @@ export class UserController {
             next(error)
         }
     }
-    
+
     async me (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
             const userId = (req as any).user?.id;

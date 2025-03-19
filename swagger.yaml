@@ -1293,8 +1293,6 @@ paths:
                   message:
                     type: string
                     example: Internal server error
-      security:
-        - BearerAuth: []
   /user/me:
     get:
       tags:
@@ -1596,8 +1594,6 @@ paths:
                   message:
                     type: string
                     example: Internal server error
-      security:
-        - BearerAuth: []
     post:
       tags:
         - User
@@ -1744,8 +1740,6 @@ paths:
         - User
       summary: Send confirmation email
       description: Sends a confirmation email to the user.
-      security:
-        - BearerAuth: []
       responses:
         '201':
           description: Confirmation email sent successfully.
