@@ -545,8 +545,6 @@ paths:
           schema:
             type: string
           description: The unique identifier of the content to retrieve.
-      security:
-        - BearerAuth: []
       responses:
         '200':
           description: Successfully retrieved content details.
@@ -592,8 +590,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UpdateContentRequest'
-      security:
-        - BearerAuth: []
       responses:
         '200':
           description: Successfully updated content details.
@@ -643,8 +639,6 @@ paths:
           schema:
             type: string
           description: The unique identifier of the content to delete.
-      security:
-        - BearerAuth: []
       responses:
         '204':
           description: Successfully deleted content. No content returned.
@@ -714,8 +708,6 @@ paths:
           schema:
             type: string
           description: Filter content by MIME type.
-      security:
-        - BearerAuth: []
       responses:
         '200':
           description: Successfully retrieved a list of contents.
@@ -789,8 +781,6 @@ paths:
                 spaceId:
                   type: string
                   description: The ID of the space where the content will be uploaded.
-      security:
-        - BearerAuth: []
       responses:
         '201':
           description: Successfully uploaded the content files with no content returned.
@@ -875,8 +865,6 @@ paths:
                   message:
                     type: string
                     example: Internal server error
-      security:
-        - BearerAuth: []
     get:
       tags:
         - Space
@@ -970,8 +958,6 @@ paths:
                   message:
                     type: string
                     example: Internal server error
-      security:
-        - BearerAuth: []
   /space/{space_id}:
     get:
       tags:
@@ -1012,8 +998,6 @@ paths:
                   message:
                     type: string
                     example: Internal server error
-      security:
-        - BearerAuth: []
     patch:
       tags:
         - Space
@@ -1069,8 +1053,6 @@ paths:
                   message:
                     type: string
                     example: Internal server error
-      security:
-        - BearerAuth: []
     delete:
       tags:
         - Space
@@ -1106,8 +1088,6 @@ paths:
                   message:
                     type: string
                     example: Internal server error
-      security:
-        - BearerAuth: []
   /stripe/payment-link:
     post:
       tags:

@@ -22,8 +22,6 @@ const router = express.Router();
      *     description: Endpoints related to content management and actions
      */
 
-    
-
 export const ContentRoutes = (usecase: ContentUsecase) => {
     const controller = new ContentController(usecase);
     const upload = multer({ storage: multer.memoryStorage() });
@@ -43,8 +41,6 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *         schema:
      *           type: string
      *         description: The unique identifier of the content to retrieve.
-     *     security:
-     *       - BearerAuth: []
      *     responses:
      *       200:
      *         description: Successfully retrieved content details.
@@ -122,8 +118,6 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *         schema:
      *           type: string
      *         description: Filter content by MIME type.
-     *     security:
-     *       - BearerAuth: []
      *     responses:
      *       200:
      *         description: Successfully retrieved a list of contents.
@@ -173,7 +167,7 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *                   example: "Internal server error"
      */
 
-    router.get(CONTENT_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateQueryDTO(findManySchema.concat(contentFilterBySchema)), controller.findMany.bind(controller));
+    router.get(CONTENT_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), controller.findMany.bind(controller));
     
     /**
      * @swagger
@@ -196,8 +190,6 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *         application/json:
      *           schema:
      *             $ref: '#/components/schemas/UpdateContentRequest'  # The request body schema
-     *     security:
-     *       - BearerAuth: []  # Bearer token authentication required
      *     responses:
      *       200:
      *         description: Successfully updated content details.
@@ -254,8 +246,6 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *         schema:
      *           type: string
      *         description: The unique identifier of the content to delete.
-     *     security:
-     *       - BearerAuth: []  # Bearer token authentication required
      *     responses:
      *       204:
      *         description: Successfully deleted content. No content returned.
@@ -309,8 +299,6 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *               spaceId:
      *                 type: string
      *                 description: The ID of the space where the content will be uploaded.
-     *     security:
-     *       - BearerAuth: []  # Bearer token authentication required
      *     responses:
      *       201:
      *         description: Successfully uploaded the content files with no content returned.

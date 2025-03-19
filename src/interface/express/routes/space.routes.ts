@@ -74,8 +74,6 @@ export const SpaceRoutes = (usecase: SpaceUsecase) => {
      *                 message:
      *                   type: string
      *                   example: "Internal server error"
-     *     security:
-     *       - BearerAuth: []  # Bearer token authentication required
      */
 
     router.post(SPACE_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateBodyDTO(createSpaceSchema), controller.create.bind(controller)); 
@@ -122,8 +120,6 @@ export const SpaceRoutes = (usecase: SpaceUsecase) => {
      *                 message:
      *                   type: string
      *                   example: "Internal server error"
-     *     security:
-     *       - BearerAuth: []  # Bearer token authentication required
      */
 
     router.get(SPACE_PATH + SPACE_PARAM_PATH, controller.findById.bind(controller)); 
@@ -214,12 +210,10 @@ export const SpaceRoutes = (usecase: SpaceUsecase) => {
      *                 message:
      *                   type: string
      *                   example: "Internal server error"
-     *     security:
-     *       - BearerAuth: []  # Bearer token authentication required
      */
 
         
-    router.get(SPACE_PATH, validateQueryDTO(findManySchema.concat(spaceFilterBySchema)), controller.findMany.bind(controller)); 
+    router.get(SPACE_PATH, controller.findMany.bind(controller)); 
 
     /**
      * @swagger
@@ -279,8 +273,6 @@ export const SpaceRoutes = (usecase: SpaceUsecase) => {
      *                 message:
      *                   type: string
      *                   example: "Internal server error"
-     *     security:
-     *       - BearerAuth: []  # Bearer token authentication required
      */
 
 
@@ -324,8 +316,6 @@ export const SpaceRoutes = (usecase: SpaceUsecase) => {
      *                 message:
      *                   type: string
      *                   example: "Internal server error"
-     *     security:
-     *       - BearerAuth: []  # Bearer token authentication required
      */
 
     router.delete(SPACE_PATH + SPACE_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), controller.deleteById.bind(controller));
