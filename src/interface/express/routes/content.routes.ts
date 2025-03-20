@@ -167,7 +167,7 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *                   example: "Internal server error"
      */
 
-    router.get(CONTENT_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), controller.findMany.bind(controller));
+    router.get(CONTENT_PATH, controller.findMany.bind(controller));
     
     /**
      * @swagger
