@@ -33,12 +33,13 @@ export class StripeUsecase {
     }
 
     async webhook (event: Stripe.Event, eventBus: EventBus) : Promise<void>{
-        if(event.type === 'payment_intent.succeeded') {
-            const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        if(event.type === 'customer.subscription.created') {
+            const customerSubscription = event.data.object as Stripe.Subscription;
 
-            if(!paymentIntent.metadata.space_id) throw new Error('no space id found')
+            if(!customerSubscription.metadata.space_id) throw new Error('no space id found')
 
-            const spaceId = paymentIntent.metadata.space_id;
+            const spaceId = customerSubscription.metadata.space_id;
+
             let payload : PaymentIntentSucceededPayload = {
                 spaceId,
                 updatedItems: {
@@ -49,13 +50,7 @@ export class StripeUsecase {
                 }
             }
 
-            if(!paymentIntent.invoice) throw new Error('no invoice found')
-
-            const invoice = await this.stripe.invoices.retrieve(paymentIntent.invoice as string);
-            
-            if(!invoice.subscription) throw new Error('no subscription found')
-
-            const subscription = await this.subscriptionService.findById(invoice.subscription as string);
+            const subscription = await this.subscriptionService.findById(customerSubscription.id as string);
             
             if(!subscription) throw new Error('no subscription found');
 

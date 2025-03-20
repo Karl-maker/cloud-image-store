@@ -1,3 +1,4 @@
+import { SpaceShareType } from "../types/space";
 import { Persistent } from "./persistent";
 
     /**
@@ -63,6 +64,10 @@ import { Persistent } from "./persistent";
      *           type: string
      *           nullable: true
      *           description: Stripe subscription ID linked to the space
+     *         shareType:
+     *           type: string
+     *           enum: [invite, public, private]
+     *           description: share type for space.
      *       required:
      *         - id
      *         - createdAt
@@ -74,6 +79,7 @@ import { Persistent } from "./persistent";
      *         - usersAllowed
      *         - usedMegabytes
      *         - totalMegabytes
+     *         - shareType
      */
 
 export interface Space extends Persistent {
@@ -86,6 +92,8 @@ export interface Space extends Persistent {
     deactivatedAt?: Date;
     usedMegabytes: number;
     totalMegabytes: number;
+    shareType: SpaceShareType;
     subscriptionPlanId: string | null;
     stripeSubscriptionId: string | null;
 }
+

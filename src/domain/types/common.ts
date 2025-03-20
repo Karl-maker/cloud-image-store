@@ -22,6 +22,9 @@ export type SupportedCurrenciesISO = 'usd' | 'euro';
  *           type: string
  *           enum: [usd, euro]
  *           description: Currency of the price
+ *         id:
+ *           type: string
+ *           description: ID for price
  *       required:
  *         - period
  *         - frequency
@@ -30,6 +33,7 @@ export type SupportedCurrenciesISO = 'usd' | 'euro';
  */
 
 export type Price = {
+    id: string;
     period: Timeline;
     frequency: number;
     amount: number;

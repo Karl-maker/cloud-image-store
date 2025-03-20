@@ -146,6 +146,7 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
             users: parseInt(product.metadata.users) || 1,
             features: JSON.parse(product.metadata.features || "[]") as Feature[],
             prices: prices.map((price) => ({
+                id: price.id,
                 period: price.recurring?.interval as "day" | "week" | "month" | "year",
                 frequency: price.recurring?.interval_count || 1,
                 amount: price.unit_amount ?? 0, 
