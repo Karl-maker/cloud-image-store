@@ -29,7 +29,8 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
             totalMegabytes: 0,
             subscriptionPlanId: null,
             stripeSubscriptionId: null,
-            usersAllowed: 1
+            usersAllowed: 1,
+            shareType: data.shareType
         }
 
         return space;
