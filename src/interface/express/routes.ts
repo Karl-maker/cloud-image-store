@@ -7,6 +7,9 @@ import { ContentUsecase } from "../../domain/usecases/content.usecase";
 import { ContentRoutes } from "./routes/content.routes";
 import { StripeRoutes } from "./routes/stripe.routes";
 import { StripeUsecase } from "../../domain/usecases/stripe.usecase";
+import authenticateClient from "./middlewares/authenticate.client.middleware";
+import { JwtTokenService } from "../../application/services/token/jwt.token.service";
+import { API_KEY_SECRET } from "../../application/configuration";
 
 export class Routes {
     constructor(
@@ -19,6 +22,7 @@ export class Routes {
     register(app: Express) {
         app.use(
             '/api/v1/',
+            authenticateClient(API_KEY_SECRET!, new JwtTokenService()),
             UserRoutes(this.userUsecase),
             SpaceRoutes(this.spaceUseCase),
             ContentRoutes(this.contentUseCase),

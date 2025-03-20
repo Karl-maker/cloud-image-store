@@ -30,8 +30,6 @@ export const StripeRoutes = (
         STRIPE_WEBHOOK_SECRET!
     );
 
-    router.post(STRIPE_PATH + WEBHOOK_PATH, express.raw({ type: 'application/json' }), controller.webhook.bind(controller)); 
-
     /**
      * @swagger
      * /stripe/payment-link:

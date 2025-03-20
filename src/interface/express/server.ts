@@ -1,7 +1,7 @@
 import express, { ErrorRequestHandler } from "express";
 import authenticateClient from "./middlewares/authenticate.client.middleware";
 import { Database } from "../../application/configuration/mongodb";
-import { ACCESS_KEY_ID_AWS, API_KEY_SECRET, COMPANY_DOMAIN, MONGO_URI, PORT, REGION_AWS, S3_BUCKET_NAME_AWS, SECRET_ACCESS_KEY_AWS, STRIPE_KEY } from "../../application/configuration";
+import { ACCESS_KEY_ID_AWS, API_KEY_SECRET, COMPANY_DOMAIN, MONGO_URI, PORT, REGION_AWS, S3_BUCKET_NAME_AWS, SECRET_ACCESS_KEY_AWS, STRIPE_KEY, STRIPE_WEBHOOK_SECRET } from "../../application/configuration";
 import { JwtTokenService } from "../../application/services/token/jwt.token.service";
 import cors from 'cors';
 import helmet from 'helmet';
@@ -27,6 +27,8 @@ import Stripe from "stripe";
 
 import "../events/content.events";
 import "../events/space.event";
+import { STRIPE_PATH, WEBHOOK_PATH } from "../../domain/constants/api.routes";
+import { StripeController } from "./controllers/stripe.controller";
 
 export const app = express();
 
@@ -58,12 +60,20 @@ export const initializeServer = async () => {
         new StripeUsecase(stripe, new SpaceUsecase(spaceRepository))
     )
 
+    const stripeController = new StripeController(
+        new StripeUsecase(stripe, new SpaceUsecase(spaceRepository)),
+        stripe,
+        STRIPE_WEBHOOK_SECRET!
+    );
+
     const allowedOrigins = [
         COMPANY_DOMAIN!,
         'localhost:3001'
     ];
 
     app.use(helmet());
+
+    app.post(STRIPE_PATH + WEBHOOK_PATH, express.raw({ type: 'application/json' }), stripeController.webhook.bind(stripeController))
 
     setupSwagger(app)
     swaggerYamlConverter(swaggerSpec)
@@ -74,8 +84,6 @@ export const initializeServer = async () => {
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
     }));
     app.use(express.json());
-    // app.use(handle(i18next));
-    app.use(authenticateClient(API_KEY_SECRET!, new JwtTokenService()))
 
     routes.register(app)
 
