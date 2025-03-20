@@ -160,7 +160,7 @@ export class StripeSubscriptionService implements SubscriptionService {
         return {
             id: stripeSubscription.id,
             customerId: stripeSubscription.customer as string,
-            planId: stripeSubscription.items.data[0].plan.id,
+            planId: stripeSubscription.items.data[0].plan.product as string,
             status: stripeSubscription.status as 'active' | 'paused' | 'canceled',
             startDate: new Date(stripeSubscription.start_date * 1000),
             endDate: new Date(stripeSubscription.current_period_end * 1000),
