@@ -29,6 +29,9 @@ import { Persistent } from "./persistent";
  *         megabytes:
  *           type: number
  *           description: Amount of storage (in MB) allocated in the plan
+ *         highlighted:
+ *           type: boolean
+ *           description: If it is recommended
  *         users:
  *           type: number
  *           description: Maximum number of users allowed in this subscription
@@ -61,4 +64,5 @@ export interface SubscriptionPlan extends Persistent {
     users: number;
     prices: Price [];
     features: Feature [];
+    highlighted: boolean;
 }       
