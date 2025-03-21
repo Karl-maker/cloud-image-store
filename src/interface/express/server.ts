@@ -24,15 +24,15 @@ import S3UploadService from "../../application/services/upload/aws.upload.servic
 import { S3ClientConfig } from "@aws-sdk/client-s3";
 import { StripeUsecase } from "../../domain/usecases/stripe.usecase";
 import Stripe from "stripe";
-
-import "../events/content.events";
-import "../events/space.event";
 import { CONTENT_PATH, STRIPE_PATH, UPLOAD_PATH, WEBHOOK_PATH } from "../../domain/constants/api.routes";
 import { StripeController } from "./controllers/stripe.controller";
 import multer from "multer";
 import authentication from "./middlewares/authentication.middleware";
 import { validateUploadEndpoint } from "./routes/content.routes";
 import { ContentController } from "./controllers/content.controller";
+
+import "../events/content.events";
+import "../events/space.event";
 
 export const app = express();
 
