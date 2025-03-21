@@ -334,12 +334,10 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *                   example: "Internal server error"
      */
 
-    router.post(CONTENT_PATH + UPLOAD_PATH, upload.array('files', 5), authentication(TOKEN_SECRET!, new JwtTokenService()), validateUploadEndpoint, controller.upload.bind(controller))
-
     return router;
 }
 
-const validateUploadEndpoint = async (req: Request, res: Response, next: NextFunction) => {
+export const validateUploadEndpoint = async (req: Request, res: Response, next: NextFunction) => {
     const { error } = uploadFilesSchema.validate({ files: req.files as Express.Multer.File[], spaceId: (req.body as unknown as UploadContentDTO).spaceId }, { abortEarly: true });
 
     if(error) next(new ValidationException("Malformed Request"));

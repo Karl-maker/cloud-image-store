@@ -10,7 +10,7 @@ export interface ContentDocument extends Omit<Content, 'id'>, Document {
 export const ContentSchema = new Schema<ContentDocument>(
     {
         name: { type: String, required: true },
-        description: { type: String, required: true, default: null },
+        description: { type: String, required: false },
         key: { type: String, required: true },
         mimeType: { type: String, required: true },
         location: { type: String, required: true },
@@ -19,6 +19,8 @@ export const ContentSchema = new Schema<ContentDocument>(
         spaceId: { type: String, required: true },
         length: { type: Number, required: false },
         size: { type: Number, required: true },
+        height: { type: Number, required: false },
+        width: { type: Number, required: false },
         clientId: { type: String, unique: true, default: () => generateUuid() }
     },
     { timestamps: true }

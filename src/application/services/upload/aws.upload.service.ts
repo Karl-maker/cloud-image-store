@@ -1,9 +1,10 @@
 import { S3Client, PutObjectCommandInput, S3ClientConfig } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
-import IUploadService from './i.upload.service';
-import ffmpeg from 'fluent-ffmpeg';
-import { promises as fsPromises } from 'fs';
-import { extname } from 'path';
+import IUploadService from "./i.upload.service";
+import ffmpeg from "fluent-ffmpeg";
+import sharp from "sharp";
+import { promises as fsPromises } from "fs";
+import { extname } from "path";
 import { UploadServiceInput, UploadServiceResponse } from "../../../domain/types/upload.service.type";
 
 export default class S3UploadService implements IUploadService {
@@ -16,19 +17,21 @@ export default class S3UploadService implements IUploadService {
     }
 
     async upload(
-        input: UploadServiceInput, 
+        input: UploadServiceInput,
         cd: (err: Error | null, data?: UploadServiceResponse) => Promise<void>,
         load?: (percentage?: number) => Promise<void>
     ): Promise<void> {
         const { fileBuffer, fileName, mimeType, metadata } = input;
         let length: number | undefined;
+        let width: number | undefined;
+        let height: number | undefined;
 
-        // Ensure the MIME type is a video
-        if (mimeType.startsWith('video/')) {
+        if (mimeType.startsWith("video/")) {
             length = await this.getVideoLength(fileBuffer, mimeType);
+        } else if (mimeType.startsWith("image/")) {
+            ({ width, height } = await this.getImageDimensions(fileBuffer));
         }
 
-        // Define parameters for the S3 upload
         const params: PutObjectCommandInput = {
             Bucket: this.bucketName,
             Key: fileName,
@@ -45,60 +48,51 @@ export default class S3UploadService implements IUploadService {
 
             parallelUploads3.on("httpUploadProgress", async (progress) => {
                 if (load) {
-                    const percentage = Math.round((progress.loaded! / progress.total!));
+                    const percentage = Math.round((progress.loaded! / progress.total!) * 100);
                     await load(percentage);
                 }
             });
 
-            const uploadResult = await parallelUploads3.done();
+            await parallelUploads3.done();
 
-            // Create the response object
             const response: UploadServiceResponse = {
                 key: fileName,
                 src: `https://${this.bucketName}.s3.amazonaws.com/${fileName}`,
-                mimeType: mimeType,
-                fileSize: fileBuffer.length, // Include file size
-                length, // Include length if calculated
+                mimeType,
+                fileSize: fileBuffer.length,
+                length,
+                width,
+                height,
             };
 
-            // Call the callback with the response data
             await cd(null, response);
         } catch (error) {
-            // Handle error and call callback with the error
             await cd(error as Error);
         }
     }
 
-    // Helper method to get video length using fluent-ffmpeg
     private async getVideoLength(fileBuffer: Buffer, mimeType: string): Promise<number | undefined> {
         return new Promise<number | undefined>((resolve, reject) => {
-            // Generate a temporary file path
             const tempFilePath = `temp_video${extname(mimeType)}`;
-
-            // Write the buffer to a temporary file
             fsPromises.writeFile(tempFilePath, fileBuffer)
                 .then(() => {
-                    // Use ffmpeg to get video metadata
-                    ffmpeg(tempFilePath)
-                        .ffprobe((err, data) => {
-                            // Remove the temporary file after processing
-                            fsPromises.unlink(tempFilePath)
-                                .catch(unlinkErr => {
-                                    console.error('Error removing temporary file:', unlinkErr);
-                                });
-
-                            if (err) {
-                                return reject(err);
-                            }
-
-                            // Extract duration from the metadata
-                            const duration: number | undefined = data.format.duration;
-                            resolve(duration);
-                        });
+                    ffmpeg(tempFilePath).ffprobe((err, data) => {
+                        fsPromises.unlink(tempFilePath).catch(console.error);
+                        if (err) return reject(err);
+                        resolve(data.format.duration);
+                    });
                 })
-                .catch(err => {
-                    reject(err);
-                });
+                .catch(reject);
         });
+    }
+
+    private async getImageDimensions(fileBuffer: Buffer): Promise<{ width: number; height: number }> {
+        try {
+            const metadata = await sharp(fileBuffer).metadata();
+            return { width: metadata.width ?? 0, height: metadata.height ?? 0 };
+        } catch (error) {
+            console.error("Error getting image dimensions:", error);
+            return { width: 0, height: 0 };
+        }
     }
 }

@@ -67,6 +67,12 @@ components:
         size:
           type: number
           description: Size of the content in bytes
+        height:
+          type: number
+          description: height of image
+        width:
+          type: number
+          description: width of image
       required:
         - id
         - createdAt

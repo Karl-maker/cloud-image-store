@@ -53,6 +53,12 @@ import { Persistent } from "./persistent";
  *         size:
  *           type: number
  *           description: Size of the content in bytes
+ *         height:
+ *           type: number
+ *           description: height of image
+ *         width:
+ *           type: number
+ *           description: width of image
  *       required:
  *         - id
  *         - createdAt
@@ -77,5 +83,7 @@ export interface Content extends Persistent {
     length?: number;
     spaceId: string;
     size: number;
+    height?: number;
+    width?: number;
 }
 

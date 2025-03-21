@@ -1,7 +1,7 @@
 import express, { ErrorRequestHandler } from "express";
 import authenticateClient from "./middlewares/authenticate.client.middleware";
 import { Database } from "../../application/configuration/mongodb";
-import { ACCESS_KEY_ID_AWS, API_KEY_SECRET, COMPANY_DOMAIN, MONGO_URI, PORT, REGION_AWS, S3_BUCKET_NAME_AWS, SECRET_ACCESS_KEY_AWS, STRIPE_KEY, STRIPE_WEBHOOK_SECRET } from "../../application/configuration";
+import { ACCESS_KEY_ID_AWS, API_KEY_SECRET, COMPANY_DOMAIN, MONGO_URI, PORT, REGION_AWS, S3_BUCKET_NAME_AWS, SECRET_ACCESS_KEY_AWS, STRIPE_KEY, STRIPE_WEBHOOK_SECRET, TOKEN_SECRET } from "../../application/configuration";
 import { JwtTokenService } from "../../application/services/token/jwt.token.service";
 import cors from 'cors';
 import helmet from 'helmet';
@@ -27,8 +27,12 @@ import Stripe from "stripe";
 
 import "../events/content.events";
 import "../events/space.event";
-import { STRIPE_PATH, WEBHOOK_PATH } from "../../domain/constants/api.routes";
+import { CONTENT_PATH, STRIPE_PATH, UPLOAD_PATH, WEBHOOK_PATH } from "../../domain/constants/api.routes";
 import { StripeController } from "./controllers/stripe.controller";
+import multer from "multer";
+import authentication from "./middlewares/authentication.middleware";
+import { validateUploadEndpoint } from "./routes/content.routes";
+import { ContentController } from "./controllers/content.controller";
 
 export const app = express();
 
@@ -52,7 +56,7 @@ export const initializeServer = async () => {
     const bucketName = S3_BUCKET_NAME_AWS!;
     const stripe = new Stripe(STRIPE_KEY!, { apiVersion: '2025-02-24.acacia' });
     const uploadService : IUploadService = new S3UploadService(s3Config, bucketName);
-
+    const upload = multer({ storage: multer.memoryStorage() });
     const routes = new Routes(
         new UserUsecase(userRepository),
         new SpaceUsecase(spaceRepository),
@@ -66,6 +70,8 @@ export const initializeServer = async () => {
         STRIPE_WEBHOOK_SECRET!
     );
 
+    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository)))
+
     const allowedOrigins = [
         COMPANY_DOMAIN!,
         'localhost:3001'
@@ -74,6 +80,7 @@ export const initializeServer = async () => {
     app.use(helmet());
 
     app.post(STRIPE_PATH + WEBHOOK_PATH, express.raw({ type: 'application/json' }), stripeController.webhook.bind(stripeController))
+    app.post('/api/v1' + CONTENT_PATH + UPLOAD_PATH, upload.array('files', 10), authentication(TOKEN_SECRET!, new JwtTokenService()), validateUploadEndpoint, contentController.upload.bind(contentController))
 
     setupSwagger(app)
     swaggerYamlConverter(swaggerSpec)

@@ -7,6 +7,7 @@ import { SubscriptionPlan } from "../entities/subscription.plan";
 import { SpaceRepository } from "../repositories/space.repository";
 import { SpaceFilterBy, SpaceSortBy } from "../types/space";
 import { Usecases } from "./usecases";
+import { bytesToMB } from "../../utils/bytes.to.mb";
 
 export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, SpaceRepository> {
     
@@ -175,7 +176,7 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
     async hasMemory(spaceId: string, amount: number) : Promise<boolean> {
         const space = await this.repository.findById(spaceId);
         if(!space) throw new NotFoundException('space not found');
-        return (space.usedMegabytes + amount) > space.totalMegabytes;
+        return (space.usedMegabytes + this.bytesToMB(amount)) < space.totalMegabytes;
     }
 
     async addMemory(spaceId: string, amount: number) : Promise<void> {
@@ -184,5 +185,9 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
 
         space.usedMegabytes = space.usedMegabytes + amount;
         await this.repository.save(space);
+    }
+
+    private bytesToMB(bytes: number): number {
+        return bytesToMB(bytes);
     }
 }

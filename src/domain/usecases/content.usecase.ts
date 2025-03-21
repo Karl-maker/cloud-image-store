@@ -10,6 +10,8 @@ import { UploadServiceResponse } from "../types/upload.service.type";
 import { generateUuid } from "../../utils/generate.uuid.util";
 import { SpaceUsecase } from "./space.usecase";
 import { InsufficentStorageException } from "../../application/exceptions/insufficent.storage.exception";
+import { bytesToMB } from "../../utils/bytes.to.mb";
+import { BUCKET_NAME_PRIVATE } from "../constants/bucket.name";
 
 export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilterBy, ContentRepository> {
     constructor (
@@ -63,14 +65,14 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                 id: null,
                 createdAt: new Date(),
                 updatedAt:  new Date(),
-                size: 0
+                size: bytesToMB(item.size)
             }
 
             if(!await this.spaceUsecase.hasMemory(data.spaceId, item.size)) throw new InsufficentStorageException('out of memory in space')
             
             await this.uploadService.upload({
                 fileBuffer: item.buffer,
-                fileName: name,
+                fileName: BUCKET_NAME_PRIVATE + '/' + name,
                 mimeType: item.mimetype,
             }, 
             async (err: Error | null, data?: UploadServiceResponse) => {
@@ -79,10 +81,12 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                     content.key = data.key;
                     content.location = data.src;
                     content.mimeType = data.mimeType;
-                    content.size = item.size;
+                    content.size = bytesToMB(item.size);
+                    content.height = data.height;
+                    content.width = data.width;
                     
                     content = await this.repository.save(content);
-                    await this.spaceUsecase.addMemory(spaceId, item.size);
+                    await this.spaceUsecase.addMemory(spaceId, bytesToMB(item.size));
                 }
             }, 
             async (precentage?: number) => {
