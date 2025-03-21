@@ -80,7 +80,6 @@ export const initializeServer = async () => {
     app.use(helmet());
 
     app.post(STRIPE_PATH + WEBHOOK_PATH, express.raw({ type: 'application/json' }), stripeController.webhook.bind(stripeController))
-    app.post('/api/v1' + CONTENT_PATH + UPLOAD_PATH, upload.array('files', 10), authentication(TOKEN_SECRET!, new JwtTokenService()), validateUploadEndpoint, contentController.upload.bind(contentController))
 
     setupSwagger(app)
     swaggerYamlConverter(swaggerSpec)
@@ -90,7 +89,10 @@ export const initializeServer = async () => {
         allowedHeaders: ['Content-Type', 'Authorization', "x-api-key"],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
     }));
+
     app.use(express.json());
+
+    app.post('/api/v1' + CONTENT_PATH + UPLOAD_PATH, upload.array('files', 10), authentication(TOKEN_SECRET!, new JwtTokenService()), validateUploadEndpoint, contentController.upload.bind(contentController))
 
     routes.register(app)
 
