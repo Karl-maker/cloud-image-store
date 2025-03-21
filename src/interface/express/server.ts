@@ -73,7 +73,7 @@ export const initializeServer = async () => {
     const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository)))
 
     const allowedOrigins = [
-        COMPANY_DOMAIN!,
+        new URL(COMPANY_DOMAIN!).origin!,
         'localhost:3001'
     ];
 
@@ -84,11 +84,17 @@ export const initializeServer = async () => {
     setupSwagger(app)
     swaggerYamlConverter(swaggerSpec)
     app.use(cors({
-        origin: allowedOrigins,
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization', "x-api-key"],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
-    }));
+    }));;
 
     app.use(express.json());
 
