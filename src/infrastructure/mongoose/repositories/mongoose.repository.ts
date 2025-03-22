@@ -76,12 +76,10 @@ export abstract class MongooseRepository<
     async delete(data: E): Promise<DeleteResponse<E>> {
         let error : Error | undefined = undefined;
 
-        const deleted = await this.model.deleteOne({
+        const deleted = await this.model.findOneAndDelete({
             clientId: data.id
         });
-
-        if(deleted.deletedCount > 0) error = new Error('Issue deleting element');
-
+        
         return {
             data,
             error
