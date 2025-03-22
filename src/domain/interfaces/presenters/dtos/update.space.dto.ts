@@ -22,7 +22,6 @@ import { SpaceShareType } from '../../../types/space';
  *           type: array
  *           items:
  *             type: string
- *             format: uuid
  *           description: List of user IDs associated with the space.
  *       required: []
  */
@@ -31,7 +30,7 @@ export const updateSpaceSchema = Joi.object({
     name: Joi.string().min(1).max(255).optional(),
     description: Joi.string().max(1000).optional(),
     shareType: Joi.string().valid('invite', 'private', 'public').required(),
-    userIds: Joi.array().items(Joi.string().uuid()).optional(),
+    userIds: Joi.array().items(Joi.string()).optional(),
 });
 
 

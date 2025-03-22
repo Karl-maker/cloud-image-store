@@ -22,9 +22,7 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
             updatedAt: new Date(),
             name: data.name,
             description: data.description,
-            userIds: [
-                data.createdByUserId
-            ],
+            userIds: [],
             createdByUserId: data.createdByUserId,
             usedMegabytes: 0,
             totalMegabytes: 0,

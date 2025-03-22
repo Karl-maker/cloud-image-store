@@ -265,7 +265,7 @@ export const UserRoutes = (usecase: UserUsecase) => {
      *                   example: "Internal server error"
      */
 
-    router.get(USER_PATH, validateQueryDTO(findManySchema.concat(userFilterBySchema)), controller.findMany.bind(controller)); 
+    router.get(USER_PATH, controller.findMany.bind(controller)); 
 
     /**
      * @swagger

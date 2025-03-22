@@ -276,7 +276,9 @@ export const SpaceRoutes = (usecase: SpaceUsecase) => {
      */
 
 
-    router.patch(SPACE_PATH + SPACE_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateBodyDTO(updateSpaceSchema), controller.updateById.bind(controller));
+    router.patch(SPACE_PATH + SPACE_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), 
+    //validateBodyDTO(updateSpaceSchema), 
+    controller.updateById.bind(controller));
 
     /**
      * @swagger

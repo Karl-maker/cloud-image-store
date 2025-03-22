@@ -450,7 +450,6 @@ components:
           type: array
           items:
             type: string
-            format: uuid
           description: List of user IDs associated with the space.
       required: []
     UpdateUserRequest:
