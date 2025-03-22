@@ -28,7 +28,10 @@ export class SpaceController {
     async deleteById (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
             const space = await this.usecase.findById(req.params[SPACE_PARAM]);
-            await this.usecase.deleteById(req.params[SPACE_PARAM])
+            const data  = {
+                deactivatedAt: new Date(),
+            }
+            await this.usecase.update(req.params[SPACE_PARAM], data as UpdateSpaceDTO)
 
             eventBus.emit(SPACE_DELETED, { space })
 

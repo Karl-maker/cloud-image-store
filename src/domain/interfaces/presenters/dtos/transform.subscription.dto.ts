@@ -10,20 +10,20 @@ import Joi from 'joi';
  *         subscriptionId:
  *           type: string
  *           description: The ID of the subscription to be transformed.
- *         newPlanId:
+ *         newPriceId:
  *           type: string
  *           description: The ID of the new subscription plan.
  *       required:
  *         - subscriptionId
- *         - newPlanId
+ *         - newPriceId
  */
 
 export const transformSubscriptionSchema = Joi.object({
     subscriptionId: Joi.string().required(),
-    newPlanId: Joi.string().required(),
+    newPriceId: Joi.string().required(),
 });
 
 export type TransformSubscriptionDTO = {
     subscriptionId: string;
-    newPlanId: string;
+    newPriceId: string;
 }

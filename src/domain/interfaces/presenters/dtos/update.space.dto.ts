@@ -43,4 +43,5 @@ export type UpdateSpaceDTO = {
     usedMegabytes: number;
     subscriptionPlanId: string;
     userIds: string[];
+    deactivatedAt?: Date;
 }

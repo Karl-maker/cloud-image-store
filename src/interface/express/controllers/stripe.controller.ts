@@ -81,10 +81,10 @@ export class StripeController {
         try {   
             const {
                 subscriptionId,
-                newPlanId
+                newPriceId
             } = req.body as TransformSubscriptionDTO;
 
-            const subscription = await this.usecase.upgradeSubscription(subscriptionId, newPlanId)
+            const subscription = await this.usecase.upgradeSubscription(subscriptionId, newPriceId)
 
             res.status(200).json(subscription);
         } catch (error) {
@@ -96,10 +96,10 @@ export class StripeController {
         try {   
             const {
                 subscriptionId,
-                newPlanId
+                newPriceId
             } = req.body as TransformSubscriptionDTO;
 
-            const subscription = await this.usecase.downgradeSubscription(subscriptionId, newPlanId)
+            const subscription = await this.usecase.downgradeSubscription(subscriptionId, newPriceId)
 
             res.status(200).json(subscription);
         } catch (error) {

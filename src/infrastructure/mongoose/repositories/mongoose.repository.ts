@@ -21,18 +21,26 @@ export abstract class MongooseRepository<
 
     async findById(id: string) : Promise<E | null> {
         const found = await this.model.findOne({
-            clientId: id
+            clientId: id,
+            deactivatedAt: null
         })
         return found ? this.mapModelToEntity(found) : null;
     }
 
     async findMany(params?: FindParams<SortByKeys, FilterByKeys>): Promise<FindResponse<E>> {
-        const filters = mapFindMongooseFilters(params?.filters);
+        const deactivatedFilter = { deactivatedAt: null };
+
+        const filters = {
+            ...mapFindMongooseFilters(params?.filters),
+            ...deactivatedFilter
+        };
     
         const paginationOptions = mapFindMongoosePagination(params?.pageNumber, params?.pageSize);
         const sortOptions = mapFindMongooseSort(params?.sortBy, params?.sortOrder);
     
-        const result = await this.model.find(filters, {}, { sort: sortOptions, ...paginationOptions });
+        const result = await this.model.find({
+            ...filters
+        }, {}, { sort: sortOptions, ...paginationOptions });
     
         const totalItems = await this.model.countDocuments(filters);
         const pageSize = params?.pageSize ?? totalItems; 

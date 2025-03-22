@@ -124,8 +124,6 @@ export const StripeRoutes = (
      *       - Stripe
      *     summary: Upgrade or downgrade a subscription
      *     description: Allows a user to upgrade or downgrade their subscription plan.
-     *     security:
-     *       - BearerAuth: []
      *     requestBody:
      *       required: true
      *       content:

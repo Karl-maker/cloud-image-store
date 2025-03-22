@@ -81,6 +81,25 @@ export class StripeUsecase {
             const subscription = event.data.object as Stripe.Subscription;
             const result = await this.spaceUsecase.subscriptionResumed(subscription.id);
             if(result instanceof Error || result instanceof NotFoundException) throw result;
+        } else if(event.type === 'customer.subscription.updated') {
+            const subscription = event.data.object;
+            const planId = subscription.items.data[0].plan.product as string;
+            const plan = await this.subscriptionPlanService.findById(planId);
+
+            if(!plan) throw new Error('no plan found');
+            if(!subscription.metadata.space_id) throw new Error('no space id found')
+            const space = await this.spaceUsecase.findById(subscription.metadata.space_id);
+
+            if(space instanceof Error || space instanceof NotFoundException) throw space;
+            
+            await this.spaceUsecase.update(subscription.metadata.space_id, {
+                totalMegabytes: plan.megabytes,
+                usersAllowed: plan.users,
+                subscriptionPlanId: plan.id,
+                userIds: space.userIds.length > plan.users ? space.userIds.splice(-1 * (space.userIds.length - plan.users)) : space.userIds
+            })
+
+
         }
     }
 

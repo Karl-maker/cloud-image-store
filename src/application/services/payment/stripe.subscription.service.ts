@@ -88,6 +88,9 @@ export class StripeSubscriptionService implements SubscriptionService {
             amount: refundAmount,
         });
     
+        // Cancel the subscription
+        await this.stripe.subscriptions.cancel(subscriptionId);
+    
         return refund.amount / 100; // Convert from cents to dollars
     }    
 
@@ -97,7 +100,7 @@ export class StripeSubscriptionService implements SubscriptionService {
      * @param newPlanId - The ID of the new plan to upgrade to.
      * @returns A promise that resolves to the updated subscription details.
      */
-    async upgradeSubscription(subscriptionId: string, newPlanId: string): Promise<Subscription> {
+    async upgradeSubscription(subscriptionId: string, newPriceId: string): Promise<Subscription> {
         // Retrieve the existing subscription
         const existingSubscription = await this.stripe.subscriptions.retrieve(subscriptionId);
     
@@ -108,11 +111,13 @@ export class StripeSubscriptionService implements SubscriptionService {
     
         // Update the subscription with the new plan
         const updatedSubscription = await this.stripe.subscriptions.update(subscriptionId, {
-            items: [{ id: existingSubscription.items.data[0].id, price: newPlanId }],
+            items: [{ id: existingSubscription.items.data[0].id, price: newPriceId }],
         });
     
         return this.mapStripeToSubscription(updatedSubscription);
     }
+
+    
     
     /**
      * Downgrades a subscription to a lower-tier plan.

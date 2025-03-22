@@ -411,12 +411,12 @@ components:
         subscriptionId:
           type: string
           description: The ID of the subscription to be transformed.
-        newPlanId:
+        newPriceId:
           type: string
           description: The ID of the new subscription plan.
       required:
         - subscriptionId
-        - newPlanId
+        - newPriceId
     UpdateContentRequest:
       type: object
       properties:
@@ -1196,8 +1196,6 @@ paths:
         - Stripe
       summary: Upgrade or downgrade a subscription
       description: Allows a user to upgrade or downgrade their subscription plan.
-      security:
-        - BearerAuth: []
       requestBody:
         required: true
         content:
