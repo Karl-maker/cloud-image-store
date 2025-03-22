@@ -27,7 +27,7 @@ export class StripePaymentLinkService implements PaymentLinkService {
                 after_completion: {
                     type: 'redirect',
                     redirect: {
-                        url: COMPANY_DOMAIN + '/album/' + spaceId + '/setup' // Replace with actual success URL
+                        url: COMPANY_DOMAIN + '/album/' + spaceId + '/setup?p=1' // Replace with actual success URL
                     }
                 }
             });
