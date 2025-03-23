@@ -59,6 +59,7 @@ export abstract class MongooseRepository<
     }    
 
     async save(d: E): Promise<E> {
+        
         if (d.id) {
             const updated = await this.model.findOneAndUpdate(
                 { clientId: d.id }, 
@@ -79,7 +80,7 @@ export abstract class MongooseRepository<
         const deleted = await this.model.findOneAndDelete({
             clientId: data.id
         });
-        
+
         return {
             data,
             error

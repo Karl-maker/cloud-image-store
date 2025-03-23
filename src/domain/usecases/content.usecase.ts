@@ -55,7 +55,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
             const name = generateUuid();
             const spaceId = data.spaceId;
             let content : Content = {
-                name: name,
+                name: item.originalname,
                 description: null,
                 key: "",
                 mimeType: "",
@@ -67,7 +67,6 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                 updatedAt:  new Date(),
                 size: bytesToMB(item.size)
             }
-
             if(!await this.spaceUsecase.hasMemory(data.spaceId, item.size)) throw new InsufficentStorageException('out of memory in space')
             
             await this.uploadService.upload({
@@ -84,7 +83,6 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                     content.size = bytesToMB(item.size);
                     content.height = data.height;
                     content.width = data.width;
-                    
                     content = await this.repository.save(content);
                     await this.spaceUsecase.addMemory(spaceId, bytesToMB(item.size));
                 }

@@ -31,7 +31,6 @@ export class ContentController {
                 spaceId: (req.body as unknown as UploadContentDTO).spaceId,
                 files: req.files as Express.Multer.File[]
             })
-
             res.status(201).end();
         } catch (error) {
             next(error)
