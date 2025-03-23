@@ -95,5 +95,6 @@ export interface Space extends Persistent {
     shareType: SpaceShareType;
     subscriptionPlanId: string | null;
     stripeSubscriptionId: string | null;
+    aiGenerationsPerMonth?: number;
 }
 

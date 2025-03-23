@@ -35,6 +35,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
             location: data.location,
             uploadCompletion: 0,
             spaceId: data.spaceId,
+            ai: data.ai ?? false,
             size: 0
         }
 

@@ -5,4 +5,5 @@ export type CreateContentDTO = {
     mimeType: string;
     location: string;
     spaceId: string;
+    ai?: boolean;
 }

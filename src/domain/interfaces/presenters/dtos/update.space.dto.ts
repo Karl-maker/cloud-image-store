@@ -43,4 +43,5 @@ export type UpdateSpaceDTO = {
     subscriptionPlanId: string;
     userIds: string[];
     deactivatedAt?: Date;
+    aiGenerationsPerMonth?: number;
 }

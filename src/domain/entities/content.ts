@@ -85,5 +85,6 @@ export interface Content extends Persistent {
     size: number;
     height?: number;
     width?: number;
+    ai?: boolean;
 }
 

@@ -20,6 +20,7 @@ export const SpaceSchema = new Schema<SpaceDocument>(
         totalMegabytes: { type: Number, required: true, min: 0, default: 0 },
         subscriptionPlanId: { type: String, required: false, default: null },
         shareType: { type: String, default: 'public' },
+        aiGenerationsPerMonth: { type: Number, default: 0 },
         clientId: { type: String, unique: true, default: () => generateUuid() },
         usersAllowed: { type: Number, required: true, min: 0, default: 1 },
     },

@@ -23,7 +23,8 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
                 megabytes: plan.megabytes.toString(),
                 features: JSON.stringify(plan.features),
                 users: plan.users.toString(),
-                highlighted: Number(plan.highlighted)
+                highlighted: Number(plan.highlighted),
+                aiGenerationsPerMonth: Number(plan.aiGenerationsPerMonth ?? 0),
             },
         });
 
@@ -57,7 +58,8 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
             metadata: {
                 megabytes: updates.megabytes?.toString() ?? existingProduct.metadata.megabytes,
                 features: updates.features ? JSON.stringify(updates.features) : existingProduct.metadata.features,
-                highlighted: updates.highlighted ? Number(updates.highlighted) : existingProduct.metadata.highlighted
+                highlighted: updates.highlighted ? Number(updates.highlighted) : existingProduct.metadata.highlighted,
+                aiGenerationsPerMonth: updates.aiGenerationsPerMonth ? Number(updates.aiGenerationsPerMonth) : existingProduct.metadata.aiGenerationsPerMonth ?? 0
             },
         });
 
@@ -156,7 +158,8 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
             })),
             createdAt: new Date(product.created * 1000),
             updatedAt: new Date(product.updated * 1000),
-            highlighted: Boolean(Number(product.metadata.highlighted)) ?? false
+            highlighted: Boolean(Number(product.metadata.highlighted)) ?? false,
+            aiGenerationsPerMonth: product.metadata.aiGenerationsPerMonth ? Number(product.metadata.aiGenerationsPerMonth) : 0
         };
     }
 }

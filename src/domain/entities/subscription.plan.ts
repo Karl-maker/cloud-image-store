@@ -62,6 +62,7 @@ export interface SubscriptionPlan extends Persistent {
     description: string;
     megabytes: number;
     users: number;
+    aiGenerationsPerMonth?: number;
     prices: Price [];
     features: Feature [];
     highlighted: boolean;

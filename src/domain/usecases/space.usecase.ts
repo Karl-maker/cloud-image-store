@@ -29,7 +29,8 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
             subscriptionPlanId: null,
             stripeSubscriptionId: null,
             usersAllowed: 1,
-            shareType: data.shareType
+            shareType: data.shareType,
+            aiGenerationsPerMonth: 0
         }
 
         return space;
@@ -74,6 +75,7 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
             space.stripeSubscriptionId = stripSubscriptionId;
             space.pausedAt = undefined;
             space.deactivatedAt = undefined;
+            space.aiGenerationsPerMonth = subscriptionPlan.aiGenerationsPerMonth ?? 0;
     
             const saved = await this.repository.save(space);
     

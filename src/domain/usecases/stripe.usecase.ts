@@ -88,18 +88,14 @@ export class StripeUsecase {
 
             if(!plan) throw new Error('no plan found');
             if(!subscription.metadata.space_id) throw new Error('no space id found')
+                
             const space = await this.spaceUsecase.findById(subscription.metadata.space_id);
+            const subscriptionEntity = await this.subscriptionService.findById(subscription.id as string);
 
             if(space instanceof Error || space instanceof NotFoundException) throw space;
-            
-            await this.spaceUsecase.update(subscription.metadata.space_id, {
-                totalMegabytes: plan.megabytes,
-                usersAllowed: plan.users,
-                subscriptionPlanId: plan.id,
-                userIds: space.userIds.length > plan.users ? space.userIds.splice(-1 * (space.userIds.length - plan.users)) : space.userIds
-            })
+            if(subscriptionEntity === null) throw new NotFoundException('subscription not found');
 
-
+            await this.spaceUsecase.subscribedToPlan(subscription.metadata.space_id, subscriptionEntity, plan)
         }
     }
 
