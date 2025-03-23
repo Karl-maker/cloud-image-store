@@ -118,6 +118,10 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *         schema:
      *           type: string
      *         description: Filter content by MIME type.
+     *       - in: query
+     *         name: name
+     *         schema:
+     *           type: string
      *     responses:
      *       200:
      *         description: Successfully retrieved a list of contents.

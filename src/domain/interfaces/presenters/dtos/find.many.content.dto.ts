@@ -6,6 +6,11 @@ export type FindManyContentsDTO = ContentFilterBy & FindManyDTO<ContentSortBy>;
 
 export const contentFilterBySchema = Joi.object({
 
+    name: Joi.string().optional()
+        .messages({
+            "string.base": " name must be a string"
+        }),
+
     spaceId: Joi.string().optional()
         .messages({
             "string.base": "space_id must be a string"
