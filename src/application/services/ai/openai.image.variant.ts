@@ -16,6 +16,7 @@ export class OpenaiImageVariant implements IImageVariant {
             formData.append("image", image, generateUuid()); // Default filename
             formData.append("n", n.toString());
             formData.append("size", this.size);
+            formData.append("model", 'dall-e-3')
 
             const response = await axios.post(this.openAiUrl, formData, {
                 headers: {

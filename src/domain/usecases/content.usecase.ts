@@ -118,7 +118,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
         if(!pngBlob) throw new Error('cannot convert to png');
 
         const compressed = await compressBlobToSize(await blobToBuffer(pngBlob), 3.5);
-        const results = await this.imageVariantService.generate(compressed, 3, content.spaceId);
+        const results = await this.imageVariantService.generate(compressed, 1, content.spaceId);
         await Promise.all(results.map(async (content) => {
             await this.repository.save(content);
         }))
