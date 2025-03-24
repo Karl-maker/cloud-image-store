@@ -21,6 +21,7 @@ import { blobToBuffer } from "../../utils/blob.to.buffer.util";
 import { compressBlobToSize } from "../../utils/compless.blob.util";
 import { isImageSizeLessThanTargetInBytes } from "../../utils/check.size.util";
 import { SpaceRepository } from "../repositories/space.repository";
+import { downloadImageWithMetadata } from "../../utils/download.blob.from.link.util";
 
 export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilterBy, ContentRepository> {
     constructor (
@@ -123,7 +124,36 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
         // const compressed = isImageSizeLessThanTargetInBytes(pngBlob.size, 4 * 1024 * 1024) ? pngBlob : await compressBlobToSize(await blobToBuffer(pngBlob), 3.5);
         const results = await this.imageVariantService.generate(blob, data.prompt, 1, content.spaceId);
         await Promise.all(results.map(async (content) => {
+            const img = await downloadImageWithMetadata(content.location)
+            const name = generateUuid();
+            await this.uploadService.upload({
+                fileBuffer: img.buffer,
+                fileName: BUCKET_NAME_PRIVATE + '/' + name,
+                mimeType: img.mimeType,
+            }, 
+            async (err: Error | null, data?: UploadServiceResponse) => {
+                if(err) content.uploadError = 'Issue Uploading Content';
+                if(data) {
+                    content.key = data.key;
+                    content.location = data.src;
+                    content.mimeType = img.mimeType;
+                    content.size = bytesToMB(img.size);
+                    content.height = data.height;
+                    content.width = data.width;
+                    content = await this.repository.save(content);
+                    await this.spaceUsecase.addMemory(content.spaceId, bytesToMB(img.size));
+                }
+            }, 
+            async (precentage?: number) => {
+                if(precentage && content.id) {
+                    content.uploadCompletion = precentage;
+                    await this.repository.save(content)
+                }
+
+            })
+
             await this.repository.save(content);
+            
         }))
     }
     
