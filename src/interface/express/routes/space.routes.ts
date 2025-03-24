@@ -177,6 +177,12 @@ export const SpaceRoutes = (usecase: SpaceUsecase) => {
      *         schema:
      *           type: string
      *         description: The subscription plan ID associated with the space.
+     *       - in: query
+     *         name: name
+     *         required: false
+     *         schema:
+     *           type: string
+     *         description: The name of space.
      *     responses:
      *       200:
      *         description: Successfully retrieved list of spaces.
