@@ -1,7 +1,7 @@
 import express, { ErrorRequestHandler } from "express";
 import authenticateClient from "./middlewares/authenticate.client.middleware";
 import { Database } from "../../application/configuration/mongodb";
-import { ACCESS_KEY_ID_AWS, API_KEY_SECRET, COMPANY_DOMAIN, MONGO_URI, PORT, REGION_AWS, S3_BUCKET_NAME_AWS, SECRET_ACCESS_KEY_AWS, STRIPE_KEY, STRIPE_WEBHOOK_SECRET, TOKEN_SECRET } from "../../application/configuration";
+import { ACCESS_KEY_ID_AWS, API_KEY_SECRET, COMPANY_DOMAIN, MONGO_URI, OPEN_AI_KEY, PORT, REGION_AWS, S3_BUCKET_NAME_AWS, SECRET_ACCESS_KEY_AWS, STRIPE_KEY, STRIPE_WEBHOOK_SECRET, TOKEN_SECRET } from "../../application/configuration";
 import { JwtTokenService } from "../../application/services/token/jwt.token.service";
 import cors from 'cors';
 import helmet from 'helmet';
@@ -33,6 +33,9 @@ import { ContentController } from "./controllers/content.controller";
 
 import "../events/content.events";
 import "../events/space.event";
+import { OpenaiImageVariant } from "../../application/services/ai/openai.image.variant";
+import { IMAGE_GEN_VARIATION } from "../../domain/constants/open.ai";
+import { S3GetBlobService } from "../../application/blob/aws.get.blob.service";
 
 export const app = express();
 
@@ -60,7 +63,7 @@ export const initializeServer = async () => {
     const routes = new Routes(
         new UserUsecase(userRepository),
         new SpaceUsecase(spaceRepository),
-        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository)),
+        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository), new OpenaiImageVariant(OPEN_AI_KEY!, IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName)),
         new StripeUsecase(stripe, new SpaceUsecase(spaceRepository))
     )
 
@@ -70,11 +73,12 @@ export const initializeServer = async () => {
         STRIPE_WEBHOOK_SECRET!
     );
 
-    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository)))
+    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository), new OpenaiImageVariant(OPEN_AI_KEY!, IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName)))
 
     const allowedOrigins = [
         new URL(COMPANY_DOMAIN!).origin!,
-        'localhost:3001'
+        'localhost:3001',
+        'localhost:3000'
     ];
 
     app.use(helmet());
@@ -84,17 +88,11 @@ export const initializeServer = async () => {
     setupSwagger(app)
     swaggerYamlConverter(swaggerSpec)
     app.use(cors({
-        origin: (origin, callback) => {
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
+        origin: '*',
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization', "x-api-key"],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
-    }));;
+    }));
 
     app.use(express.json());
 

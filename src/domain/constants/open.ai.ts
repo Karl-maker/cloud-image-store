@@ -1,0 +1,1 @@
+export const IMAGE_GEN_VARIATION = "https://api.openai.com/v1/images/variations";

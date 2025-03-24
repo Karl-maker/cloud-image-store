@@ -1,4 +1,4 @@
-import { CONTENT_PARAM_PATH, CONTENT_PATH, UPLOAD_PATH } from "../../../domain/constants/api.routes";
+import { CONTENT_PARAM_PATH, CONTENT_PATH, CREATE_VARIANT_PATH, UPLOAD_PATH } from "../../../domain/constants/api.routes";
 import authentication from "../middlewares/authentication.middleware";
 import { TOKEN_SECRET } from "../../../application/configuration";
 import { JwtTokenService } from "../../../application/services/token/jwt.token.service";
@@ -12,6 +12,7 @@ import multer from "multer";
 import { UploadContentDTO, uploadFilesSchema } from "../../../domain/interfaces/presenters/dtos/upload.content.dto";
 import { ValidationException } from "../../../application/exceptions/validation.exception";
 import express, { Response, Request, NextFunction } from 'express';
+import { createContentVariantSchema } from "../../../domain/interfaces/presenters/dtos/create.content.variant.dto";
 
 const router = express.Router();
 
@@ -234,6 +235,64 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      */
 
     router.patch(CONTENT_PATH + CONTENT_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateBodyDTO(updateContentSchema), controller.updateById.bind(controller));
+
+    /**
+     * @swagger
+     * /content/{content_id}/generate-variant:
+     *   post:
+     *     tags:
+     *       - Content
+     *     summary: Create variant of content by ID
+     *     description: Update the details of a specific content by its content ID.
+     *     parameters:
+     *       - in: path
+     *         name: content_id
+     *         required: true
+     *         schema:
+     *           type: string
+     *         description: The unique identifier of the content to generate based on.
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/CreateContentVariantRequest'  # The request body schema
+     *     responses:
+     *       201:
+     *         description: Successfully generate content details.
+     *       404:
+     *         description: Content not found.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Content not found"
+     *       400:
+     *         description: Invalid request body or missing parameters.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Invalid content data"
+     *       500:
+     *         description: Internal server error.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Internal server error"
+     */
+
+    router.post(CONTENT_PATH + CONTENT_PARAM_PATH + CREATE_VARIANT_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateBodyDTO(createContentVariantSchema), controller.generateVariant.bind(controller));
 
     /**
      * @swagger

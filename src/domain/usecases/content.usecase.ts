@@ -12,12 +12,21 @@ import { SpaceUsecase } from "./space.usecase";
 import { InsufficentStorageException } from "../../application/exceptions/insufficent.storage.exception";
 import { bytesToMB } from "../../utils/bytes.to.mb";
 import { BUCKET_NAME_PRIVATE } from "../constants/bucket.name";
+import { CreateContentVariantDTO } from "../interfaces/presenters/dtos/create.content.variant.dto";
+import { NotFoundException } from "../../application/exceptions/not.found";
+import { IImageVariant } from "../../application/services/ai/interface.image.variant";
+import { GetBlobService } from "../../application/blob/interface.get.blob.service";
+import { convertJpegToPngBlob } from "../../utils/jpeg.to.png.util";
+import { blobToBuffer } from "../../utils/blob.to.buffer.util";
+import { compressBlobToSize } from "../../utils/compless.blob.util";
 
 export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilterBy, ContentRepository> {
     constructor (
         repository: ContentRepository,
         private uploadService: IUploadService,
-        private spaceUsecase: SpaceUsecase
+        private spaceUsecase: SpaceUsecase,
+        private imageVariantService: IImageVariant,
+        private blobService: GetBlobService
     ) {
         super(repository);
     }
@@ -96,6 +105,23 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
 
             })
         }
+    }
+
+    async generateContentVariant(data: CreateContentVariantDTO): Promise<void> {
+        const content = await this.repository.findById(data.contentId);
+        if(!content) throw new NotFoundException('content not found');
+        let pngBlob : Blob | undefined;
+        const blob = await this.blobService.getBlob(content.key);
+
+        if(content.mimeType === 'image/jpeg') pngBlob = await convertJpegToPngBlob(await blobToBuffer(blob))
+        if(content.mimeType === 'image/png') pngBlob = blob
+        if(!pngBlob) throw new Error('cannot convert to png');
+
+        const compressed = await compressBlobToSize(await blobToBuffer(pngBlob), 3.5);
+        const results = await this.imageVariantService.generate(compressed, 3, content.spaceId);
+        await Promise.all(results.map(async (content) => {
+            await this.repository.save(content);
+        }))
     }
     
 }

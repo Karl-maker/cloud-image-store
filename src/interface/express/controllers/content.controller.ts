@@ -78,4 +78,17 @@ export class ContentController {
         }
     }
 
+    async generateVariant (req: Request, res: Response, next: NextFunction) : Promise<void>  {
+        try {
+            console.log('enter generateVariant')
+            await this.usecase.generateContentVariant({
+                contentId: req.params[CONTENT_PARAM] as string,
+                prompt: req.body
+            })
+            res.status(201).end();
+        } catch (error) {
+            next(error)
+        }
+    }
+
 }

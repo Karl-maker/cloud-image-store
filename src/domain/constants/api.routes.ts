@@ -13,6 +13,7 @@ export const SPACE_PARAM_PATH = '/:' + SPACE_PARAM;
 export const CONTENT_PATH = '/content';
 export const CONTENT_PARAM = 'content_id';
 export const CONTENT_PARAM_PATH = '/:' + CONTENT_PARAM;
+export const CREATE_VARIANT_PATH = '/generate-variant'
 
 export const UPLOAD_PATH = '/upload'
 export const AUTH_PATH = '/auth'
