@@ -20,6 +20,7 @@ import { convertJpegToPngBlob } from "../../utils/jpeg.to.png.util";
 import { blobToBuffer } from "../../utils/blob.to.buffer.util";
 import { compressBlobToSize } from "../../utils/compless.blob.util";
 import { isImageSizeLessThanTargetInBytes } from "../../utils/check.size.util";
+import { SpaceRepository } from "../repositories/space.repository";
 
 export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilterBy, ContentRepository> {
     constructor (
@@ -27,7 +28,8 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
         private uploadService: IUploadService,
         private spaceUsecase: SpaceUsecase,
         private imageVariantService: IImageVariant,
-        private blobService: GetBlobService
+        private blobService: GetBlobService,
+        public spaceRepository: SpaceRepository
     ) {
         super(repository);
     }

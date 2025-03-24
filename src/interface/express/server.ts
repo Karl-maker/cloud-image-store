@@ -64,7 +64,7 @@ export const initializeServer = async () => {
     const routes = new Routes(
         new UserUsecase(userRepository),
         new SpaceUsecase(spaceRepository),
-        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository), new DeepaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName)),
+        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository), new DeepaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), spaceRepository),
         new StripeUsecase(stripe, new SpaceUsecase(spaceRepository))
     )
 
@@ -74,12 +74,10 @@ export const initializeServer = async () => {
         STRIPE_WEBHOOK_SECRET!
     );
 
-    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository), new OpenaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName)))
+    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository), new OpenaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), spaceRepository))
 
     const allowedOrigins = [
         new URL(COMPANY_DOMAIN!).origin!,
-        'localhost:3001',
-        'localhost:3000'
     ];
 
     app.use(helmet());

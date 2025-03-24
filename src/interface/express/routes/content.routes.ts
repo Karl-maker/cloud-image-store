@@ -13,6 +13,7 @@ import { UploadContentDTO, uploadFilesSchema } from "../../../domain/interfaces/
 import { ValidationException } from "../../../application/exceptions/validation.exception";
 import express, { Response, Request, NextFunction } from 'express';
 import { createContentVariantSchema } from "../../../domain/interfaces/presenters/dtos/create.content.variant.dto";
+import { limitAiEnhancementMiddleware } from "../middlewares/ai.limit.middleware";
 
 const router = express.Router();
 
@@ -292,7 +293,7 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *                   example: "Internal server error"
      */
 
-    router.post(CONTENT_PATH + CONTENT_PARAM_PATH + CREATE_VARIANT_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateBodyDTO(createContentVariantSchema), controller.generateVariant.bind(controller));
+    router.post(CONTENT_PATH + CONTENT_PARAM_PATH + CREATE_VARIANT_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), limitAiEnhancementMiddleware(usecase.spaceRepository, usecase.repository), validateBodyDTO(createContentVariantSchema), controller.generateVariant.bind(controller));
 
     /**
      * @swagger
