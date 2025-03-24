@@ -78,6 +78,7 @@ export const initializeServer = async () => {
 
     const allowedOrigins = [
         new URL(COMPANY_DOMAIN!).origin!,
+        'localhost:3001'
     ];
 
     app.use(helmet());
@@ -87,7 +88,13 @@ export const initializeServer = async () => {
     setupSwagger(app)
     swaggerYamlConverter(swaggerSpec)
     app.use(cors({
-        origin: "*",
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization', "x-api-key"],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
