@@ -1,0 +1,1 @@
+export const DEEP_AI_IMAGE_GEN_VARIATION = 'https://api.deepai.org/api/torch-srgan'

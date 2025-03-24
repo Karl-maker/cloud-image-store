@@ -19,6 +19,7 @@ import { GetBlobService } from "../../application/blob/interface.get.blob.servic
 import { convertJpegToPngBlob } from "../../utils/jpeg.to.png.util";
 import { blobToBuffer } from "../../utils/blob.to.buffer.util";
 import { compressBlobToSize } from "../../utils/compless.blob.util";
+import { isImageSizeLessThanTargetInBytes } from "../../utils/check.size.util";
 
 export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilterBy, ContentRepository> {
     constructor (
@@ -113,12 +114,12 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
         let pngBlob : Blob | undefined;
         const blob = await this.blobService.getBlob(content.key);
 
-        if(content.mimeType === 'image/jpeg') pngBlob = await convertJpegToPngBlob(await blobToBuffer(blob))
-        if(content.mimeType === 'image/png') pngBlob = blob
-        if(!pngBlob) throw new Error('cannot convert to png');
+        // if(content.mimeType === 'image/jpeg') pngBlob = await convertJpegToPngBlob(await blobToBuffer(blob))
+        // if(content.mimeType === 'image/png') pngBlob = blob
+        // if(!pngBlob) throw new Error('cannot convert to png');
 
-        const compressed = await compressBlobToSize(await blobToBuffer(pngBlob), 3.5);
-        const results = await this.imageVariantService.generate(compressed, 1, content.spaceId);
+        // const compressed = isImageSizeLessThanTargetInBytes(pngBlob.size, 4 * 1024 * 1024) ? pngBlob : await compressBlobToSize(await blobToBuffer(pngBlob), 3.5);
+        const results = await this.imageVariantService.generate(blob, data.prompt, 1, content.spaceId);
         await Promise.all(results.map(async (content) => {
             await this.repository.save(content);
         }))

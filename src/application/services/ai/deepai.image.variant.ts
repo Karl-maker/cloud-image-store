@@ -3,28 +3,31 @@ import { Content } from "../../../domain/entities/content";
 import { IImageVariant } from "./interface.image.variant";
 import { generateUuid } from "../../../utils/generate.uuid.util";
 
-export class OpenaiImageVariant implements IImageVariant {
+export class DeepaiImageVariant implements IImageVariant {
     constructor(
-        private openAiKey: string, 
-        private openAiUrl: string, 
+        private deepAiKey: string, 
+        private deepAiUrl: string, 
         private size: string = "1024x1024"
     ) {}
 
     async generate(image: Blob, prompt: string, n: number, spaceId: string): Promise<Content[]> {
         try {
             const formData = new FormData();
-            formData.append("image", image, "image.png"); // Default filename
-            formData.append("n", n.toString());
-            formData.append("size", this.size);
+            const promptBlob = new Blob([prompt], { type: "text/plain" });
+            formData.append("image", image); // Default filename
+            formData.append("text", promptBlob);
 
-            const response = await axios.post(this.openAiUrl, formData, {
+            const resp = await fetch(this.deepAiUrl, {
+                method: 'POST',
                 headers: {
-                    "Authorization": `Bearer ${this.openAiKey}`,
-                    "Content-Type": "multipart/form-data",
+                    'api-key': this.deepAiKey
                 },
+                body: formData
             });
+     
+            const data = await resp.json();
 
-            const imageUrls = response.data.data.map((item: { url: string }) => item.url);
+            const imageUrls = [data.output_url];
             const [width, height] = this.size.split("x").map(Number);
 
             return imageUrls.map((url: string) => {
@@ -35,7 +38,7 @@ export class OpenaiImageVariant implements IImageVariant {
                     name: generateUuid(),
                     description: null,
                     key,
-                    mimeType: "image/png", // Assuming PNG as default
+                    mimeType: "image/png", 
                     location: url,
                     uploadCompletion: 100,
                     spaceId: spaceId,
@@ -45,6 +48,7 @@ export class OpenaiImageVariant implements IImageVariant {
                     updatedAt: new Date(),
                     height,
                     width,
+                    ai: true
                 } as Content;
             });
         } catch (error) {

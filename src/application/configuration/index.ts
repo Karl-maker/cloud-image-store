@@ -21,3 +21,4 @@ export const MY_DOMAIN = process.env.MY_DOMAIN;
 export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 export const STRIPE_KEY = process.env.STRIPE_KEY;
 export const OPEN_AI_KEY = process.env.OPEN_AI_KEY;
+export const DEEP_AI_KEY = process.env.DEEP_AI_KEY;

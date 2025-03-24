@@ -1,7 +1,7 @@
 import express, { ErrorRequestHandler } from "express";
 import authenticateClient from "./middlewares/authenticate.client.middleware";
 import { Database } from "../../application/configuration/mongodb";
-import { ACCESS_KEY_ID_AWS, API_KEY_SECRET, COMPANY_DOMAIN, MONGO_URI, OPEN_AI_KEY, PORT, REGION_AWS, S3_BUCKET_NAME_AWS, SECRET_ACCESS_KEY_AWS, STRIPE_KEY, STRIPE_WEBHOOK_SECRET, TOKEN_SECRET } from "../../application/configuration";
+import { ACCESS_KEY_ID_AWS, API_KEY_SECRET, COMPANY_DOMAIN, DEEP_AI_KEY, MONGO_URI, OPEN_AI_KEY, PORT, REGION_AWS, S3_BUCKET_NAME_AWS, SECRET_ACCESS_KEY_AWS, STRIPE_KEY, STRIPE_WEBHOOK_SECRET, TOKEN_SECRET } from "../../application/configuration";
 import { JwtTokenService } from "../../application/services/token/jwt.token.service";
 import cors from 'cors';
 import helmet from 'helmet';
@@ -30,12 +30,13 @@ import multer from "multer";
 import authentication from "./middlewares/authentication.middleware";
 import { validateUploadEndpoint } from "./routes/content.routes";
 import { ContentController } from "./controllers/content.controller";
+import { OpenaiImageVariant } from "../../application/services/ai/openai.image.variant";
+import { S3GetBlobService } from "../../application/blob/aws.get.blob.service";
+import { DeepaiImageVariant } from "../../application/services/ai/deepai.image.variant";
+import { DEEP_AI_IMAGE_GEN_VARIATION } from "../../domain/constants/deep.ai";
 
 import "../events/content.events";
 import "../events/space.event";
-import { OpenaiImageVariant } from "../../application/services/ai/openai.image.variant";
-import { IMAGE_GEN_VARIATION } from "../../domain/constants/open.ai";
-import { S3GetBlobService } from "../../application/blob/aws.get.blob.service";
 
 export const app = express();
 
@@ -63,7 +64,7 @@ export const initializeServer = async () => {
     const routes = new Routes(
         new UserUsecase(userRepository),
         new SpaceUsecase(spaceRepository),
-        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository), new OpenaiImageVariant(OPEN_AI_KEY!, IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName)),
+        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository), new DeepaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName)),
         new StripeUsecase(stripe, new SpaceUsecase(spaceRepository))
     )
 
@@ -73,7 +74,7 @@ export const initializeServer = async () => {
         STRIPE_WEBHOOK_SECRET!
     );
 
-    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository), new OpenaiImageVariant(OPEN_AI_KEY!, IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName)))
+    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository), new OpenaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName)))
 
     const allowedOrigins = [
         new URL(COMPANY_DOMAIN!).origin!,

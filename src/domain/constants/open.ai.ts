@@ -1,1 +1,1 @@
-export const IMAGE_GEN_VARIATION = "https://api.openai.com/v1/images/variations";
+export const OPEN_AI_IMAGE_GEN_VARIATION = "https://api.openai.com/v1/images/variations";
