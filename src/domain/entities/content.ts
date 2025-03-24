@@ -59,6 +59,9 @@ import { Persistent } from "./persistent";
  *         width:
  *           type: number
  *           description: width of image
+ *         ai:
+ *           type: boolean
+ *           description: if it was created by ai
  *       required:
  *         - id
  *         - createdAt
