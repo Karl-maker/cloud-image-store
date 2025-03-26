@@ -1,8 +1,82 @@
-<footer style="background-color: #222; padding: 20px; color: white; text-align: center; font-size: 14px;">
-  <p>© {{ year }} <a href="{{ companyWebsite }}" style="color: white; text-decoration: none;">{{ companyName }}</a>. All rights reserved.</p>
-  <p>
-    <a href="{{ privacyPolicy }}" style="color: white; text-decoration: none; margin: 0 10px;">Privacy Policy</a> | 
-    <a href="{{ termsOfServices }}" style="color: white; text-decoration: none; margin: 0 10px;">Terms of Service</a> | 
-    <a href="{{ cookiePolicy }}" style="color: white; text-decoration: none; margin: 0 10px;">Cookie Policy</a>
-  </p>
+<footer style="
+  background-color: #FFFFFF;
+  color: #444444;
+  padding: 24px 20px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  border-top: 1px solid #F5F5F5;
+  text-align: center;
+">
+  <!-- Social Icons - Minimalist -->
+  {{!-- <div style="
+    margin-bottom: 20px;
+  ">
+    <a href="#" style="margin: 0 6px; display: inline-block;">
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="18" style="opacity: 0.7;">
+    </a>
+    <a href="#" style="margin: 0 6px; display: inline-block;">
+      <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" width="18" style="opacity: 0.7;">
+    </a>
+    <a href="#" style="margin: 0 6px; display: inline-block;">
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111501.png" alt="LinkedIn" width="18" style="opacity: 0.7;">
+    </a>
+  </div> --}}
+
+  <!-- Legal Links - Minimal -->
+  <div style="
+    margin-bottom: 18px;
+    letter-spacing: 0.02em;
+  ">
+    <a href="{{ privacyPolicy }}" style="
+      color: #666666;
+      text-decoration: none;
+      margin: 0 8px;
+      display: inline-block;
+    ">Privacy</a>
+    <span style="color: #E0E0E0;">•</span>
+    <a href="{{ termsOfServices }}" style="
+      color: #666666;
+      text-decoration: none;
+      margin: 0 8px;
+      display: inline-block;
+    ">Terms</a>
+    <span style="color: #E0E0E0;">•</span>
+    <a href="{{ cookiePolicy }}" style="
+      color: #666666;
+      text-decoration: none;
+      margin: 0 8px;
+      display: inline-block;
+    ">Cookies</a>
+  </div>
+
+  <!-- Copyright -->
+  <div style="
+    color: #999999;
+    font-size: 12px;
+  ">
+    <p style="margin: 0;">
+      © {{ year }} <a href="{{ companyWebsite }}" style="
+        color: #555555;
+        text-decoration: none;
+        font-weight: 500;
+      ">{{ companyName }}</a>
+    </p>
+    <p style="margin: 8px 0 0 0;">
+      Connecting us together
+    </p>
+  </div>
+
+  <!-- Mobile Responsiveness -->
+  <style type="text/css">
+    @media screen and (max-width: 480px) {
+      .footer-link {
+        display: block;
+        margin: 6px 0 !important;
+      }
+      .footer-separator {
+        display: none;
+      }
+    }
+  </style>
 </footer>

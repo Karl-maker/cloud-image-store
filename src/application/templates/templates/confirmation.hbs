@@ -1,20 +1,43 @@
-<p>Dear {{name}},</p>
+<div style="max-width: 600px; margin: 0 auto; padding: 24px;">
+  <!-- Header -->
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 16px 0;">Dear {{name}},</p>
 
-<p>Thank you for registering with {{companyName}}!</p>
+  <!-- Main Content -->
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 24px 0;">
+    Thank you for registering with <strong style="color: #2C3E50;">{{companyName}}</strong>!
+  </p>
 
-<p>To confirm your account, please click the link below:</p>
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 24px 0;">
+    To complete your registration, please verify your email address by clicking the button below:
+  </p>
 
-<p>
-  <a href="{{link}}" style="color: #004b8d; text-decoration: none; font-weight: bold;">
-    Confirm Account
-  </a>
-</p>
+  <!-- CTA Button -->
+  <div style="text-align: center; margin: 0 0 32px 0;">
+    <a href="{{link}}" 
+       style="background-color: #2C3E50; color: #FFFFFF; padding: 14px 28px; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 4px; display: inline-block; font-family: 'Helvetica Neue', Arial, sans-serif;">
+      Verify Email Address
+    </a>
+  </div>
 
-<p>This confirmation link will expire in {{expiresIn}}.</p>
+  <!-- Expiration Notice -->
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 15px; color: #555555; line-height: 1.5; margin: 0 0 24px 0; padding: 16px; background-color: #F8F8F8; border-radius: 4px;">
+    <strong>Note:</strong> This verification link will expire in <strong style="color: #2C3E50;">{{expiresIn}}</strong>.
+  </p>
 
-<p>If you did not create an account with {{companyName}}, please ignore this email. Your account will not be activated.</p>
+  <!-- Security Notice -->
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 14px; color: #666666; line-height: 1.5; margin: 0 0 24px 0;">
+    If you didn't create an account with {{companyName}}, please disregard this email. No action is required, and your account will not be activated.
+  </p>
 
-<p>If you have any questions, feel free to visit our <a href="{{companyWebsite}}" style="color: #004b8d; text-decoration: none;">support page</a>.</p>
+  <!-- Support -->
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 15px; color: #333333; line-height: 1.5; margin: 0 0 24px 0;">
+    Need help? Visit our 
+    <a href="{{companyWebsite}}" style="color: #2C3E50; text-decoration: underline; font-weight: 500;">
+      Support Center
+    </a> or reply to this email.
+  </p>
 
-<p>Best regards,</p>
-<p>{{companyName}} Team</p>
+  <!-- Closing -->
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 8px 0;">Best regards,</p>
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #2C3E50; font-weight: 600; line-height: 1.5; margin: 0;">The {{companyName}} Team</p>
+</div>
