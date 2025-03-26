@@ -116,6 +116,11 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *           type: string
      *         description: Filter content by space ID.
      *       - in: query
+     *         name: favorite
+     *         schema:
+     *           type: boolean
+     *         description: Filter content by space ID.
+     *       - in: query
      *         name: mimeType
      *         schema:
      *           type: string

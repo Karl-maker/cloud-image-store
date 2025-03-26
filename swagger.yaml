@@ -76,6 +76,9 @@ components:
         ai:
           type: boolean
           description: if it was created by ai
+        favorite:
+          type: boolean
+          description: image can be favourited
       required:
         - id
         - createdAt
@@ -439,6 +442,9 @@ components:
         spaceId:
           type: integer
           description: The ID of the space associated with the content.
+        favorite:
+          type: boolean
+          description: media that is favourited.
       required: []
     UpdateSpaceRequest:
       type: object
@@ -746,6 +752,11 @@ paths:
           name: spaceId
           schema:
             type: string
+          description: Filter content by space ID.
+        - in: query
+          name: favorite
+          schema:
+            type: boolean
           description: Filter content by space ID.
         - in: query
           name: mimeType

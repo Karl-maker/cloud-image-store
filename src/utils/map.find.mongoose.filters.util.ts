@@ -39,6 +39,7 @@ export const mapFindMongooseFilters = <FilterByKeys>(filters?: {
         const date = new Date(less);
         filter[key] = { $lt: date };
       }
+      
     }
   }
 

@@ -62,6 +62,9 @@ import { Persistent } from "./persistent";
  *         ai:
  *           type: boolean
  *           description: if it was created by ai
+ *         favorite:
+ *           type: boolean
+ *           description: image can be favourited
  *       required:
  *         - id
  *         - createdAt
@@ -89,5 +92,6 @@ export interface Content extends Persistent {
     height?: number;
     width?: number;
     ai?: boolean;
+    favorite?: boolean;
 }
 

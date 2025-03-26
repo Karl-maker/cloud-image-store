@@ -22,6 +22,7 @@ export const ContentSchema = new Schema<ContentDocument>(
         height: { type: Number, required: false },
         width: { type: Number, required: false },
         ai: { type: Boolean, required: false, default: false },
+        favorite: { type: Boolean, required: false, default: false },
         clientId: { type: String, unique: true, default: () => generateUuid() }
     },
     { timestamps: true }
