@@ -118,6 +118,7 @@ export class StripeController {
 
             res.status(200).send('Event received');
         } catch (error) {
+            console.log(error)
             next(error)
         }
     }
