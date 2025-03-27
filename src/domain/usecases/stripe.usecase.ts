@@ -69,6 +69,7 @@ export class StripeUsecase {
             if(result instanceof Error || result instanceof NotFoundException) throw result;
 
             eventBus.emit(PAYMENT_INTENT_SUCCEEDED, payload)
+            eventBus.emit(SPACE_SUBSCRIBED_TO_PLAN, { plan, space: result })
         } else if(event.type === 'customer.subscription.deleted') {
             const subscription = event.data.object as Stripe.Subscription;
             const result = await this.spaceUsecase.subscriptionEnd(subscription.id);
