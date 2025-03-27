@@ -96,9 +96,10 @@ export class StripeUsecase {
             if(space instanceof Error || space instanceof NotFoundException) throw space;
             if(subscriptionEntity === null) throw new NotFoundException('subscription not found');
 
-            await this.spaceUsecase.subscribedToPlan(subscription.metadata.space_id, subscriptionEntity, plan)
+            const newSpace = await this.spaceUsecase.subscribedToPlan(subscription.metadata.space_id, subscriptionEntity, plan)
+            if(newSpace instanceof Error || space instanceof NotFoundException) throw space;
 
-            eventBus.emit(SPACE_SUBSCRIBED_TO_PLAN, { plan, space: space })
+            eventBus.emit(SPACE_SUBSCRIBED_TO_PLAN, { plan, space: newSpace })
         }
     }
 
