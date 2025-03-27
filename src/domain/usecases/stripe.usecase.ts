@@ -98,7 +98,7 @@ export class StripeUsecase {
 
             await this.spaceUsecase.subscribedToPlan(subscription.metadata.space_id, subscriptionEntity, plan)
 
-            eventBus.emit(SPACE_SUBSCRIBED_TO_PLAN, { plan, space: subscriptionEntity })
+            eventBus.emit(SPACE_SUBSCRIBED_TO_PLAN, { plan, space: space })
         }
     }
 
