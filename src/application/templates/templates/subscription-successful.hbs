@@ -1,0 +1,43 @@
+<div style="max-width: 600px; margin: 0 auto; padding: 24px;">
+  <!-- Header -->
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 16px 0;">Dear {{name}},</p>
+
+  <!-- Main Content -->
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 24px 0;">
+    Your album <strong style="color: #2C3E50;">{{albumName}}</strong> is now linked to the <strong>{{subscriptionPlan}}</strong> subscription plan!
+  </p>
+
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 24px 0;">
+    Here’s what you get with this plan:
+  </p>
+
+  <ul style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 24px 0; padding-left: 20px;">
+    {{#each features}}
+      <li>{{this}}</li>
+    {{/each}}
+  </ul>
+
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 24px 0;">
+    Start sharing with your family and collaborating today!
+  </p>
+
+  <!-- CTA Button -->
+  <div style="text-align: center; margin: 0 0 32px 0;">
+    <a href="{{albumLink}}" 
+       style="background-color: #2C3E50; color: #FFFFFF; padding: 14px 28px; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 4px; display: inline-block; font-family: 'Helvetica Neue', Arial, sans-serif;">
+      View Your Album
+    </a>
+  </div>
+
+  <!-- Support -->
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 15px; color: #333333; line-height: 1.5; margin: 0 0 24px 0;">
+    Need help? Visit our 
+    <a href="{{companySupportLink}}" style="color: #2C3E50; text-decoration: underline; font-weight: 500;">
+      Support Center
+    </a> or reply to this email.
+  </p>
+
+  <!-- Closing -->
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 8px 0;">Best regards,</p>
+  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #2C3E50; font-weight: 600; line-height: 1.5; margin: 0;">The {{companyName}} Team</p>
+</div>

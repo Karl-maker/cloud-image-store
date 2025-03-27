@@ -9,3 +9,12 @@ export type RecoveryEmailContent = {
     name: string;
     expiresIn: string;
 }
+
+export type SubscriptionSuccessEmailContent = {
+    companySupportLink: string;
+    albumLink: string;
+    features: string[];
+    albumName: string;
+    subscriptionPlan: string;
+    name: string;
+}

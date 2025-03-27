@@ -16,7 +16,6 @@ export class StripePaymentLinkService implements PaymentLinkService {
                 line_items: [{
                     price: priceId,
                     quantity: 1,
-                    // Ensuring the price supports recurring billing
                     adjustable_quantity: { enabled: false }
                 }],
                 subscription_data: {
@@ -27,9 +26,9 @@ export class StripePaymentLinkService implements PaymentLinkService {
                 after_completion: {
                     type: 'redirect',
                     redirect: {
-                        url: COMPANY_DOMAIN + '/album/' + spaceId + '/setup?p=1' // Replace with actual success URL
+                        url: COMPANY_DOMAIN + '/album/' + spaceId + '/setup?p=1'
                     }
-                }
+                },
             });
     
             return paymentLink.url;
@@ -38,5 +37,6 @@ export class StripePaymentLinkService implements PaymentLinkService {
             throw new Error('Failed to generate payment link');
         }
     }
+    
     
 }

@@ -9,7 +9,7 @@ import { StripeSubscriptionService } from "../../application/services/payment/st
 import { StripePaymentLinkService } from "../../application/services/payment/stripe.payment.link.service";
 import { StripeSubscriptionPlanService } from "../../application/services/payment/stripe.subscription.plan.service";
 import { StripePaymentCustomer } from "../../application/services/payment/stripe.payment.customer.service";
-import { PAYMENT_INTENT_SUCCEEDED } from "../constants/event.names";
+import { PAYMENT_INTENT_SUCCEEDED, SPACE_SUBSCRIBED_TO_PLAN } from "../constants/event.names";
 import { EventBus } from "../../infrastructure/event/event.bus";
 import { PaymentIntentSucceededPayload } from "../types/webhook";
 import { SpaceUsecase } from "./space.usecase";
@@ -96,6 +96,8 @@ export class StripeUsecase {
             if(subscriptionEntity === null) throw new NotFoundException('subscription not found');
 
             await this.spaceUsecase.subscribedToPlan(subscription.metadata.space_id, subscriptionEntity, plan)
+
+            eventBus.emit(SPACE_SUBSCRIBED_TO_PLAN, { plan, space: subscriptionEntity })
         }
     }
 
