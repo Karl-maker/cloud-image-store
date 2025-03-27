@@ -1,43 +1,91 @@
-<div style="max-width: 600px; margin: 0 auto; padding: 24px;">
+<div style="max-width: 600px; margin: 0 auto; padding: 0 24px; font-family: 'Helvetica Neue', Arial, sans-serif; color: #333333;">
   <!-- Header -->
-  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 16px 0;">Dear {{name}},</p>
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 24px;">
+    <tr>
+      <td>
+        <p style="font-size: 16px; line-height: 1.5; margin: 0;">Dear {{name}},</p>
+      </td>
+    </tr>
+  </table>
 
   <!-- Main Content -->
-  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 24px 0;">
-    Your album <strong style="color: #2C3E50;">{{albumName}}</strong> is now linked to the <strong>{{subscriptionPlan}}</strong> subscription plan!
-  </p>
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 24px;">
+    <tr>
+      <td>
+        <p style="font-size: 18px; font-weight: 600; color: #2C3E50; margin: 0 0 16px 0;">Your Album is Ready</p>
+        <p style="font-size: 16px; line-height: 1.5; margin: 0 0 24px 0;">
+          <strong style="color: #2C3E50;">{{albumName}}</strong> is now linked to your <strong>{{subscriptionPlan}}</strong> subscription.
+        </p>
+      </td>
+    </tr>
+  </table>
 
-  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 24px 0;">
-    Here’s what you get with this plan:
-  </p>
+  <!-- Subscription Benefits -->
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 24px; background-color: #F8FAFC; border-radius: 8px; padding: 20px;">
+    <tr>
+      <td>
+        <p style="font-size: 16px; font-weight: 600; color: #2C3E50; margin: 0 0 16px 0;">✨ Subscription Benefits</p>
+        
+        {{#each features}}
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 12px;">
+          <tr>
+            <td width="24" valign="top" style="padding-right: 12px;">✓</td>
+            <td>
+              <p style="font-size: 15px; line-height: 1.5; margin: 0; color: #4A5568;">{{this}}</p>
+            </td>
+          </tr>
+        </table>
+        {{/each}}
+      </td>
+    </tr>
+  </table>
 
-  <ul style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 24px 0; padding-left: 20px;">
-    {{#each features}}
-      <li>{{this}}</li>
-    {{/each}}
-  </ul>
-
-  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 24px 0;">
-    Start sharing with your family and collaborating today!
-  </p>
+  <!-- Collaboration Section -->
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 24px; background-color: #F0F7FF; border-radius: 8px; padding: 20px;">
+    <tr>
+      <td>
+        <p style="font-size: 16px; font-weight: 600; color: #2C3E50; margin: 0 0 16px 0;">👨‍👩‍👧‍👦 Start Collaborating</p>
+        <p style="font-size: 15px; line-height: 1.5; margin: 0 0 16px 0; color: #4A5568;">
+          Invite family members to view, contribute, and comment on your album. Create shared memories together.
+        </p>
+      </td>
+    </tr>
+  </table>
 
   <!-- CTA Button -->
-  <div style="text-align: center; margin: 0 0 32px 0;">
-    <a href="{{albumLink}}" 
-       style="background-color: #2C3E50; color: #FFFFFF; padding: 14px 28px; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 4px; display: inline-block; font-family: 'Helvetica Neue', Arial, sans-serif;">
-      View Your Album
-    </a>
-  </div>
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 32px;">
+    <tr>
+      <td align="center">
+        <a href="{{albumLink}}" 
+           style="background-color: #2C3E50; color: #FFFFFF; padding: 14px 28px; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 6px; display: inline-block;">
+          Access Your Album
+        </a>
+      </td>
+    </tr>
+  </table>
 
   <!-- Support -->
-  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 15px; color: #333333; line-height: 1.5; margin: 0 0 24px 0;">
-    Need help? Visit our 
-    <a href="{{companySupportLink}}" style="color: #2C3E50; text-decoration: underline; font-weight: 500;">
-      Support Center
-    </a> or reply to this email.
-  </p>
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 24px; border-top: 1px solid #E2E8F0; padding-top: 24px;">
+    <tr>
+      <td>
+        <p style="font-size: 15px; line-height: 1.5; margin: 0 0 8px 0; color: #4A5568;">
+          Need assistance with your album or subscription?
+        </p>
+        <a href="{{companySupportLink}}" 
+           style="color: #2C3E50; text-decoration: underline; font-weight: 500; font-size: 15px;">
+          Contact our support team
+        </a>
+      </td>
+    </tr>
+  </table>
 
-  <!-- Closing -->
-  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #333333; line-height: 1.5; margin: 0 0 8px 0;">Best regards,</p>
-  <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; color: #2C3E50; font-weight: 600; line-height: 1.5; margin: 0;">The {{companyName}} Team</p>
+  <!-- Footer -->
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td>
+        <p style="font-size: 16px; line-height: 1.5; margin: 0 0 8px 0;">Best regards,</p>
+        <p style="font-size: 16px; color: #2C3E50; font-weight: 600; line-height: 1.5; margin: 0;">The {{companyName}} Team</p>
+      </td>
+    </tr>
+  </table>
 </div>
