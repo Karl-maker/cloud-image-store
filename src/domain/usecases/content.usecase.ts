@@ -15,7 +15,7 @@ import { BUCKET_NAME_PRIVATE } from "../constants/bucket.name";
 import { CreateContentVariantDTO } from "../interfaces/presenters/dtos/create.content.variant.dto";
 import { NotFoundException } from "../../application/exceptions/not.found";
 import { IImageVariant } from "../../application/services/ai/interface.image.variant";
-import { GetBlobService } from "../../application/blob/interface.get.blob.service";
+import { GetBlobService } from "../../application/services/blob/interface.get.blob.service";
 import { convertJpegToPngBlob } from "../../utils/jpeg.to.png.util";
 import { blobToBuffer } from "../../utils/blob.to.buffer.util";
 import { compressBlobToSize } from "../../utils/compless.blob.util";

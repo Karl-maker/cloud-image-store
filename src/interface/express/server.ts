@@ -31,7 +31,7 @@ import authentication from "./middlewares/authentication.middleware";
 import { validateUploadEndpoint } from "./routes/content.routes";
 import { ContentController } from "./controllers/content.controller";
 import { OpenaiImageVariant } from "../../application/services/ai/openai.image.variant";
-import { S3GetBlobService } from "../../application/blob/aws.get.blob.service";
+import { S3GetBlobService } from "../../application/services/blob/aws.get.blob.service";
 import { DeepaiImageVariant } from "../../application/services/ai/deepai.image.variant";
 import { DEEP_AI_IMAGE_GEN_VARIATION } from "../../domain/constants/deep.ai";
 

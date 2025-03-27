@@ -54,5 +54,6 @@ export interface SubscriptionService {
      */
     downgradeSubscription(subscriptionId: string, newPlanId: string): Promise<Subscription>;
 
-    findById(id: string) : Promise<Subscription | null>
+    findById(id: string) : Promise<Subscription | null>;
+
 }
