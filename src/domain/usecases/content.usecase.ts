@@ -96,6 +96,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                     content.mimeType = data.mimeType;
                     content.size = bytesToMB(item.size);
                     content.height = data.height;
+                    content.downloadUrl = data.downloadUrl;
                     content.width = data.width;
                     content = await this.repository.save(content);
                     await this.spaceUsecase.addMemory(spaceId, bytesToMB(item.size));
@@ -140,6 +141,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                     content.size = bytesToMB(img.size);
                     content.height = data.height;
                     content.width = data.width;
+                    content.downloadUrl = data.downloadUrl;
                     content = await this.repository.save(content);
                     await this.spaceUsecase.addMemory(content.spaceId, bytesToMB(img.size));
                 }

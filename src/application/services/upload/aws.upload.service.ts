@@ -11,7 +11,7 @@ export default class S3UploadService implements IUploadService {
     private s3: S3Client;
     private bucketName: string;
 
-    constructor(s3Config: S3ClientConfig, bucketName: string) {
+    constructor(private s3Config: S3ClientConfig, bucketName: string) {
         this.s3 = new S3Client(s3Config);
         this.bucketName = bucketName;
     }
@@ -63,6 +63,7 @@ export default class S3UploadService implements IUploadService {
                 length,
                 width,
                 height,
+                downloadUrl: `https://${this.bucketName}.s3.${this.s3Config.region}.amazonaws.com/${fileName}`
             };
 
             await cd(null, response);

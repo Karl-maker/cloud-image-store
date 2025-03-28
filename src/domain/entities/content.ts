@@ -65,6 +65,9 @@ import { Persistent } from "./persistent";
  *         favorite:
  *           type: boolean
  *           description: image can be favourited
+ *         downloadUrl:
+ *           type: string
+ *           description: url for downloading content
  *       required:
  *         - id
  *         - createdAt
@@ -87,6 +90,7 @@ export interface Content extends Persistent {
     uploadCompletion: number;
     uploadError?: string;
     length?: number;
+    downloadUrl?: string;
     spaceId: string;
     size: number;
     height?: number;

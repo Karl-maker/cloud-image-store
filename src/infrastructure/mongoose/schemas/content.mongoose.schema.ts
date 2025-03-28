@@ -17,6 +17,7 @@ export const ContentSchema = new Schema<ContentDocument>(
         uploadCompletion: { type: Number, required: true, default: 0 },
         uploadError: { type: String, required: false },
         spaceId: { type: String, required: true },
+        downloadUrl: { type: String, required: false },
         length: { type: Number, required: false },
         size: { type: Number, required: true },
         height: { type: Number, required: false },

@@ -1,6 +1,7 @@
 export type UploadServiceResponse = {
     key: string;
     src: string;
+    downloadUrl: string;
     mimeType: string;
     fileSize?: number;
     length?: number; // if a video or audio get length

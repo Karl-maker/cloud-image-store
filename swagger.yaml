@@ -79,6 +79,9 @@ components:
         favorite:
           type: boolean
           description: image can be favourited
+        downloadUrl:
+          type: string
+          description: url for downloading content
       required:
         - id
         - createdAt
