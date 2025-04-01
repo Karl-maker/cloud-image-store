@@ -14,6 +14,9 @@ import { EventBus } from "../../infrastructure/event/event.bus";
 import { PaymentIntentSucceededPayload } from "../types/webhook";
 import { SpaceUsecase } from "./space.usecase";
 import { NotFoundException } from "../../application/exceptions/not.found";
+import { UserUsecase } from "./user.usecase";
+import { StripeBillingPortalService } from "../../application/services/payment/stripe.billing.portal.service";
+import { BillingPortalService } from "../../application/services/payment/interface.billing.portal.service";
 
 
 export class StripeUsecase {
@@ -21,15 +24,18 @@ export class StripeUsecase {
     private subscriptionService: SubscriptionService;
     private subscriptionPlanService: SubscriptionPlanService;
     private paymentCustomerService: PaymentCustomerService;
+    private billingPortalService: BillingPortalService;
 
     constructor(
         public stripe: Stripe,
-        private spaceUsecase: SpaceUsecase
+        private spaceUsecase: SpaceUsecase,
+        private userUsecase: UserUsecase
     ) {
         this.subscriptionService = new StripeSubscriptionService(stripe);
         this.paymentLinkService = new StripePaymentLinkService(stripe);
         this.subscriptionPlanService = new StripeSubscriptionPlanService(stripe);
         this.paymentCustomerService = new StripePaymentCustomer(stripe);
+        this.billingPortalService = new StripeBillingPortalService(stripe)
     }
 
     async webhook (event: Stripe.Event, eventBus: EventBus) : Promise<void>{
@@ -104,7 +110,25 @@ export class StripeUsecase {
     }
 
     async createPaymentLink (priceId: string, spaceId: string) : Promise<string> {
-        return this.paymentLinkService.generateLink(priceId, spaceId);
+        const space = await this.spaceUsecase.findById(spaceId);
+
+        if(!space || space instanceof Error) throw new NotFoundException('no space found');
+
+        const userId = space.createdByUserId;
+
+        const user = await this.userUsecase.findById(userId);
+        
+        if(!user || user instanceof Error) throw new NotFoundException('no user found');
+
+        const customerId = user.stripeId;
+
+        if(!customerId) throw new NotFoundException('no customer stripe id found');
+        
+        return this.paymentLinkService.generateLink(priceId, spaceId, customerId);
+    }
+
+    async billingPortalLink (customerId: string) : Promise<string> {
+        return await this.billingPortalService.generateLink(customerId);
     }
 
     async createSubscriptionPlan (plan: SubscriptionPlan) : Promise<string> {

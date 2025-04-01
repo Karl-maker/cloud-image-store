@@ -1235,6 +1235,34 @@ paths:
           description: Invalid input or missing parameters.
         '500':
           description: Internal server error.
+  /stripe/billing-portal-link/{customer_id}:
+    post:
+      tags:
+        - Stripe
+      summary: Create billing portal link
+      description: Creates a billing portal link for a specified customer.
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+          description: The Stripe customer ID.
+      responses:
+        '200':
+          description: Billing portal successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  link:
+                    type: string
+                    description: The URL of the billing portal.
+        '400':
+          description: Invalid input or missing parameters.
+        '500':
+          description: Internal server error.
   /stripe/subscription-plan:
     get:
       tags:

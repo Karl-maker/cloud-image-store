@@ -3,7 +3,7 @@ import { UserUsecase } from "../../../domain/usecases/user.usecase";
 import { FindManyUsersDTO } from '../../../domain/interfaces/presenters/dtos/find.many.user.dto';
 import { CreateUserDTO } from '../../../domain/interfaces/presenters/dtos/create.user.dto';
 import { eventBus } from '../../../infrastructure/event/event.bus';
-import { USER_CREATED, USER_DELETED } from '../../../domain/constants/event.names';
+import { USER_CONFIRMED, USER_CREATED, USER_DELETED } from '../../../domain/constants/event.names';
 import { UpdateUserDTO } from '../../../domain/interfaces/presenters/dtos/update.user.dto';
 import { USER_PARAM } from '../../../domain/constants/api.routes';
 import { VerifyConfirmationDTO } from '../../../domain/interfaces/presenters/dtos/verify.confirmation.dto';
@@ -93,7 +93,10 @@ export class UserController {
 
     async confirm (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
-            await this.usecase.checkConfirmationToken(req.body as unknown as VerifyConfirmationDTO)
+            const user = await this.usecase.checkConfirmationToken(req.body as unknown as VerifyConfirmationDTO)
+
+            eventBus.emit(USER_CONFIRMED, { user });
+            
             res.status(201).end();
         } catch (error) {
             next(error)

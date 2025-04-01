@@ -1,3 +1,3 @@
 export interface PaymentLinkService {
-    generateLink: (priceId: string, spaceId: string) => Promise<string>;
+    generateLink: (priceId: string, spaceId: string, customerId: string) => Promise<string>;
 }

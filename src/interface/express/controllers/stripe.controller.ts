@@ -6,6 +6,7 @@ import { TransformSubscriptionDTO } from "../../../domain/interfaces/presenters/
 import Stripe from "stripe";
 import { eventBus } from "../../../infrastructure/event/event.bus";
 import { CreateSubscriptionPlanDTO } from "../../../domain/interfaces/presenters/dtos/create.subscription.plan.dto";
+import { CUSTOMER_PARAM } from "../../../domain/constants/api.routes";
 
 export class StripeController {
     constructor(
@@ -20,6 +21,17 @@ export class StripeController {
                 priceId, spaceId
             } = req.body as CreatePaymentLinkDTO;
             const link = await this.usecase.createPaymentLink(priceId, spaceId)
+
+            res.status(201).json({ link });
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async getBillingPortalLink(req: Request, res: Response, next: NextFunction) : Promise<void> {
+        try {   
+            const customer_id = req.params[CUSTOMER_PARAM];
+            const link = await this.usecase.billingPortalLink(customer_id)
 
             res.status(201).json({ link });
         } catch (error) {

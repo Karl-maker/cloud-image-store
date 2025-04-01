@@ -110,7 +110,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
                 EMAIL_NO_REPLY_PASS!
             ).send(email);
     }
-    async checkConfirmationToken(data: VerifyConfirmationDTO): Promise<void> {
+    async checkConfirmationToken(data: VerifyConfirmationDTO): Promise<User> {
         const secret = CONFIRMATION_SECRET!
 
         const payload = await new JwtTokenService<{ userId: string }>().validate(
@@ -123,7 +123,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
 
         user.confirmed = true;
 
-        await this.repository.save(user);
+        return await this.repository.save(user);
     }
     async recover(data: RecoverUserDTO) : Promise<void> {
         const user = (await this.repository.findMany({

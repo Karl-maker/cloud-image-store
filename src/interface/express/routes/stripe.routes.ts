@@ -2,7 +2,7 @@ import express from "express";
 import { StripeUsecase } from "../../../domain/usecases/stripe.usecase";
 import { StripeController } from "../controllers/stripe.controller";
 import Stripe from "stripe";
-import { CANCEL_PATH, CANCEL_RENEWAL_PATH, PAYMENT_LINK_PATH, STRIPE_PATH, SUBSCRIPTION_PLAN_PATH, UPGRADE_PATH, WEBHOOK_PATH } from "../../../domain/constants/api.routes";
+import { BILLING_LINK_PATH, CANCEL_PATH, CANCEL_RENEWAL_PATH, CUSTOMER_PARAM_PATH, PAYMENT_LINK_PATH, STRIPE_PATH, SUBSCRIPTION_PLAN_PATH, UPGRADE_PATH, WEBHOOK_PATH } from "../../../domain/constants/api.routes";
 import { validateBodyDTO } from "../middlewares/validation.middleware";
 import { createPaymentLinkSchema } from "../../../domain/interfaces/presenters/dtos/create.payment.link.dto";
 import { JwtTokenService } from "../../../application/services/token/jwt.token.service";
@@ -62,6 +62,40 @@ export const StripeRoutes = (
      */
 
     router.post(STRIPE_PATH + PAYMENT_LINK_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateBodyDTO(createPaymentLinkSchema), controller.getPaymentLink.bind(controller))
+
+    /**
+     * @swagger
+     * /stripe/billing-portal-link/{customer_id}:
+     *   post:
+     *     tags:
+     *       - Stripe
+     *     summary: Create billing portal link
+     *     description: Creates a billing portal link for a specified customer.
+     *     parameters:
+     *       - in: path
+     *         name: customer_id
+     *         required: true
+     *         schema:
+     *           type: string
+     *         description: The Stripe customer ID.
+     *     responses:
+     *       200:
+     *         description: Billing portal successfully created.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 link:
+     *                   type: string
+     *                   description: The URL of the billing portal.
+     *       400:
+     *         description: Invalid input or missing parameters.
+     *       500:
+     *         description: Internal server error.
+     */
+
+    router.post(STRIPE_PATH + BILLING_LINK_PATH + CUSTOMER_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), controller.getBillingPortalLink.bind(controller))
 
     /**
      * @swagger

@@ -37,6 +37,7 @@ import { DEEP_AI_IMAGE_GEN_VARIATION } from "../../domain/constants/deep.ai";
 
 import "../events/content.events";
 import "../events/space.event";
+import "../events/user.events";
 
 export const app = express();
 
@@ -65,11 +66,11 @@ export const initializeServer = async () => {
         new UserUsecase(userRepository),
         new SpaceUsecase(spaceRepository),
         new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository), new DeepaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), spaceRepository),
-        new StripeUsecase(stripe, new SpaceUsecase(spaceRepository))
+        new StripeUsecase(stripe, new SpaceUsecase(spaceRepository), new UserUsecase(userRepository))
     )
 
     const stripeController = new StripeController(
-        new StripeUsecase(stripe, new SpaceUsecase(spaceRepository)),
+        new StripeUsecase(stripe, new SpaceUsecase(spaceRepository), new UserUsecase(userRepository)),
         stripe,
         STRIPE_WEBHOOK_SECRET!
     );
