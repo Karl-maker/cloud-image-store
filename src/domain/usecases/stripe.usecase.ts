@@ -74,6 +74,7 @@ export class StripeUsecase {
             };
 
             if(!updatedPlan) return; // plan didnt update
+            if(!updatedPlan.id) return; // plan didnt update
 
             const planId = subscription.items.data[0].plan.product as string;
             const plan = await this.subscriptionPlanService.findById(planId);
