@@ -69,6 +69,12 @@ export class StripeUsecase {
             if(result instanceof Error || result instanceof NotFoundException) throw result;
         } else if(event.type === 'customer.subscription.updated') {
             const subscription = event.data.object;
+            const updatedPlan = (event.data.previous_attributes as any).plan as undefined | {
+                id: string
+            };
+
+            if(!updatedPlan) return; // plan didnt update
+
             const planId = subscription.items.data[0].plan.product as string;
             const plan = await this.subscriptionPlanService.findById(planId);
 
