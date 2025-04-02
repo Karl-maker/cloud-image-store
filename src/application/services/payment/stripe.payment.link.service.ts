@@ -12,25 +12,19 @@ export class StripePaymentLinkService implements PaymentLinkService {
 
     async generateLink(priceId: string, customerId: string, spaceId?: string): Promise<string> {
         try {
-            const session = await this.stripe.checkout.sessions.create({
+            const params: Stripe.Checkout.SessionCreateParams = {
                 mode: 'subscription',
-                payment_method_types: ['card'],
-                line_items: [{
-                    price: priceId,
-                    quantity: 1
-                }],
+                line_items: [
+                    {
+                        price: priceId,
+                        quantity: 1
+                    }
+                ],
                 customer: customerId,
-                metadata: {
-                    space_id: spaceId
-                },
-                subscription_data: {
-                    metadata: {
-                        space_id: spaceId
-                    },
-                },
                 success_url: spaceId ? `${COMPANY_DOMAIN}/album/${spaceId}/setup?p=1&session_id={CHECKOUT_SESSION_ID}` : `${COMPANY_DOMAIN}/albums`,
                 cancel_url: spaceId ? `${COMPANY_DOMAIN}/album/${spaceId}/setup` : `${COMPANY_DOMAIN}/pricing`
-            });
+            }
+            const session = await this.stripe.checkout.sessions.create(params);
     
             return session.url!;
         } catch (error) {
