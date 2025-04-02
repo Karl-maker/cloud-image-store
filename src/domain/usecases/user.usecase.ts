@@ -24,6 +24,8 @@ import { ValidationException } from "../../application/exceptions/validation.exc
 import { LoginUserDTO } from "../interfaces/presenters/dtos/login.user.dto";
 import { CONFIRMATION_PATH, RECOVERY_PATH } from "../constants/client.routes";
 import { HttpException } from "../../application/exceptions/http.exception";
+import { Subscription } from "../entities/subscription";
+import { SubscriptionPlan } from "../entities/subscription.plan";
 
 export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRepository> {
     constructor (
@@ -46,7 +48,11 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
             stripeId: null,
             salt: hashResults.salt,
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
+            maxUsers: 0,
+            maxSpaces: 0,
+            maxStorage: 0,
+            maxAiEnhancementsPerMonth: 0
         }
 
         return user;
@@ -221,4 +227,130 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
         })
         return { ...loginResponse, user: saved };
     }
+
+    async subscribedToPlan(
+            stripeCustomerId: string,
+            subscription: Subscription,
+            subscriptionPlan: SubscriptionPlan
+        ): Promise<User | NotFoundException | Error> {
+    
+            try {
+                const mb = subscriptionPlan.megabytes;
+                const maxUsers = subscriptionPlan.users;
+        
+                const users = await this.repository.findMany({
+                    filters: {
+                        stripeId: {
+                            exact: stripeCustomerId
+                        }
+                    }
+                });
+
+                const user = users.data[0];
+
+                if(!user) return new NotFoundException('user not found by id');
+        
+                user.maxStorage = mb;
+                user.maxUsers = maxUsers;
+                user.maxSpaces = subscriptionPlan.spaces;
+                user.maxAiEnhancementsPerMonth = subscriptionPlan.aiGenerationsPerMonth ?? 0;
+                user.deactivatedAt = undefined;
+                user.subscriptionPlanStripeId = subscriptionPlan.id ?? undefined;
+                user.subscriptionStripeId = subscription.id ?? undefined;
+
+                const saved = await this.repository.save(user);
+        
+                return saved;
+    
+            } catch(err: unknown) {
+                if(err instanceof Error) return err;
+                return new Error(`${err}`);
+            }
+    
+    }
+
+    async subscriptionEnd(
+            stripeCustomerId: string,
+        ): Promise<User | NotFoundException | Error> {
+            try {
+                const users = await this.repository.findMany({
+                    filters: {
+                        stripeId: {
+                            exact: stripeCustomerId
+                        }
+                    }
+                });
+    
+                const user = users.data[0]
+        
+                if(!user) return new NotFoundException('user not found by id');
+    
+                user.deactivatedAt = new Date();
+    
+                const saved = await this.repository.save(user);
+        
+                return saved;
+    
+            } catch(err: unknown) {
+                if(err instanceof Error) return err;
+                return new Error(`${err}`);
+            }
+    }
+
+    async subscriptionPaused(
+        stripeCustomerId: string,
+        ): Promise<User | NotFoundException | Error> {
+            try {
+                const users = await this.repository.findMany({
+                    filters: {
+                        stripeId: {
+                            exact: stripeCustomerId
+                        }
+                    }
+                });
+    
+                const user = users.data[0]
+    
+                if(!user) return new NotFoundException('user not found by id');
+    
+                user.deactivatedAt = new Date();
+    
+                const saved = await this.repository.save(user);
+        
+                return saved;
+    
+            } catch(err: unknown) {
+                if(err instanceof Error) return err;
+                return new Error(`${err}`);
+            }
+    }
+
+    async subscriptionResumed(
+        stripeCustomerId: string,
+        ): Promise<User | NotFoundException | Error> {
+            try {
+                const users = await this.repository.findMany({
+                    filters: {
+                        stripeId: {
+                            exact: stripeCustomerId
+                        }
+                    }
+                });
+    
+                const user = users.data[0]
+    
+                if(!user) return new NotFoundException('user not found by id');
+    
+                user.deactivatedAt = undefined;
+    
+                const saved = await this.repository.save(user);
+        
+                return saved;
+    
+            } catch(err: unknown) {
+                if(err instanceof Error) return err;
+                return new Error(`${err}`);
+            }
+    }
+    
 }

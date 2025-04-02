@@ -25,6 +25,7 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
                 users: plan.users.toString(),
                 highlighted: Number(plan.highlighted),
                 aiGenerationsPerMonth: Number(plan.aiGenerationsPerMonth ?? 0),
+                spaces: Number(plan.spaces ?? 0),
             },
         });
 
@@ -56,6 +57,7 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
             name: updates.name ?? existingProduct.name,
             description: updates.description ?? existingProduct.description,
             metadata: {
+                spaces: updates.spaces ? Number(updates.spaces) : existingProduct.metadata.spaces,
                 megabytes: updates.megabytes?.toString() ?? existingProduct.metadata.megabytes,
                 features: updates.features ? JSON.stringify(updates.features) : existingProduct.metadata.features,
                 highlighted: updates.highlighted ? Number(updates.highlighted) : existingProduct.metadata.highlighted,
@@ -158,6 +160,7 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
             })),
             createdAt: new Date(product.created * 1000),
             updatedAt: new Date(product.updated * 1000),
+            spaces: product.metadata.spaces ? Number(product.metadata.spaces) : 0,
             highlighted: Boolean(Number(product.metadata.highlighted)) ?? false,
             aiGenerationsPerMonth: product.metadata.aiGenerationsPerMonth ? Number(product.metadata.aiGenerationsPerMonth) : 0
         };

@@ -12,9 +12,8 @@ export type RecoveryEmailContent = {
 
 export type SubscriptionSuccessEmailContent = {
     companySupportLink: string;
-    albumLink: string;
     features: string[];
-    albumName: string;
     subscriptionPlan: string;
     name: string;
+    albumLink: string;
 }

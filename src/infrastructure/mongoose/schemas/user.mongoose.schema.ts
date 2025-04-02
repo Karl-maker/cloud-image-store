@@ -17,7 +17,14 @@ export const UserSchema = new Schema<UserDocument>(
         hashPassword: { type: String, required: true },
         salt: { type: String, required: true },
         confirmed: { type: Boolean, required: true, default: false },
-        lastPasswordUpdate: { type: Date, required: false }
+        lastPasswordUpdate: { type: Date, required: false },
+        deactivatedAt: { type: Date, required: false },
+        maxUsers: { type: Number, required: false, default: 0 },
+        maxSpaces: { type: Number, required: false, default: 0 },
+        maxStorage: { type: Number, required: false, default: 0 },
+        maxAiEnhancementsPerMonth: { type: Number, required: false, default: 0 },
+        subscriptionStripeId: { type: String, required: false },
+        subscriptionPlanStripeId: { type: String, required: false },
     },
     { timestamps: true }
 );

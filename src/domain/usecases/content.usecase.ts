@@ -9,19 +9,15 @@ import { UploadContentDTO } from "../interfaces/presenters/dtos/upload.content.d
 import { UploadServiceResponse } from "../types/upload.service.type";
 import { generateUuid } from "../../utils/generate.uuid.util";
 import { SpaceUsecase } from "./space.usecase";
-import { InsufficentStorageException } from "../../application/exceptions/insufficent.storage.exception";
 import { bytesToMB } from "../../utils/bytes.to.mb";
 import { BUCKET_NAME_PRIVATE } from "../constants/bucket.name";
 import { CreateContentVariantDTO } from "../interfaces/presenters/dtos/create.content.variant.dto";
 import { NotFoundException } from "../../application/exceptions/not.found";
 import { IImageVariant } from "../../application/services/ai/interface.image.variant";
 import { GetBlobService } from "../../application/services/blob/interface.get.blob.service";
-import { convertJpegToPngBlob } from "../../utils/jpeg.to.png.util";
-import { blobToBuffer } from "../../utils/blob.to.buffer.util";
-import { compressBlobToSize } from "../../utils/compless.blob.util";
-import { isImageSizeLessThanTargetInBytes } from "../../utils/check.size.util";
 import { SpaceRepository } from "../repositories/space.repository";
 import { downloadImageWithMetadata } from "../../utils/download.blob.from.link.util";
+import { UserRepository } from "../repositories/user.repository";
 
 export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilterBy, ContentRepository> {
     constructor (
@@ -30,7 +26,6 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
         private spaceUsecase: SpaceUsecase,
         private imageVariantService: IImageVariant,
         private blobService: GetBlobService,
-        public spaceRepository: SpaceRepository
     ) {
         super(repository);
     }
@@ -81,7 +76,6 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                 updatedAt:  new Date(),
                 size: bytesToMB(item.size)
             }
-            if(!await this.spaceUsecase.hasMemory(data.spaceId, item.size)) throw new InsufficentStorageException('out of memory in space')
             
             await this.uploadService.upload({
                 fileBuffer: item.buffer,

@@ -10,6 +10,7 @@ import { SpaceController } from "../controllers/space.controller";
 import { spaceFilterBySchema } from "../../../domain/interfaces/presenters/dtos/find.many.space.dto";
 import { updateSpaceSchema } from "../../../domain/interfaces/presenters/dtos/update.space.dto";
 import { createSpaceSchema } from "../../../domain/interfaces/presenters/dtos/create.space.dto";
+import verifyCreateAlbum from "../middlewares/verify.create.album";
 
 const router = express.Router();
 
@@ -76,7 +77,7 @@ export const SpaceRoutes = (usecase: SpaceUsecase) => {
      *                   example: "Internal server error"
      */
 
-    router.post(SPACE_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateBodyDTO(createSpaceSchema), controller.create.bind(controller)); 
+    router.post(SPACE_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), verifyCreateAlbum(usecase.repository, usecase.userRepository), validateBodyDTO(createSpaceSchema), controller.create.bind(controller)); 
 
     /**
      * @swagger

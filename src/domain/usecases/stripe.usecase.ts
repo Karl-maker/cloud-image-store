@@ -9,14 +9,14 @@ import { StripeSubscriptionService } from "../../application/services/payment/st
 import { StripePaymentLinkService } from "../../application/services/payment/stripe.payment.link.service";
 import { StripeSubscriptionPlanService } from "../../application/services/payment/stripe.subscription.plan.service";
 import { StripePaymentCustomer } from "../../application/services/payment/stripe.payment.customer.service";
-import { PAYMENT_INTENT_SUCCEEDED, SPACE_SUBSCRIBED_TO_PLAN } from "../constants/event.names";
+import { USER_SUBSCRIBED_TO_PLAN } from "../constants/event.names";
 import { EventBus } from "../../infrastructure/event/event.bus";
-import { PaymentIntentSucceededPayload } from "../types/webhook";
 import { SpaceUsecase } from "./space.usecase";
 import { NotFoundException } from "../../application/exceptions/not.found";
 import { UserUsecase } from "./user.usecase";
 import { StripeBillingPortalService } from "../../application/services/payment/stripe.billing.portal.service";
 import { BillingPortalService } from "../../application/services/payment/interface.billing.portal.service";
+import { ForbiddenException } from "../../application/exceptions/forbidden.exception";
 
 
 export class StripeUsecase {
@@ -42,51 +42,30 @@ export class StripeUsecase {
         if(event.type === 'customer.subscription.created') {
             const customerSubscription = event.data.object as Stripe.Subscription;
 
-            if(!customerSubscription.metadata.space_id) throw new Error('no space id found')
-
-            const spaceId = customerSubscription.metadata.space_id;
-
-            let payload : PaymentIntentSucceededPayload = {
-                spaceId,
-                updatedItems: {
-                    stripeSubscriptionId: "",
-                    subscriptionPlanId: "",
-                    usersAllowed: 0,
-                    totalMegabytes: 0
-                }
-            }
-
             const subscription = await this.subscriptionService.findById(customerSubscription.id as string);
             
             if(!subscription) throw new Error('no subscription found');
-
-            payload.updatedItems.stripeSubscriptionId = subscription.id!;
-            payload.updatedItems.subscriptionPlanId = subscription.planId;
             
             const plan = await this.subscriptionPlanService.findById(subscription.planId);
 
             if(!plan)  throw new Error('no plan found');
 
-            payload.updatedItems.totalMegabytes = plan.megabytes;
-            payload.updatedItems.usersAllowed = plan.users;
-
-            const result = await this.spaceUsecase.subscribedToPlan(payload.spaceId, subscription, plan);
+            const result = await this.userUsecase.subscribedToPlan(customerSubscription.customer as string, subscription, plan);
 
             if(result instanceof Error || result instanceof NotFoundException) throw result;
 
-            eventBus.emit(PAYMENT_INTENT_SUCCEEDED, payload)
-            eventBus.emit(SPACE_SUBSCRIBED_TO_PLAN, { plan, space: result })
+            eventBus.emit(USER_SUBSCRIBED_TO_PLAN, { plan, user: result })
         } else if(event.type === 'customer.subscription.deleted') {
             const subscription = event.data.object as Stripe.Subscription;
-            const result = await this.spaceUsecase.subscriptionEnd(subscription.id);
+            const result = await this.userUsecase.subscriptionEnd(subscription.customer as string);
             if(result instanceof Error || result instanceof NotFoundException) throw result;
         } else if(event.type === 'customer.subscription.paused') {
             const subscription = event.data.object as Stripe.Subscription;
-            const result = await this.spaceUsecase.subscriptionPaused(subscription.id);
+            const result = await this.userUsecase.subscriptionPaused(subscription.customer as string);
             if(result instanceof Error || result instanceof NotFoundException) throw result;
         } else if(event.type === 'customer.subscription.resumed') {
             const subscription = event.data.object as Stripe.Subscription;
-            const result = await this.spaceUsecase.subscriptionResumed(subscription.id);
+            const result = await this.userUsecase.subscriptionResumed(subscription.customer as string);
             if(result instanceof Error || result instanceof NotFoundException) throw result;
         } else if(event.type === 'customer.subscription.updated') {
             const subscription = event.data.object;
@@ -94,37 +73,32 @@ export class StripeUsecase {
             const plan = await this.subscriptionPlanService.findById(planId);
 
             if(!plan) throw new Error('no plan found');
-            if(!subscription.metadata.space_id) throw new Error('no space id found')
-                
-            const space = await this.spaceUsecase.findById(subscription.metadata.space_id);
+
             const subscriptionEntity = await this.subscriptionService.findById(subscription.id as string);
 
-            if(space instanceof Error || space instanceof NotFoundException) throw space;
             if(subscriptionEntity === null) throw new NotFoundException('subscription not found');
 
-            const newSpace = await this.spaceUsecase.subscribedToPlan(subscription.metadata.space_id, subscriptionEntity, plan)
-            if(newSpace instanceof Error || newSpace instanceof NotFoundException) throw newSpace;
+            const newUser = await this.userUsecase.subscribedToPlan(subscription.customer as string, subscriptionEntity, plan)
+            if(newUser instanceof Error || newUser instanceof NotFoundException) throw newUser;
 
-            eventBus.emit(SPACE_SUBSCRIBED_TO_PLAN, { plan, space: newSpace })
+            eventBus.emit(USER_SUBSCRIBED_TO_PLAN, { plan, user: newUser })
         }
     }
 
-    async createPaymentLink (priceId: string, spaceId: string) : Promise<string> {
-        const space = await this.spaceUsecase.findById(spaceId);
-
-        if(!space || space instanceof Error) throw new NotFoundException('no space found');
-
-        const userId = space.createdByUserId;
+    async createPaymentLink (priceId: string, userId: string, spaceId?: string) : Promise<string> {
 
         const user = await this.userUsecase.findById(userId);
         
         if(!user || user instanceof Error) throw new NotFoundException('no user found');
+        if(user.subscriptionStripeId) throw new ForbiddenException('already has subscription');
 
         const customerId = user.stripeId;
 
         if(!customerId) throw new NotFoundException('no customer stripe id found');
         
-        return this.paymentLinkService.generateLink(priceId, spaceId, customerId);
+        return this.paymentLinkService.generateLink(priceId, customerId, spaceId);
+        
+        
     }
 
     async billingPortalLink (customerId: string) : Promise<string> {

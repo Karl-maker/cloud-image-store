@@ -1,12 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { ContentRepository } from "../../../domain/repositories/content.repository";
-import { SpaceRepository } from "../../../domain/repositories/space.repository";
-import { CreateContentVariantDTO } from "../../../domain/interfaces/presenters/dtos/create.content.variant.dto";
-import { LimitReacgedException } from "../../../application/exceptions/limit.reached.exception";
 import { CONTENT_PARAM } from "../../../domain/constants/api.routes";
+import { UserRepository } from "../../../domain/repositories/user.repository";
+import { LimitReachedException } from "../../../application/exceptions/limit.reached.exception";
 
 
-export const limitAiEnhancementMiddleware = (spaceRepository: SpaceRepository, contentRepository: ContentRepository) => async (
+export const limitAiEnhancementMiddleware = (userRepository: UserRepository, contentRepository: ContentRepository) => async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -18,13 +17,13 @@ export const limitAiEnhancementMiddleware = (spaceRepository: SpaceRepository, c
         return;
     } 
 
-    const space = await spaceRepository.findById(content.spaceId);
-    if(!space) {
-        next(new Error('no space found'));
+    const user = await userRepository.findById(content.spaceId);
+    if(!user) {
+        next(new Error('no user found'));
         return
     }
 
-    const amountAllowed = space.aiGenerationsPerMonth ?? 0;
+    const amountAllowed = user.maxAiEnhancementsPerMonth ?? 0;
     const result = await contentRepository.findMany({
         pageSize: 1,
         pageNumber: 1,
@@ -39,6 +38,6 @@ export const limitAiEnhancementMiddleware = (spaceRepository: SpaceRepository, c
         }
     })
 
-    if(result.pagination.totalItems >= amountAllowed) next(new LimitReacgedException('cannot generate more ai images'))
+    if(result.pagination.totalItems >= amountAllowed) next(new LimitReachedException('cannot generate more ai images'))
     next();
 };

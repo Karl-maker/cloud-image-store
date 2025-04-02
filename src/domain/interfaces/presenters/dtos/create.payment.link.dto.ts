@@ -15,15 +15,14 @@ import Joi from 'joi';
  *           description: The ID of the space associated with the payment link.
  *       required:
  *         - priceId
- *         - spaceId
  */
 
 export const createPaymentLinkSchema = Joi.object({
     priceId: Joi.string().required(),
-    spaceId: Joi.string().required(),
+    spaceId: Joi.string().optional(),
 });
 
 export type CreatePaymentLinkDTO = {
     priceId: string;
-    spaceId: string;
+    spaceId?: string;
 }

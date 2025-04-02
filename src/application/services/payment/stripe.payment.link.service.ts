@@ -10,7 +10,7 @@ export class StripePaymentLinkService implements PaymentLinkService {
         this.stripe = stripe;
     }
 
-    async generateLink(priceId: string, spaceId: string, customerId: string): Promise<string> {
+    async generateLink(priceId: string, customerId: string, spaceId?: string): Promise<string> {
         try {
             const session = await this.stripe.checkout.sessions.create({
                 mode: 'subscription',
@@ -28,8 +28,8 @@ export class StripePaymentLinkService implements PaymentLinkService {
                         space_id: spaceId
                     },
                 },
-                success_url: `${COMPANY_DOMAIN}/album/${spaceId}/setup?p=1&session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `${COMPANY_DOMAIN}/album/${spaceId}/setup`
+                success_url: spaceId ? `${COMPANY_DOMAIN}/album/${spaceId}/setup?p=1&session_id={CHECKOUT_SESSION_ID}` : `${COMPANY_DOMAIN}/albums`,
+                cancel_url: spaceId ? `${COMPANY_DOMAIN}/album/${spaceId}/setup` : `${COMPANY_DOMAIN}/pricing`
             });
     
             return session.url!;

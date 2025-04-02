@@ -17,10 +17,12 @@ export class StripeController {
 
     async getPaymentLink(req: Request, res: Response, next: NextFunction) : Promise<void> {
         try {   
+            const userId = (req as any).user?.id
             const {
                 priceId, spaceId
             } = req.body as CreatePaymentLinkDTO;
-            const link = await this.usecase.createPaymentLink(priceId, spaceId)
+            
+            const link = await this.usecase.createPaymentLink(priceId, userId, spaceId)
 
             res.status(201).json({ link });
         } catch (error) {

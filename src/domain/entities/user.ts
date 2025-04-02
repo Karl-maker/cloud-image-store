@@ -36,11 +36,28 @@ import { Persistent } from "./persistent";
      *           type: string
      *           nullable: true
      *           description: Stripe customer ID associated with the user
+     *         maxUsers:
+     *           type: number
+     *           nullable: true
+     *           description: Number of users allowed on account
      *         lastPasswordUpdate:
      *           type: string
      *           format: date-time
      *           nullable: true
      *           description: Timestamp when the password was last updated
+     *         deactivatedAt:
+     *           type: string
+     *           format: date-time
+     *           nullable: true
+     *           description: Timestamp when the user was deactivated
+     *         subscriptionStripeId:
+     *           type: string
+     *           nullable: true
+     *           description: id for stripe subscription id
+     *         subscriptionPlanStripeId:
+     *           type: string
+     *           nullable: true
+     *           description: id for stripe plan id
      *       required:
      *         - id
      *         - createdAt
@@ -60,5 +77,12 @@ export interface User extends Persistent {
     confirmed: boolean;
     stripeId: string | null;
     lastPasswordUpdate?: Date;
+    deactivatedAt?: Date;
+    maxUsers: number;
+    maxSpaces: number;
+    maxStorage: number;
+    maxAiEnhancementsPerMonth: number; 
+    subscriptionStripeId?: string;
+    subscriptionPlanStripeId?: string;
 }
 

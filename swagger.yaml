@@ -124,34 +124,9 @@ components:
           type: string
           format: uuid
           description: User ID of the creator of the space
-        usersAllowed:
-          type: integer
-          description: Maximum number of users allowed in the space
-        pausedAt:
-          type: string
-          format: date-time
-          nullable: true
-          description: Timestamp when the space was paused, if applicable
-        deactivatedAt:
-          type: string
-          format: date-time
-          nullable: true
-          description: Timestamp when the space was deactivated, if applicable
         usedMegabytes:
           type: number
           description: The amount of storage used in megabytes
-        totalMegabytes:
-          type: number
-          description: The total storage capacity in megabytes
-        subscriptionPlanId:
-          type: string
-          format: uuid
-          nullable: true
-          description: ID of the associated subscription plan, if applicable
-        stripeSubscriptionId:
-          type: string
-          nullable: true
-          description: Stripe subscription ID linked to the space
         shareType:
           type: string
           enum:
@@ -167,9 +142,7 @@ components:
         - description
         - userIds
         - createdByUserId
-        - usersAllowed
         - usedMegabytes
-        - totalMegabytes
         - shareType
     SubscriptionPlanResponse:
       type: object
@@ -201,6 +174,9 @@ components:
         users:
           type: number
           description: Maximum number of users allowed in this subscription
+        spaces:
+          type: number
+          description: Maximum number of spaces allowed in this subscription
         prices:
           type: array
           items:
@@ -220,6 +196,7 @@ components:
         - megabytes
         - users
         - prices
+        - spaces
         - features
     SubscriptionResponse:
       type: object
@@ -296,11 +273,28 @@ components:
           type: string
           nullable: true
           description: Stripe customer ID associated with the user
+        maxUsers:
+          type: number
+          nullable: true
+          description: Number of users allowed on account
         lastPasswordUpdate:
           type: string
           format: date-time
           nullable: true
           description: Timestamp when the password was last updated
+        deactivatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the user was deactivated
+        subscriptionStripeId:
+          type: string
+          nullable: true
+          description: id for stripe subscription id
+        subscriptionPlanStripeId:
+          type: string
+          nullable: true
+          description: id for stripe plan id
       required:
         - id
         - createdAt
@@ -335,7 +329,6 @@ components:
           description: The ID of the space associated with the payment link.
       required:
         - priceId
-        - spaceId
     CreateSpaceRequest:
       type: object
       properties:

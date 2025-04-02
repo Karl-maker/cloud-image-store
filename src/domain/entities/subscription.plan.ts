@@ -35,6 +35,9 @@ import { Persistent } from "./persistent";
  *         users:
  *           type: number
  *           description: Maximum number of users allowed in this subscription
+ *         spaces:
+ *           type: number
+ *           description: Maximum number of spaces allowed in this subscription
  *         prices:
  *           type: array
  *           items:
@@ -54,6 +57,7 @@ import { Persistent } from "./persistent";
  *         - megabytes
  *         - users
  *         - prices
+ *         - spaces
  *         - features
  */
 
@@ -62,6 +66,7 @@ export interface SubscriptionPlan extends Persistent {
     description: string;
     megabytes: number;
     users: number;
+    spaces: number;
     aiGenerationsPerMonth?: number;
     prices: Price [];
     features: Feature [];
