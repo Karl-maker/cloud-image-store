@@ -23,7 +23,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
     constructor (
         repository: ContentRepository,
         private uploadService: IUploadService,
-        private spaceUsecase: SpaceUsecase,
+        public spaceUsecase: SpaceUsecase,
         private imageVariantService: IImageVariant,
         private blobService: GetBlobService,
     ) {

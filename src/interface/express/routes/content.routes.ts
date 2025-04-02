@@ -298,7 +298,7 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *                   example: "Internal server error"
      */
 
-    router.post(CONTENT_PATH + CONTENT_PARAM_PATH + CREATE_VARIANT_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), limitAiEnhancementMiddleware(usecase.userRepository, usecase.repository), validateBodyDTO(createContentVariantSchema), controller.generateVariant.bind(controller));
+    router.post(CONTENT_PATH + CONTENT_PARAM_PATH + CREATE_VARIANT_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), limitAiEnhancementMiddleware(usecase.spaceUsecase.userRepository, usecase.repository), validateBodyDTO(createContentVariantSchema), controller.generateVariant.bind(controller));
 
     /**
      * @swagger
