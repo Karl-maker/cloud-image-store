@@ -62,6 +62,6 @@ export interface Space extends Persistent {
     createdByUserId: string;
     usedMegabytes: number;
     shareType: SpaceShareType;
-    deactivatedAt: Date | null;
+    deactivatedAt?: Date;
 }
 
