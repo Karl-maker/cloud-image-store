@@ -13,7 +13,7 @@ export const SpaceSchema = new Schema<SpaceDocument>(
         description: { type: String, required: true },
         userIds: { type: [String], required: true },
         createdByUserId: { type: String, required: true },
-        deactivatedAt: { type: Date, required: true, default: null },
+        deactivatedAt: { type: Date, required: false, default: null },
         usedMegabytes: { type: Number, required: true, min: 0, default: 0 },
         shareType: { type: String, default: 'public' },
         clientId: { type: String, unique: true, default: () => generateUuid() }
