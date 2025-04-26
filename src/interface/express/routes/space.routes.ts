@@ -11,6 +11,8 @@ import { spaceFilterBySchema } from "../../../domain/interfaces/presenters/dtos/
 import { updateSpaceSchema } from "../../../domain/interfaces/presenters/dtos/update.space.dto";
 import { createSpaceSchema } from "../../../domain/interfaces/presenters/dtos/create.space.dto";
 import verifyCreateAlbum from "../middlewares/verify.create.album";
+import { verifyAccessTokenSchema } from "../../../domain/interfaces/presenters/dtos/verify.space.access.token.dto";
+import { createSpaceTokenRequestSchema } from "../../../domain/interfaces/presenters/dtos/generate.space.access.token.dto";
 
 const router = express.Router();
 
@@ -23,6 +25,116 @@ const router = express.Router();
 
 export const SpaceRoutes = (usecase: SpaceUsecase) => {
     const controller = new SpaceController(usecase);
+
+    /**
+     * @swagger
+     * /space-token-generation:
+     *   post:
+     *     tags:
+     *       - Space
+     *     summary: Create a new space
+     *     description: Create a new space using the provided data. Returns the details of the newly created space.
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/GenerateSpaceTokenRequest'
+     *     responses:
+     *       201:
+     *         description: Successfully created the space's token.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/GenerateSpaceTokenResponse'
+     *       400:
+     *         description: Bad request, missing or invalid data in the request body.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Invalid data provided"
+     *       401:
+     *         description: Unauthorized, invalid or missing authentication token.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Unauthorized"
+     *       500:
+     *         description: Internal server error.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Internal server error"
+     */
+
+    router.post(SPACE_PATH + "-token-generation", authentication(TOKEN_SECRET!, new JwtTokenService()), validateBodyDTO(createSpaceTokenRequestSchema), controller.generateAccessToken.bind(controller)); 
+
+    /**
+     * @swagger
+     * /space-token-validation:
+     *   post:
+     *     tags:
+     *       - Space
+     *     summary: Verify space token
+     *     description: Verify the token for a space and get back information.
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/ValidateSpaceTokenRequest'
+     *     responses:
+     *       200:
+     *         description: Successfully validated the space's token.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ValidateSpaceTokenResponse'
+     *       400:
+     *         description: Bad request, missing or invalid data in the request body.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Invalid data provided"
+     *       401:
+     *         description: Unauthorized, invalid or missing authentication token.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Unauthorized"
+     *       500:
+     *         description: Internal server error.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Internal server error"
+     */
+
+    router.post(SPACE_PATH + "-token-validation", validateBodyDTO(verifyAccessTokenSchema), controller.verifyAccessToken.bind(controller)); 
 
     /**
      * @swagger

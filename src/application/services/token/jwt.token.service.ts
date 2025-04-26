@@ -9,6 +9,7 @@ export class JwtTokenService<Payload extends object> implements TokenService<Pay
         const options : SignOptions =  {
             issuer: config.issuer,
             expiresIn: config.exp, // Ensure valid type
+            //notBefore: config.nbf ?? undefined,
             audience: config.audience,
             algorithm: config.algorithm ?? "HS256",
         }

@@ -387,6 +387,45 @@ components:
         - lastName
         - email
         - password
+    GenerateSpaceTokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: Token for accessing space
+      required:
+        - accessToken
+    GenerateSpaceTokenRequest:
+      type: object
+      properties:
+        timezone:
+          type: string
+          description: Timezone of datetimes (e.g., "America/New_York")
+        instructions:
+          type: string
+          description: Special instructions or notes
+        allowPhotos:
+          type: boolean
+          description: Whether taking photos is allowed
+        allowVideos:
+          type: boolean
+          description: Whether taking videos is allowed
+        start:
+          type: string
+          description: Start date in format YYYY-MM-DD
+        end:
+          type: string
+          description: End date in format YYYY-MM-DD
+        spaceId:
+          type: string
+          description: ID of the space
+      required:
+        - timezone
+        - allowPhotos
+        - allowVideos
+        - start
+        - end
+        - spaceId
     LoginUserRequest:
       type: object
       properties:
@@ -529,6 +568,45 @@ components:
           example: abcd1234
       required:
         - token
+    ValidateSpaceTokenRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Token for accessing space
+      required:
+        - token
+    ValidateSpaceTokenResponse:
+      type: object
+      properties:
+        timezone:
+          type: string
+          description: Timezone of datetimes (e.g., "America/New_York")
+        instructions:
+          type: string
+          description: Special instructions or notes
+        allowPhotos:
+          type: boolean
+          description: Whether taking photos is allowed
+        allowVideos:
+          type: boolean
+          description: Whether taking videos is allowed
+        start:
+          type: string
+          description: Start date in format YYYY-MM-DD
+        end:
+          type: string
+          description: End date in format YYYY-MM-DD
+        spaceId:
+          type: string
+          description: ID of the space
+      required:
+        - timezone
+        - allowPhotos
+        - allowVideos
+        - start
+        - end
+        - spaceId
     Price:
       type: object
       properties:
@@ -901,6 +979,106 @@ paths:
                   message:
                     type: string
                     example: Invalid file types or missing spaceId
+        '401':
+          description: Unauthorized, invalid or missing authentication token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+  /space-token-generation:
+    post:
+      tags:
+        - Space
+      summary: Create a new space
+      description: >-
+        Create a new space using the provided data. Returns the details of the
+        newly created space.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateSpaceTokenRequest'
+      responses:
+        '201':
+          description: Successfully created the space's token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateSpaceTokenResponse'
+        '400':
+          description: Bad request, missing or invalid data in the request body.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid data provided
+        '401':
+          description: Unauthorized, invalid or missing authentication token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+  /space-token-validation:
+    post:
+      tags:
+        - Space
+      summary: Verify space token
+      description: Verify the token for a space and get back information.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateSpaceTokenRequest'
+      responses:
+        '200':
+          description: Successfully validated the space's token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateSpaceTokenResponse'
+        '400':
+          description: Bad request, missing or invalid data in the request body.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid data provided
         '401':
           description: Unauthorized, invalid or missing authentication token.
           content:
