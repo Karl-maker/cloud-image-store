@@ -18,6 +18,11 @@ import { GetBlobService } from "../../application/services/blob/interface.get.bl
 import { SpaceRepository } from "../repositories/space.repository";
 import { downloadImageWithMetadata } from "../../utils/download.blob.from.link.util";
 import { UserRepository } from "../repositories/user.repository";
+import { FindManyDTO } from "../interfaces/presenters/dtos/find.many.dto";
+import { FindManyResponse } from "../types/usecase";
+import { FindParams } from "../types/repository";
+import { convertToFilters } from "../../utils/convert.params.to.filters.util";
+import ITemporaryLinkService from "../../application/services/temporary-link/i.temporary.link.service";
 
 export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilterBy, ContentRepository> {
     constructor (
@@ -26,6 +31,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
         public spaceUsecase: SpaceUsecase,
         private imageVariantService: IImageVariant,
         private blobService: GetBlobService,
+        private temporaryLinkService: ITemporaryLinkService
     ) {
         super(repository);
     }
@@ -151,6 +157,52 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
             await this.repository.save(content);
             
         }))
+    }
+
+    async findMany <F extends FindManyDTO<ContentSortBy>>(params: F) : Promise<FindManyResponse<Content>> {
+
+        const input : FindParams<ContentSortBy, ContentFilterBy> = {
+            pageNumber: params.page_number,
+            pageSize: params.page_size,
+            sortBy: params.by,
+            sortOrder: params.order,
+        }
+        
+        const objectParams = params as any;
+
+        delete objectParams['page_number'];
+        delete objectParams['page_size'];
+        delete objectParams['by'];
+        delete objectParams['order'];
+
+        // assume everything else is filters;
+
+        const filters = convertToFilters<ContentFilterBy>(objectParams as ContentFilterBy);
+
+        input.filters = filters;
+
+        const data = await this.repository.findMany(
+            input
+        );
+
+        const finalized = await Promise.all(data.data.map(async (v,i) => {
+            if(v.locationExpiration && v.locationExpiration < new Date()) return v;
+            const results = await this.temporaryLinkService.generate(v.key);
+            v.locationExpiration = results.expDate;
+            v.location = results.url;
+            v.downloadUrl = results.url;
+            
+            await this.repository.save(v);
+
+            v.key = '';
+
+            return v;
+        }))
+
+        return {
+            ...data,
+            data: finalized
+        };
     }
     
 }

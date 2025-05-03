@@ -38,6 +38,7 @@ import "../events/content.events";
 import "../events/user.events";
 
 import verifyUploadContent from "./middlewares/verify.upload.content";
+import S3TemporaryLinkService from "../../application/services/temporary-link/aws.temporary.link.service";
 
 export const app = express();
 
@@ -45,7 +46,7 @@ export const app = express();
 export const initializeServer = async () => {
     await Database.connect(MONGO_URI!); // Connect to MongoDB
     const connection = Database.getConnection();
-
+    const expDateForContent = 60 * 60 * 24 * 7;
     const userRepository : UserRepository = new UserMongooseRepository(connection);
     const spaceRepository : SpaceRepository = new SpaceMongooseRepository(connection);
     const contentRepository : ContentRepository = new ContentMongooseRepository(connection)
@@ -65,7 +66,7 @@ export const initializeServer = async () => {
     const routes = new Routes(
         new UserUsecase(userRepository),
         new SpaceUsecase(spaceRepository, userRepository),
-        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository), new DeepaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName)),
+        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository), new DeepaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), new S3TemporaryLinkService(bucketName, s3Config, expDateForContent)),
         new StripeUsecase(stripe, new SpaceUsecase(spaceRepository, userRepository), new UserUsecase(userRepository))
     )
 
@@ -75,7 +76,7 @@ export const initializeServer = async () => {
         STRIPE_WEBHOOK_SECRET!
     );
 
-    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository), new OpenaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName)))
+    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository), new OpenaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), new S3TemporaryLinkService(bucketName, s3Config, expDateForContent)))
 
     const allowedOrigins = [
         new URL(COMPANY_DOMAIN!).origin!,

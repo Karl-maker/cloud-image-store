@@ -14,6 +14,7 @@ export const ContentSchema = new Schema<ContentDocument>(
         key: { type: String, required: true },
         mimeType: { type: String, required: true },
         location: { type: String, required: true },
+        locationExpiration: { type: Date, required: false },
         uploadCompletion: { type: Number, required: true, default: 0 },
         uploadError: { type: String, required: false },
         spaceId: { type: String, required: true },

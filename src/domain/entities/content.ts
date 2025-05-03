@@ -87,6 +87,7 @@ export interface Content extends Persistent {
     key: string;
     mimeType: string;
     location: string;
+    locationExpiration?: Date;
     uploadCompletion: number;
     uploadError?: string;
     length?: number;
