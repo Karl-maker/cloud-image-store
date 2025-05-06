@@ -90,6 +90,7 @@ export const initializeServer = async () => {
 
     setupSwagger(app)
     swaggerYamlConverter(swaggerSpec)
+
     app.use(cors({
         origin: '*',
         credentials: true,
@@ -100,6 +101,12 @@ export const initializeServer = async () => {
     app.use(express.json());
 
     app.post('/api/v1' + CONTENT_PATH + UPLOAD_PATH, upload.array('files', 10), authentication(TOKEN_SECRET!, new JwtTokenService()), validateUploadEndpoint, verifyUploadContent(spaceRepository, userRepository), contentController.upload.bind(contentController))
+    app.options(CONTENT_VIEW_PATH + '/*', (req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Headers', 'Range');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+        res.sendStatus(204);
+    })
     app.get(CONTENT_VIEW_PATH + '/*', contentController.redirectToS3(S3_BUCKET_NAME_AWS!, s3Config))
 
     routes.register(app)

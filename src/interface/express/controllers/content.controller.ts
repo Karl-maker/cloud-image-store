@@ -34,10 +34,29 @@ export class ContentController {
     ) => async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
         try {
             const key = req.params[0];
-            const data = await this.usecase.redirectToS3(key, bucketName, s3Config)
+            const rangeHeader = req.headers.range;
+            const { data, stream } = await this.usecase.redirectToS3(key, bucketName, s3Config, rangeHeader)
+            
+            const contentType = data.ContentType || 'application/octet-stream';
+            const contentLength = data.ContentLength;
+            const contentRange = data.ContentRange;
+    
             res.setHeader('Access-Control-Allow-Origin', '*');
-            res.setHeader('Content-Type', data.data.ContentType || 'image/jpeg');
-            data.stream.pipe(res);
+            res.setHeader('Access-Control-Allow-Headers', 'Range');
+            res.setHeader('Access-Control-Expose-Headers', 'Content-Length, Content-Range');
+            res.setHeader('Accept-Ranges', 'bytes');
+            res.setHeader('Content-Type', contentType);
+            res.setHeader('Cache-Control', 'public, max-age=31536000');
+    
+            if (rangeHeader && contentRange) {
+                res.status(206); // Partial Content
+                res.setHeader('Content-Range', contentRange);
+                res.setHeader('Content-Length', contentLength?.toString() || '');
+            } else {
+                res.setHeader('Content-Length', contentLength?.toString() || '');
+            }
+    
+            (data.Body as NodeJS.ReadableStream).pipe(res);
         } catch (error) {
             next(error)
         }

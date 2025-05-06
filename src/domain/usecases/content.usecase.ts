@@ -67,7 +67,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
 
         return content;
     }
-    async redirectToS3(key: string, bucketName: string, s3Config: S3ClientConfig) : Promise<{
+    async redirectToS3(key: string, bucketName: string, s3Config: S3ClientConfig, rangeHeader?: string | undefined) : Promise<{
         stream: NodeJS.ReadableStream,
         data: GetObjectCommandOutput
     }> {
@@ -76,6 +76,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
             const command = new GetObjectCommand({
                 Bucket: bucketName,
                 Key: key,
+                Range: rangeHeader
             });
           
             const data = await s3.send(command);

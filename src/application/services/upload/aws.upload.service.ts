@@ -38,6 +38,7 @@ export default class S3UploadService implements IUploadService {
             Body: fileBuffer,
             ContentType: mimeType,
             Metadata: metadata,
+            CacheControl: 'max-age=86400'
         };
 
         try {
