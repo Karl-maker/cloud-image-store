@@ -35,9 +35,8 @@ export class ContentController {
         try {
             const key = req.params[0];
             const data = await this.usecase.redirectToS3(key, bucketName, s3Config)
-
+            res.setHeader('Access-Control-Allow-Origin', '*');
             res.setHeader('Content-Type', data.data.ContentType || 'image/jpeg');
-            res.setHeader('Cache-Control', 'public, max-age=31536000');
             data.stream.pipe(res);
         } catch (error) {
             next(error)
