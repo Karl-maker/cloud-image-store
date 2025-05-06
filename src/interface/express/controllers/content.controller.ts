@@ -41,7 +41,7 @@ export class ContentController {
             const contentLength = data.ContentLength;
             const contentRange = data.ContentRange;
     
-            res.setHeader('Access-Control-Allow-Origin', new URL(COMPANY_DOMAIN!).origin!);
+            res.setHeader('Access-Control-Allow-Origin', COMPANY_DOMAIN!);
             res.setHeader('Access-Control-Allow-Headers', 'Range');
             res.setHeader('Access-Control-Expose-Headers', 'Content-Length, Content-Range');
             res.setHeader('Accept-Ranges', 'bytes');
