@@ -8,7 +8,7 @@ import { CreateContentDTO } from '../../../domain/interfaces/presenters/dtos/cre
 import { FindManyContentsDTO } from '../../../domain/interfaces/presenters/dtos/find.many.content.dto';
 import { UploadContentDTO } from '../../../domain/interfaces/presenters/dtos/upload.content.dto';
 import { getLinkForContent } from '../../../utils/get.link.for.content';
-import { S3_BUCKET_NAME_AWS } from '../../../application/configuration';
+import { COMPANY_DOMAIN, S3_BUCKET_NAME_AWS } from '../../../application/configuration';
 import { S3ClientConfig } from '@aws-sdk/client-s3';
 
 export class ContentController {
@@ -41,7 +41,7 @@ export class ContentController {
             const contentLength = data.ContentLength;
             const contentRange = data.ContentRange;
     
-            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Origin', COMPANY_DOMAIN!);
             res.setHeader('Access-Control-Allow-Headers', 'Range');
             res.setHeader('Access-Control-Expose-Headers', 'Content-Length, Content-Range');
             res.setHeader('Accept-Ranges', 'bytes');
