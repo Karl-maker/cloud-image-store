@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
 const rateLimitWindowMs = 60 * 1000; // 1 minute
-const maxRequestsPerWindow = 10;
+const maxRequestsPerWindow = 60;
 
 const ipRequestMap = new Map<string, { count: number; timestamp: number }>();
 
