@@ -37,9 +37,10 @@ import { DEEP_AI_IMAGE_GEN_VARIATION } from "../../domain/constants/deep.ai";
 import "../events/content.events";
 import "../events/user.events";
 
-import verifyUploadContent from "./middlewares/verify.upload.content";
+import verifyUploadContent, { verifyUploadPermissions } from "./middlewares/verify.upload.content";
 import S3TemporaryLinkService from "../../application/services/temporary-link/aws.temporary.link.service";
 import { rateLimiter } from "./middlewares/rate.limit";
+import authorization from "./middlewares/authorization.middleware";
 
 export const app = express();
 
@@ -99,7 +100,7 @@ export const initializeServer = async () => {
 
     app.use(express.json());
 
-    app.post('/api/v1' + CONTENT_PATH + UPLOAD_PATH, upload.array('files', 10), authentication(TOKEN_SECRET!, new JwtTokenService()), validateUploadEndpoint, verifyUploadContent(spaceRepository, userRepository), contentController.upload.bind(contentController))
+    app.post('/api/v1' + CONTENT_PATH + UPLOAD_PATH, upload.array('files', 10), authentication(TOKEN_SECRET!, new JwtTokenService()), validateUploadEndpoint, verifyUploadContent(spaceRepository, userRepository), authorization(verifyUploadPermissions), contentController.upload.bind(contentController))
     app.options(CONTENT_VIEW_PATH + '/*', rateLimiter, (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', COMPANY_DOMAIN!);
         res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type');

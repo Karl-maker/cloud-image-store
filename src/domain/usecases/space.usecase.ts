@@ -64,7 +64,7 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
         const {
           timezone,
           start, 
-          end 
+          end
         } = data;
       
         // Parse the start and end dates considering the timezone
@@ -78,7 +78,7 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
           issuer: "collaboration",
           exp: (60 * 60 * 24 * 2) + dateToJwtExp(endDateUtc), // expiration time (end of day in seconds)
           //nbf: dateToJwtExp(startDateUtc), // not before time (start of day in seconds)
-          audience: 'cloud-photo-share'
+          audience: 'cloud-photo-share',
         };
       
         const secret = TOKEN_SECRET!;
