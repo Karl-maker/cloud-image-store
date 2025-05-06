@@ -80,8 +80,7 @@ export const initializeServer = async () => {
     const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository), new OpenaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), new S3TemporaryLinkService(bucketName, s3Config, expDateForContent)))
 
     const allowedOrigins = [
-        new URL(COMPANY_DOMAIN!).origin!,
-        'localhost:3001'
+        new URL(COMPANY_DOMAIN!).origin!
     ];
 
     app.use(helmet());
@@ -92,7 +91,7 @@ export const initializeServer = async () => {
     swaggerYamlConverter(swaggerSpec)
 
     app.use(cors({
-        origin: '*',
+        origin: allowedOrigins,
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization', "x-api-key"],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
@@ -102,7 +101,7 @@ export const initializeServer = async () => {
 
     app.post('/api/v1' + CONTENT_PATH + UPLOAD_PATH, upload.array('files', 10), authentication(TOKEN_SECRET!, new JwtTokenService()), validateUploadEndpoint, verifyUploadContent(spaceRepository, userRepository), contentController.upload.bind(contentController))
     app.options(CONTENT_VIEW_PATH + '/*', rateLimiter, (req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', COMPANY_DOMAIN!);
+        res.setHeader('Access-Control-Allow-Origin', new URL(COMPANY_DOMAIN!).origin!);
         res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type');
         res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
         res.setHeader('Access-Control-Expose-Headers', 'Content-Length, Content-Range');
