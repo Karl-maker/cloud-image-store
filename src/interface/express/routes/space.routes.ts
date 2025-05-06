@@ -1,5 +1,5 @@
-import { SPACE_PARAM_PATH, SPACE_PATH } from "../../../domain/constants/api.routes";
-import express from "express";
+import { SPACE_PARAM, SPACE_PARAM_PATH, SPACE_PATH } from "../../../domain/constants/api.routes";
+import express, { Request } from "express";
 import authentication from "../middlewares/authentication.middleware";
 import { TOKEN_SECRET } from "../../../application/configuration";
 import { JwtTokenService } from "../../../application/services/token/jwt.token.service";
@@ -13,6 +13,7 @@ import { createSpaceSchema } from "../../../domain/interfaces/presenters/dtos/cr
 import verifyCreateAlbum from "../middlewares/verify.create.album";
 import { verifyAccessTokenSchema } from "../../../domain/interfaces/presenters/dtos/verify.space.access.token.dto";
 import { createSpaceTokenRequestSchema } from "../../../domain/interfaces/presenters/dtos/generate.space.access.token.dto";
+import authorization from "../middlewares/authorization.middleware";
 
 const router = express.Router();
 
@@ -25,6 +26,30 @@ const router = express.Router();
 
 export const SpaceRoutes = (usecase: SpaceUsecase) => {
     const controller = new SpaceController(usecase);
+
+    const writeSpaceCheck = async (req: Request, payload: { id: string }) : Promise<boolean> => {
+        const spaceId = req.params[SPACE_PARAM];
+        const space = await usecase.repository.findById(spaceId);
+
+        if(space === null) return false;
+
+        if(space.shareType === 'private' && space.createdByUserId !== payload.id) return false;
+        if(!space.userIds.includes(payload.id) && space.createdByUserId !== payload.id) return false;
+
+        return true;
+    }
+
+    const writeSpaceTokenGenCheck = async (req: Request, payload: { id: string }) : Promise<boolean> => {
+        const spaceId = req.body.spaceId;
+        const space = await usecase.repository.findById(spaceId);
+
+        if(space === null) return false;
+
+        if(space.shareType === 'private' && space.createdByUserId !== payload.id) return false;
+        if(!space.userIds.includes(payload.id) && space.createdByUserId !== payload.id) return false;
+
+        return true;
+    }
 
     /**
      * @swagger
@@ -79,7 +104,7 @@ export const SpaceRoutes = (usecase: SpaceUsecase) => {
      *                   example: "Internal server error"
      */
 
-    router.post(SPACE_PATH + "-token-generation", authentication(TOKEN_SECRET!, new JwtTokenService()), validateBodyDTO(createSpaceTokenRequestSchema), controller.generateAccessToken.bind(controller)); 
+    router.post(SPACE_PATH + "-token-generation", authentication(TOKEN_SECRET!, new JwtTokenService()), authorization(writeSpaceTokenGenCheck), validateBodyDTO(createSpaceTokenRequestSchema), controller.generateAccessToken.bind(controller)); 
 
     /**
      * @swagger
@@ -397,6 +422,7 @@ export const SpaceRoutes = (usecase: SpaceUsecase) => {
 
     router.patch(SPACE_PATH + SPACE_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), 
     //validateBodyDTO(updateSpaceSchema), 
+    authorization(writeSpaceCheck),
     controller.updateById.bind(controller));
 
     /**
@@ -439,7 +465,7 @@ export const SpaceRoutes = (usecase: SpaceUsecase) => {
      *                   example: "Internal server error"
      */
 
-    router.delete(SPACE_PATH + SPACE_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), controller.deleteById.bind(controller));
+    router.delete(SPACE_PATH + SPACE_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), authorization(writeSpaceCheck), controller.deleteById.bind(controller));
 
     return router;
 }

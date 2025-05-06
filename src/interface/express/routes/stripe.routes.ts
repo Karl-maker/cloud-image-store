@@ -1,8 +1,8 @@
-import express from "express";
+import express, { Request } from "express";
 import { StripeUsecase } from "../../../domain/usecases/stripe.usecase";
 import { StripeController } from "../controllers/stripe.controller";
 import Stripe from "stripe";
-import { BILLING_LINK_PATH, CANCEL_PATH, CANCEL_RENEWAL_PATH, CUSTOMER_PARAM_PATH, PAYMENT_LINK_PATH, STRIPE_PATH, SUBSCRIPTION_PLAN_PATH, UPGRADE_PATH, WEBHOOK_PATH } from "../../../domain/constants/api.routes";
+import { BILLING_LINK_PATH, CANCEL_PATH, CANCEL_RENEWAL_PATH, CUSTOMER_PARAM, CUSTOMER_PARAM_PATH, PAYMENT_LINK_PATH, STRIPE_PATH, SUBSCRIPTION_PLAN_PATH, UPGRADE_PATH, WEBHOOK_PATH } from "../../../domain/constants/api.routes";
 import { validateBodyDTO } from "../middlewares/validation.middleware";
 import { createPaymentLinkSchema } from "../../../domain/interfaces/presenters/dtos/create.payment.link.dto";
 import { JwtTokenService } from "../../../application/services/token/jwt.token.service";

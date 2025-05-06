@@ -1,6 +1,6 @@
-import { CONTENT_PARAM_PATH, CONTENT_PATH, CREATE_VARIANT_PATH, UPLOAD_PATH } from "../../../domain/constants/api.routes";
+import { CONTENT_PARAM, CONTENT_PARAM_PATH, CONTENT_PATH, CONTENT_VIEW_PATH, CREATE_VARIANT_PATH, UPLOAD_PATH } from "../../../domain/constants/api.routes";
 import authentication from "../middlewares/authentication.middleware";
-import { TOKEN_SECRET } from "../../../application/configuration";
+import { ACCESS_KEY_ID_AWS, REGION_AWS, S3_BUCKET_NAME_AWS, SECRET_ACCESS_KEY_AWS, TOKEN_SECRET } from "../../../application/configuration";
 import { JwtTokenService } from "../../../application/services/token/jwt.token.service";
 import { validateQueryDTO, validateBodyDTO } from "../middlewares/validation.middleware";
 import { findManySchema } from "../../../domain/interfaces/presenters/dtos/find.many.dto";
@@ -14,6 +14,9 @@ import { ValidationException } from "../../../application/exceptions/validation.
 import express, { Response, Request, NextFunction } from 'express';
 import { createContentVariantSchema } from "../../../domain/interfaces/presenters/dtos/create.content.variant.dto";
 import { limitAiEnhancementMiddleware } from "../middlewares/ai.limit.middleware";
+import authorization from "../middlewares/authorization.middleware";
+import { S3ClientConfig } from "@aws-sdk/client-s3";
+import { rateLimiter } from "../middlewares/rate.limit";
 
 const router = express.Router();
 
@@ -26,7 +29,29 @@ const router = express.Router();
 
 export const ContentRoutes = (usecase: ContentUsecase) => {
     const controller = new ContentController(usecase);
-    const upload = multer({ storage: multer.memoryStorage() });
+    const s3Config: S3ClientConfig = {
+        region: REGION_AWS!,
+        credentials: {
+            accessKeyId: ACCESS_KEY_ID_AWS!,
+            secretAccessKey: SECRET_ACCESS_KEY_AWS!,
+        }
+    }
+    
+    const writeContentCheck = async (req: Request, payload: { id: string }) : Promise<boolean> => {
+        const contentId = req.params[CONTENT_PARAM];
+        const content = await usecase.repository.findById(contentId);
+
+        if(content === null) return false;
+
+        const space = await usecase.spaceUsecase.findById(content.spaceId);
+
+        if(space instanceof Error) return false;
+
+        if(space.shareType === 'private' && space.createdByUserId !== payload.id) return false;
+        if(!space.userIds.includes(payload.id) && space.createdByUserId !== payload.id) return false;
+
+        return true;
+    }
 
     /**
      * @swagger
@@ -179,7 +204,7 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      */
 
     router.get(CONTENT_PATH, controller.findMany.bind(controller));
-    
+
     /**
      * @swagger
      * /content/{content_id}:
@@ -298,7 +323,7 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *                   example: "Internal server error"
      */
 
-    router.post(CONTENT_PATH + CONTENT_PARAM_PATH + CREATE_VARIANT_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), limitAiEnhancementMiddleware(usecase.spaceUsecase.userRepository, usecase.repository), validateBodyDTO(createContentVariantSchema), controller.generateVariant.bind(controller));
+    router.post(CONTENT_PATH + CONTENT_PARAM_PATH + CREATE_VARIANT_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), authorization(writeContentCheck), limitAiEnhancementMiddleware(usecase.spaceUsecase.userRepository, usecase.repository), validateBodyDTO(createContentVariantSchema), controller.generateVariant.bind(controller));
 
     /**
      * @swagger
@@ -340,7 +365,7 @@ export const ContentRoutes = (usecase: ContentUsecase) => {
      *                   example: "Internal server error"
      */
 
-    router.delete(CONTENT_PATH + CONTENT_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), controller.deleteById.bind(controller));
+    router.delete(CONTENT_PATH + CONTENT_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), authorization(writeContentCheck), controller.deleteById.bind(controller));
 
     /**
      * @swagger

@@ -23,7 +23,7 @@ import S3UploadService from "../../application/services/upload/aws.upload.servic
 import { S3ClientConfig } from "@aws-sdk/client-s3";
 import { StripeUsecase } from "../../domain/usecases/stripe.usecase";
 import Stripe from "stripe";
-import { CONTENT_PATH, STRIPE_PATH, UPLOAD_PATH, WEBHOOK_PATH } from "../../domain/constants/api.routes";
+import { CONTENT_PARAM_PATH, CONTENT_PATH, CONTENT_VIEW_PATH, STRIPE_PATH, UPLOAD_PATH, WEBHOOK_PATH } from "../../domain/constants/api.routes";
 import { StripeController } from "./controllers/stripe.controller";
 import multer from "multer";
 import authentication from "./middlewares/authentication.middleware";
@@ -39,6 +39,7 @@ import "../events/user.events";
 
 import verifyUploadContent from "./middlewares/verify.upload.content";
 import S3TemporaryLinkService from "../../application/services/temporary-link/aws.temporary.link.service";
+import { rateLimiter } from "./middlewares/rate.limit";
 
 export const app = express();
 
@@ -99,6 +100,7 @@ export const initializeServer = async () => {
     app.use(express.json());
 
     app.post('/api/v1' + CONTENT_PATH + UPLOAD_PATH, upload.array('files', 10), authentication(TOKEN_SECRET!, new JwtTokenService()), validateUploadEndpoint, verifyUploadContent(spaceRepository, userRepository), contentController.upload.bind(contentController))
+    app.get(CONTENT_VIEW_PATH + '/*', contentController.redirectToS3(S3_BUCKET_NAME_AWS!, s3Config))
 
     routes.register(app)
 

@@ -7,6 +7,9 @@ import { ContentUsecase } from '../../../domain/usecases/content.usecase';
 import { CreateContentDTO } from '../../../domain/interfaces/presenters/dtos/create.content.dto';
 import { FindManyContentsDTO } from '../../../domain/interfaces/presenters/dtos/find.many.content.dto';
 import { UploadContentDTO } from '../../../domain/interfaces/presenters/dtos/upload.content.dto';
+import { getLinkForContent } from '../../../utils/get.link.for.content';
+import { S3_BUCKET_NAME_AWS } from '../../../application/configuration';
+import { S3ClientConfig } from '@aws-sdk/client-s3';
 
 export class ContentController {
     constructor(
@@ -24,6 +27,23 @@ export class ContentController {
             next(error)
         }
     }
+
+    redirectToS3 = (
+        bucketName: string,
+        s3Config: S3ClientConfig
+    ) => async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
+        try {
+            const key = req.params[0];
+            const data = await this.usecase.redirectToS3(key, bucketName, s3Config)
+
+            res.setHeader('Content-Type', data.data.ContentType || 'image/jpeg');
+            res.setHeader('Cache-Control', 'public, max-age=31536000');
+            data.stream.pipe(res);
+        } catch (error) {
+            next(error)
+        }
+    }
+
 
     async upload (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
@@ -53,6 +73,9 @@ export class ContentController {
     async updateById (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
             const content = await this.usecase.update(req.params[CONTENT_PARAM], req.body as UpdateSpaceDTO)
+            
+            content.location = getLinkForContent(content)
+            content.downloadUrl = content.location;
 
             res.status(200).json(content);
         } catch (error) {
@@ -63,6 +86,12 @@ export class ContentController {
     async findById (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
             const content = await this.usecase.findById(req.params[CONTENT_PARAM])
+            
+            if(content instanceof Error) throw content;
+
+            content.location = getLinkForContent(content)
+            content.downloadUrl = content.location;
+
             res.status(200).json(content);
         } catch (error) {
             next(error)
@@ -72,7 +101,17 @@ export class ContentController {
     async findMany (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
             const results = await this.usecase.findMany(req.query as unknown as FindManyContentsDTO)
-            res.status(200).json(results);
+            
+            res.status(200).json({
+                ...results,
+                data: results.data.map((d) => {
+                    d.location = getLinkForContent(d);
+                    d.downloadUrl = d.location;
+
+                    return d;
+                })
+            });
+
         } catch (error) {
             next(error)
         }
@@ -80,7 +119,6 @@ export class ContentController {
 
     async generateVariant (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
-            console.log('enter generateVariant')
             await this.usecase.generateContentVariant({
                 contentId: req.params[CONTENT_PARAM] as string,
                 prompt: req.body

@@ -23,6 +23,9 @@ import { FindManyResponse } from "../types/usecase";
 import { FindParams } from "../types/repository";
 import { convertToFilters } from "../../utils/convert.params.to.filters.util";
 import ITemporaryLinkService from "../../application/services/temporary-link/i.temporary.link.service";
+import { GetObjectCommand, GetObjectCommandOutput, S3Client, S3ClientConfig } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { HttpException } from "../../application/exceptions/http.exception";
 
 export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilterBy, ContentRepository> {
     constructor (
@@ -30,7 +33,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
         private uploadService: IUploadService,
         public spaceUsecase: SpaceUsecase,
         private imageVariantService: IImageVariant,
-        private blobService: GetBlobService,
+        public blobService: GetBlobService,
         private temporaryLinkService: ITemporaryLinkService
     ) {
         super(repository);
@@ -64,7 +67,27 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
 
         return content;
     }
-
+    async redirectToS3(key: string, bucketName: string, s3Config: S3ClientConfig) : Promise<{
+        stream: NodeJS.ReadableStream,
+        data: GetObjectCommandOutput
+    }> {
+        try {
+            const s3 = new S3Client(s3Config)
+            const command = new GetObjectCommand({
+                Bucket: bucketName,
+                Key: key,
+            });
+          
+            const data = await s3.send(command);
+            const stream = data.Body as NodeJS.ReadableStream;
+            return {
+                data,
+                stream
+            };
+        } catch(err) {
+            throw new HttpException('Unexpected Error', 'Issue generating temp url', 500)
+        }
+    }
     async upload(data: UploadContentDTO): Promise<void> {
         for (const item of data.files) {
             const name = generateUuid();
@@ -111,7 +134,6 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
             })
         }
     }
-
     async generateContentVariant(data: CreateContentVariantDTO): Promise<void> {
         const content = await this.repository.findById(data.contentId);
         if(!content) throw new NotFoundException('content not found');
@@ -158,7 +180,6 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
             
         }))
     }
-
     async findMany <F extends FindManyDTO<ContentSortBy>>(params: F) : Promise<FindManyResponse<Content>> {
 
         const input : FindParams<ContentSortBy, ContentFilterBy> = {
@@ -193,8 +214,6 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
             v.downloadUrl = results.url;
             
             await this.repository.save(v);
-
-            v.key = '';
 
             return v;
         }))

@@ -1,6 +1,6 @@
-import { AUTH_PATH, CONFIRMATION_PATH, ME_PATH, RECOVER_PATH, SEND_CONFIRMATION_PATH, USER_PARAM_PATH, USER_PATH } from "../../../domain/constants/api.routes";
+import { AUTH_PATH, CONFIRMATION_PATH, ME_PATH, RECOVER_PATH, SEND_CONFIRMATION_PATH, USER_PARAM, USER_PARAM_PATH, USER_PATH } from "../../../domain/constants/api.routes";
 import { UserUsecase } from "../../../domain/usecases/user.usecase";
-import express from "express";
+import express, { Request } from "express";
 import authentication from "../middlewares/authentication.middleware";
 import { TOKEN_SECRET } from "../../../application/configuration";
 import { JwtTokenService } from "../../../application/services/token/jwt.token.service";
@@ -13,6 +13,7 @@ import { updateUserSchema } from "../../../domain/interfaces/presenters/dtos/upd
 import { verifyConfirmationSchema } from "../../../domain/interfaces/presenters/dtos/verify.confirmation.dto";
 import { recoverUserSchema } from "../../../domain/interfaces/presenters/dtos/recover.user.dto";
 import { loginUserSchema } from "../../../domain/interfaces/presenters/dtos/login.user.dto";
+import authorization from "../middlewares/authorization.middleware";
 
 const router = express.Router();
 
@@ -26,7 +27,16 @@ const router = express.Router();
 
 export const UserRoutes = (usecase: UserUsecase) => {
     const controller = new UserController(usecase);
+    const writeUserCheck = async (req: Request, payload: { id: string }) : Promise<boolean> => {
+        const userId = req.params[USER_PARAM];
+        const user = await usecase.repository.findById(userId);
 
+        if(user === null) return false;
+
+        if(user.id !== payload.id) return false;
+
+        return true;
+    }
     /**
      * @swagger
      * /user/confirmation:
@@ -541,7 +551,7 @@ export const UserRoutes = (usecase: UserUsecase) => {
      *                   example: "Internal server error."
      */
 
-    router.patch(USER_PATH + USER_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), validateBodyDTO(updateUserSchema), controller.updateById.bind(controller));
+    router.patch(USER_PATH + USER_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), authorization(writeUserCheck), validateBodyDTO(updateUserSchema), controller.updateById.bind(controller));
 
     /**
      * @swagger
@@ -595,7 +605,7 @@ export const UserRoutes = (usecase: UserUsecase) => {
      *                   example: "Internal server error."
      */
 
-    router.delete(USER_PATH + USER_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), controller.deleteById.bind(controller));
+    router.delete(USER_PATH + USER_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), authorization(writeUserCheck), controller.deleteById.bind(controller));
 
     return router;
 }

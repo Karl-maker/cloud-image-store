@@ -11,6 +11,7 @@ export const SPACE_PARAM = 'space_id';
 export const SPACE_PARAM_PATH = '/:' + SPACE_PARAM;
 
 export const CONTENT_PATH = '/content';
+export const CONTENT_VIEW_PATH = '/content-view';
 export const CONTENT_PARAM = 'content_id';
 export const CONTENT_PARAM_PATH = '/:' + CONTENT_PARAM;
 export const CREATE_VARIANT_PATH = '/generate-variant'
