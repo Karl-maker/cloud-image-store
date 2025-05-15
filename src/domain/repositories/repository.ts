@@ -8,6 +8,7 @@ export interface Repository<
     > {
     save(entity: P): Promise<P>;
     findMany(params?: FindParams<SortByKeys, FilterByKeys>): Promise<FindResponse<P>>;
+    findManyIgnoreDeletion(params?: FindParams<SortByKeys, FilterByKeys>): Promise<FindResponse<P>>;
     findById(id: string): Promise<P | null>;
     delete<E>(data: P): Promise<DeleteResponse<P>>;
 }

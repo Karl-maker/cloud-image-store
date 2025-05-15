@@ -98,5 +98,6 @@ export interface Content extends Persistent {
     width?: number;
     ai?: boolean;
     favorite?: boolean;
+    deactivatedAt?: Date;
 }
 

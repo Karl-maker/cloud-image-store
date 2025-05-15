@@ -78,7 +78,14 @@ export class ContentController {
     async deleteById (req: Request, res: Response, next: NextFunction) : Promise<void>  {
         try {
             const content = await this.usecase.findById(req.params[CONTENT_PARAM]);
-            await this.usecase.deleteById(req.params[CONTENT_PARAM])
+
+            if(content instanceof Error) throw content;
+
+            const data  = {
+                deactivatedAt: new Date() 
+            }
+
+            await this.usecase.update(req.params[CONTENT_PARAM], data)
 
             eventBus.emit(CONTENT_DELETED, { content })
 

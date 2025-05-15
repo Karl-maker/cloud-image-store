@@ -21,7 +21,7 @@ export const limitAiEnhancementMiddleware = (userRepository: UserRepository, con
     }
 
     const amountAllowed = user.maxAiEnhancementsPerMonth ?? 0;
-    const result = await contentRepository.findMany({
+    const result = await contentRepository.findManyIgnoreDeletion({
         pageSize: 1,
         pageNumber: 1,
         filters: {

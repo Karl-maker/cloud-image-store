@@ -32,7 +32,7 @@ export abstract class MongooseRepository<
 
         const filters = {
             ...mapFindMongooseFilters(params?.filters),
-            ...deactivatedFilter
+            ...deactivatedFilter,
         };
     
         const paginationOptions = mapFindMongoosePagination(params?.pageNumber, params?.pageSize);
@@ -57,6 +57,35 @@ export abstract class MongooseRepository<
             },
         };
     }    
+
+    async findManyIgnoreDeletion(params?: FindParams<SortByKeys, FilterByKeys>): Promise<FindResponse<E>> {
+
+        const filters = {
+            ...mapFindMongooseFilters(params?.filters),
+        };
+    
+        const paginationOptions = mapFindMongoosePagination(params?.pageNumber, params?.pageSize);
+        const sortOptions = mapFindMongooseSort(params?.sortBy, params?.sortOrder);
+    
+        const result = await this.model.find({
+            ...filters
+        }, {}, { sort: sortOptions, ...paginationOptions });
+    
+        const totalItems = await this.model.countDocuments(filters);
+        const pageSize = params?.pageSize ?? totalItems; 
+        const currentPage = params?.pageNumber ?? 1;
+        const totalPages = Math.ceil(totalItems / pageSize);
+
+        return {
+            data: result.map((d) => this.mapModelToEntity(d)),
+            pagination: {
+                totalItems,
+                totalPages,
+                currentPage,
+                pageSize,
+            },
+        };
+    }  
 
     async save(d: E): Promise<E> {
         

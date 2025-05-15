@@ -25,7 +25,8 @@ export const ContentSchema = new Schema<ContentDocument>(
         width: { type: Number, required: false },
         ai: { type: Boolean, required: false, default: false },
         favorite: { type: Boolean, required: false, default: false },
-        clientId: { type: String, unique: true, default: () => generateUuid() }
+        clientId: { type: String, unique: true, default: () => generateUuid() },
+        deactivatedAt: { type: Date, required: false, default: null },
     },
     { timestamps: true }
 );
