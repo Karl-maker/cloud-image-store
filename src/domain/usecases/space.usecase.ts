@@ -68,8 +68,8 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
         } = data;
       
         // Parse the start and end dates considering the timezone
-        const startDateUtc = toZonedTime(`${start}T00:00:00`, timezone);
-        const endDateUtc = toZonedTime(`${end}T23:59:59`, timezone);
+        const startDateUtc = toZonedTime(`${start}`, timezone); // (`${start}T00:00:00`, timezone);
+        const endDateUtc = toZonedTime(`${end}`, timezone); //(`${end}T23:59:59`, timezone);
       
         const startTimestamp = Math.floor(startDateUtc.getTime() / 1000);
         const endTimestamp = Math.floor(endDateUtc.getTime() / 1000);

@@ -6,13 +6,13 @@ export const createSpaceTokenRequestSchema = Joi.object({
   allowPhotos: Joi.boolean().required(),
   allowVideos: Joi.boolean().required(),
   start: Joi.string()
-    .pattern(/^\d{4}-\d{2}-\d{2}$/)
+    .pattern(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?$/)
     .required()
     .messages({
       'string.pattern.base': 'Start must be in YYYY-MM-DD format',
     }),
   end: Joi.string()
-    .pattern(/^\d{4}-\d{2}-\d{2}$/)
+    .pattern(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?$/)
     .required()
     .messages({
       'string.pattern.base': 'End must be in YYYY-MM-DD format',
