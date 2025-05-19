@@ -10,6 +10,7 @@ import { UploadContentDTO } from '../../../domain/interfaces/presenters/dtos/upl
 import { getLinkForContent } from '../../../utils/get.link.for.content';
 import { COMPANY_DOMAIN, S3_BUCKET_NAME_AWS } from '../../../application/configuration';
 import { S3ClientConfig } from '@aws-sdk/client-s3';
+import { bytesToMB } from '../../../utils/bytes.to.mb';
 
 export class ContentController {
     constructor(
@@ -86,6 +87,7 @@ export class ContentController {
             }
 
             await this.usecase.update(req.params[CONTENT_PARAM], data)
+            await this.usecase.spaceUsecase.addMemory(content.spaceId, -1 * content.size)
 
             eventBus.emit(CONTENT_DELETED, { content })
 
@@ -116,6 +118,7 @@ export class ContentController {
 
             content.location = getLinkForContent(content)
             content.downloadUrl = content.location;
+            content.size = bytesToMB(content.size)
 
             res.status(200).json(content);
         } catch (error) {
@@ -132,7 +135,7 @@ export class ContentController {
                 data: results.data.map((d) => {
                     d.location = getLinkForContent(d);
                     d.downloadUrl = d.location;
-
+                    d.size = bytesToMB(d.size);
                     return d;
                 })
             });

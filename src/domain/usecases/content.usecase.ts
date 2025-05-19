@@ -9,7 +9,6 @@ import { UploadContentDTO } from "../interfaces/presenters/dtos/upload.content.d
 import { UploadServiceResponse } from "../types/upload.service.type";
 import { generateUuid } from "../../utils/generate.uuid.util";
 import { SpaceUsecase } from "./space.usecase";
-import { bytesToMB } from "../../utils/bytes.to.mb";
 import { BUCKET_NAME_PRIVATE } from "../constants/bucket.name";
 import { CreateContentVariantDTO } from "../interfaces/presenters/dtos/create.content.variant.dto";
 import { NotFoundException } from "../../application/exceptions/not.found";
@@ -104,7 +103,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                 id: null,
                 createdAt: new Date(),
                 updatedAt:  new Date(),
-                size: bytesToMB(item.size)
+                size: item.size
             }
             
             await this.uploadService.upload({
@@ -119,12 +118,12 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                     content.key = data.key;
                     content.location = data.src;
                     content.mimeType = data.mimeType;
-                    content.size = bytesToMB(item.size);
+                    content.size = item.size;
                     content.height = data.height;
                     content.downloadUrl = data.downloadUrl;
                     content.width = data.width;
                     content = await this.repository.save(content);
-                    await this.spaceUsecase.addMemory(spaceId, bytesToMB(item.size));
+                    await this.spaceUsecase.addMemory(spaceId, item.size);
                 }
             }, 
             async (precentage?: number) => {
@@ -162,12 +161,12 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                     content.key = data.key;
                     content.location = data.src;
                     content.mimeType = img.mimeType;
-                    content.size = bytesToMB(img.size);
+                    content.size = img.size;
                     content.height = data.height;
                     content.width = data.width;
                     content.downloadUrl = data.downloadUrl;
                     content = await this.repository.save(content);
-                    await this.spaceUsecase.addMemory(content.spaceId, bytesToMB(img.size));
+                    await this.spaceUsecase.addMemory(content.spaceId, img.size);
                 }
             }, 
             async (precentage?: number) => {

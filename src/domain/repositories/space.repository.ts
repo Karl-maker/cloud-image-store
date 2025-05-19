@@ -6,4 +6,6 @@ export interface SpaceRepository extends Repository<
     Space,
     SpaceSortBy,
     SpaceFilterBy
-> {}
+> {
+    addUsedMegabytes(id: string, amount: number): Promise<boolean>;
+}

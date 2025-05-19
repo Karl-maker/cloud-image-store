@@ -17,4 +17,14 @@ export class SpaceMongooseRepository extends MongooseRepository<
         super(db, SPACE_SCHEMA, SpaceSchema)
     }
 
+    async addUsedMegabytes(id: string, amount: number): Promise<boolean> {
+
+        const result = await this.model.updateOne(
+            { clientId: id },
+            { $inc: { usedMegabytes: amount } }
+        );
+    
+        return result.modifiedCount > 0;
+    }
+
 }

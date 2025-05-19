@@ -51,11 +51,7 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
     }
 
     async addMemory(spaceId: string, amount: number) : Promise<void> {
-        const space = await this.repository.findById(spaceId);
-        if(!space) throw new NotFoundException('space not found');
-
-        space.usedMegabytes = space.usedMegabytes + amount;
-        await this.repository.save(space);
+        await this.repository.addUsedMegabytes(spaceId, amount);
     }
 
     async generateAccessToken(data: GenerateAccessTokenDTO): Promise<{

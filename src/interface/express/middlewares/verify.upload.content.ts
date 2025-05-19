@@ -11,6 +11,7 @@ import { ForbiddenException } from "../../../application/exceptions/forbidden.ex
 import { FindResponse } from "../../../domain/types/repository";
 import { Space } from "../../../domain/entities/space";
 import { User } from "../../../domain/entities/user";
+import { mBToBytes } from "../../../utils/bytes.to.mb";
 
 
 export const verifyUploadPermissions = async (req: Request, payload: any): Promise<boolean> => {
@@ -74,14 +75,13 @@ const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: U
         }
 
         if(!user) throw new NotFoundException('user not found');
-        const SPACES = user.maxSpaces;
+
         results = await spaceRepository.findMany({
             filters: {
                 createdByUserId: {
                     exact: user_id
                 }
             },
-            pageSize: SPACES
         });
 
         let totalStorageUsed = 0;
@@ -90,7 +90,7 @@ const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: U
             totalStorageUsed += item.usedMegabytes;
         }
 
-        if(totalStorageUsed >= user.maxStorage) throw new InsufficentStorageException('no more storage available')
+        if(totalStorageUsed >= mBToBytes(user.maxStorage)) throw new InsufficentStorageException('no more storage available')
 
         next();
     } catch (error) {

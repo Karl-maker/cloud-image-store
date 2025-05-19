@@ -3,7 +3,9 @@ import { AWSObjectRemover } from "../../application/services/remove/aws.remove.s
 import { CONTENT_DELETED } from "../../domain/constants/event.names";
 import { Content } from "../../domain/entities/content";
 import { eventBus } from "../../infrastructure/event/event.bus";
-import { ACCESS_KEY_ID_AWS, REGION_AWS, S3_BUCKET_NAME_AWS, SECRET_ACCESS_KEY_AWS } from "../../application/configuration";
+import { ACCESS_KEY_ID_AWS, MONGO_URI, REGION_AWS, S3_BUCKET_NAME_AWS, SECRET_ACCESS_KEY_AWS } from "../../application/configuration";
+import { ContentMongooseRepository } from "../../infrastructure/mongoose/repositories/content.mongoose.repository";
+import { Database } from "../../application/configuration/mongodb";
 
 eventBus.on<{ content: Content }>(CONTENT_DELETED, async ({ content } : { content: Content }) => {
 
