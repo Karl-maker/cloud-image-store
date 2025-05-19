@@ -100,7 +100,7 @@ export const initializeServer = async () => {
 
     app.use(express.json());
 
-    app.post('/api/v1' + CONTENT_PATH + UPLOAD_PATH, upload.array('files', 10), authentication(TOKEN_SECRET!, new JwtTokenService()), validateUploadEndpoint, verifyUploadContent(spaceRepository, userRepository), authorization(verifyUploadPermissions), contentController.upload.bind(contentController))
+    app.post('/api/v1' + CONTENT_PATH + UPLOAD_PATH, upload.array('files', 10), authentication(TOKEN_SECRET!, new JwtTokenService(), true), validateUploadEndpoint, verifyUploadContent(spaceRepository, userRepository), authorization(verifyUploadPermissions), contentController.upload.bind(contentController))
     app.options(CONTENT_VIEW_PATH + '/*', rateLimiter, (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', COMPANY_DOMAIN!);
         res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type');

@@ -38,8 +38,7 @@ export class SpaceController {
             if(space.createdByUserId !== user_id) throw new ForbiddenException('Cannot generate token for this space')
 
             const result = await this.usecase.generateAccessToken({
-                ...(req.body as GenerateAccessTokenDTO),
-                id: user_id
+                ...(req.body as GenerateAccessTokenDTO)
             });
 
             res.status(201).json(result);

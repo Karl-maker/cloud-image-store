@@ -28,7 +28,6 @@ export interface GenerateAccessTokenDTO {
     start: string;
     end: string;
     spaceId: string;
-    id: string;
 }
 
 /**

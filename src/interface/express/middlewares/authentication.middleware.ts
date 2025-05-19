@@ -19,6 +19,7 @@ const authentication = (secret: string, jwtService: TokenService<{ id: string }>
         const payload = await jwtService.validate(token, secret);
 
         if (!payload?.id) {
+            if(payload) (req as any).user = payload; 
             if (passive) return next();
             return next(new UnauthorizedException("Invalid token"));
         }

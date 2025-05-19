@@ -112,6 +112,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                 fileName: BUCKET_NAME_PRIVATE + '/' + name,
                 mimeType: item.mimetype,
             }, 
+
             async (err: Error | null, data?: UploadServiceResponse) => {
                 if(err) content.uploadError = 'Issue Uploading Content';
                 if(data) {

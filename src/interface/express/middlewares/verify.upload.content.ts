@@ -8,12 +8,15 @@ import { LimitReachedException } from "../../../application/exceptions/limit.rea
 import { InsufficentStorageException } from "../../../application/exceptions/insufficent.storage.exception";
 import { UploadContentDTO } from "../../../domain/interfaces/presenters/dtos/upload.content.dto";
 import { ForbiddenException } from "../../../application/exceptions/forbidden.exception";
+import { FindResponse } from "../../../domain/types/repository";
+import { Space } from "../../../domain/entities/space";
+import { User } from "../../../domain/entities/user";
 
 
 export const verifyUploadPermissions = async (req: Request, payload: any): Promise<boolean> => {
     const spaceId = (req.body as unknown as UploadContentDTO).spaceId;
 
-    if(!payload.spaceId) return true;
+    if(!payload.spaceId && payload.id) return true;
 
     if(payload.spaceId && (spaceId !== payload.spaceId)) return false
     
@@ -38,6 +41,7 @@ export const verifyUploadPermissions = async (req: Request, payload: any): Promi
     return true;
 }
 
+
 const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: UserRepository) => async (
     req: Request,
     res: Response,
@@ -45,12 +49,33 @@ const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: U
 ) => {
     try {
         const user_id = (req as any).user?.id;
-        const user = await userRepository.findById(user_id)
-        if(!user) throw new NotFoundException('user not found');
+        let user: User | null = null;
+        let results: FindResponse<Space> = {
+            data: [],
+            pagination: {
+                totalItems: 0,
+                totalPages: 0,
+                currentPage: 0,
+                pageSize: 0
+            }
+        }
 
+        if(user_id) {
+            user = await userRepository.findById(user_id)
+            if(!user) throw new NotFoundException('user not found');
+        }
+
+        if((req as any).user?.spaceId) {
+            const space = await spaceRepository.findById((req as any).user?.spaceId);
+            if(!space)throw new NotFoundException('space not found');
+
+            user = await userRepository.findById(space.createdByUserId)
+            if(!user) throw new NotFoundException('user not found');
+        }
+
+        if(!user) throw new NotFoundException('user not found');
         const SPACES = user.maxSpaces;
-        
-        const results = await spaceRepository.findMany({
+        results = await spaceRepository.findMany({
             filters: {
                 createdByUserId: {
                     exact: user_id
