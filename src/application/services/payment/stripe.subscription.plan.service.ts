@@ -30,14 +30,23 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
         });
 
         const stripePrices = await Promise.all(
-            plan.prices.map((price) => 
-                this.stripe.prices.create({
+            plan.prices.map((price) => {
+                const priceData: Stripe.PriceCreateParams = {
                     unit_amount: price.amount, 
                     currency: price.currency,
-                    recurring: { interval: price.period, interval_count: price.frequency },
                     product: stripeProduct.id,
-                })
-            )
+                };
+
+                // Only add recurring configuration if the price is marked as recurring
+                if (price.recurring && price.period && price.frequency) {
+                    priceData.recurring = { 
+                        interval: price.period, 
+                        interval_count: price.frequency 
+                    };
+                }
+
+                return this.stripe.prices.create(priceData);
+            })
         );
 
         return stripeProduct.id;
@@ -72,14 +81,23 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
 
             // Create new prices
             await Promise.all(
-                updates.prices.map((price: Price) =>
-                    this.stripe.prices.create({
+                updates.prices.map((price: Price) => {
+                    const priceData: Stripe.PriceCreateParams = {
                         unit_amount: price.amount * 100,
                         currency: price.currency,
-                        recurring: { interval: price.period, interval_count: price.frequency },
                         product: planId,
-                    })
-                )
+                    };
+
+                    // Only add recurring configuration if the price is marked as recurring
+                    if (price.recurring && price.period && price.frequency) {
+                        priceData.recurring = { 
+                            interval: price.period, 
+                            interval_count: price.frequency 
+                        };
+                    }
+
+                    return this.stripe.prices.create(priceData);
+                })
             );
         }
     }
@@ -153,10 +171,11 @@ export class StripeSubscriptionPlanService implements SubscriptionPlanService {
             features: JSON.parse(product.metadata.features || "[]") as Feature[],
             prices: prices.map((price) => ({
                 id: price.id,
-                period: price.recurring?.interval as "day" | "week" | "month" | "year",
-                frequency: price.recurring?.interval_count || 1,
+                period: price.recurring?.interval as "day" | "week" | "month" | "year" | undefined,
+                frequency: price.recurring?.interval_count || undefined,
                 amount: price.unit_amount ?? 0, 
                 currency: price.currency as "usd" | "euro",
+                recurring: !!price.recurring,
             })),
             createdAt: new Date(product.created * 1000),
             updatedAt: new Date(product.updated * 1000),

@@ -11,10 +11,10 @@ export type SupportedCurrenciesISO = 'usd' | 'euro';
  *         period:
  *           type: string
  *           enum: [year, month, day, week]
- *           description: The period for the price (e.g., monthly, yearly)
+ *           description: The period for the price (e.g., monthly, yearly). Required for recurring payments.
  *         frequency:
  *           type: number
- *           description: Number of times the price is charged within the period
+ *           description: Number of times the price is charged within the period. Required for recurring payments.
  *         amount:
  *           type: number
  *           description: Cost of the subscription in the given currency
@@ -25,19 +25,21 @@ export type SupportedCurrenciesISO = 'usd' | 'euro';
  *         id:
  *           type: string
  *           description: ID for price
+ *         recurring:
+ *           type: boolean
+ *           description: Whether this is a recurring payment. If true, period and frequency are required.
  *       required:
- *         - period
- *         - frequency
  *         - amount
  *         - currency
  */
 
 export type Price = {
     id: string;
-    period: Timeline;
-    frequency: number;
+    period?: Timeline;
+    frequency?: number;
     amount: number;
     currency: SupportedCurrenciesISO;
+    recurring?: boolean;
 };
 
 /**
