@@ -9,6 +9,8 @@ import { USER_PARAM } from '../../../domain/constants/api.routes';
 import { VerifyConfirmationDTO } from '../../../domain/interfaces/presenters/dtos/verify.confirmation.dto';
 import { RecoverUserDTO } from '../../../domain/interfaces/presenters/dtos/recover.user.dto';
 import { LoginUserDTO } from '../../../domain/interfaces/presenters/dtos/login.user.dto';
+import { SystemUsageResponse } from '../../../domain/interfaces/presenters/dtos/system.usage.dto';
+import { UnauthorizedException } from '../../../application/exceptions/unauthorized.exception';
 
 export class UserController {
     constructor(
@@ -119,6 +121,20 @@ export class UserController {
             res.status(200).json(user);
         } catch (error) {
             next(error)
+        }
+    }
+
+    async getSystemUsage(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = (req as any).user?.id;
+            if (!userId) {
+                throw new UnauthorizedException('User not authenticated');
+            }
+
+            const usage = await this.usecase.getSystemUsage(userId);
+            res.status(200).json(usage);
+        } catch (error) {
+            next(error);
         }
     }
 

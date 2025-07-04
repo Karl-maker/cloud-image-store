@@ -458,6 +458,86 @@ components:
           type: string
           format: email
           description: The email address of the user requesting account recovery.
+    SystemUsageResponse:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              description: User ID
+            firstName:
+              type: string
+              description: User's first name
+            lastName:
+              type: string
+              description: User's last name
+            email:
+              type: string
+              description: User's email
+            confirmed:
+              type: boolean
+              description: Whether email is confirmed
+            subscriptionPlanExpiresAt:
+              type: string
+              format: date-time
+              nullable: true
+              description: When subscription expires
+        storage:
+          type: object
+          properties:
+            usedMegabytes:
+              type: number
+              description: Total storage used in MB
+            maxStorage:
+              type: number
+              description: Maximum storage allowed in MB
+            usagePercentage:
+              type: number
+              description: Storage usage percentage
+        spaces:
+          type: object
+          properties:
+            totalSpaces:
+              type: number
+              description: Number of spaces created
+            maxSpaces:
+              type: number
+              description: Maximum spaces allowed
+            spacesUsagePercentage:
+              type: number
+              description: Spaces usage percentage
+        limits:
+          type: object
+          properties:
+            maxUsers:
+              type: number
+              description: Maximum users allowed
+            maxAiEnhancementsPerMonth:
+              type: number
+              description: Maximum AI enhancements per month
+        spaceDetails:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Space ID
+              name:
+                type: string
+                description: Space name
+              usedMegabytes:
+                type: number
+                description: Storage used by this space
+              shareType:
+                type: string
+                description: Space share type
+              createdAt:
+                type: string
+                format: date-time
+                description: When space was created
     TransformSubscriptionRequest:
       type: object
       properties:
@@ -1588,6 +1668,51 @@ paths:
                   message:
                     type: string
                     example: Invalid or missing token.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+  /user/system-usage:
+    get:
+      tags:
+        - User
+      summary: Get system usage statistics
+      description: >-
+        Returns comprehensive usage statistics including storage, spaces, and
+        limits for the authenticated user.
+      responses:
+        '200':
+          description: Successfully retrieved system usage statistics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemUsageResponse'
+        '401':
+          description: User not authenticated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not authenticated
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found
         '500':
           description: Internal server error.
           content:

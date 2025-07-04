@@ -72,10 +72,10 @@ export const initializeServer = async () => {
     const uploadService : IUploadService = new S3UploadService(s3Config, bucketName);
     const upload = multer({ storage: multer.memoryStorage() });
     const routes = new Routes(
-        new UserUsecase(userRepository),
+        new UserUsecase(userRepository, spaceRepository),
         new SpaceUsecase(spaceRepository, userRepository),
         new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository), new DeepaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), new S3TemporaryLinkService(bucketName, s3Config, expDateForContent)),
-        new StripeUsecase(stripe, new SpaceUsecase(spaceRepository, userRepository), new UserUsecase(userRepository))
+        new StripeUsecase(stripe, new SpaceUsecase(spaceRepository, userRepository), new UserUsecase(userRepository, spaceRepository))
     )
 
     const stripeController = new StripeController(

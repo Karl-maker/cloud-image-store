@@ -5,6 +5,7 @@ export const SEND_CONFIRMATION_PATH = '/send-confirmation';
 export const CONFIRMATION_PATH = '/confirmation';
 export const RECOVER_PATH = '/recover';
 export const ME_PATH ='/me'
+export const SYSTEM_USAGE_PATH = '/system-usage'
 
 export const SPACE_PATH = '/space';
 export const SPACE_PARAM = 'space_id';

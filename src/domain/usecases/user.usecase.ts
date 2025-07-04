@@ -26,10 +26,13 @@ import { CONFIRMATION_PATH, RECOVERY_PATH } from "../constants/client.routes";
 import { HttpException } from "../../application/exceptions/http.exception";
 import { Subscription } from "../entities/subscription";
 import { SubscriptionPlan } from "../entities/subscription.plan";
+import { SystemUsageResponse } from "../interfaces/presenters/dtos/system.usage.dto";
+import { SpaceRepository } from "../repositories/space.repository";
 
 export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRepository> {
     constructor (
         repository: UserRepository,
+        private spaceRepository?: SpaceRepository
     ) {
         super(repository);
     }
@@ -377,6 +380,73 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
                 if(err instanceof Error) return err;
                 return new Error(`${err}`);
             }
+    }
+
+    async getSystemUsage(userId: string): Promise<SystemUsageResponse> {
+        const user = await this.repository.findById(userId);
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (!this.spaceRepository) {
+            throw new Error('Space repository not initialized');
+        }
+
+        // Get all spaces created by this user
+        const spaces = await this.spaceRepository.findMany({
+            filters: {
+                createdByUserId: {
+                    exact: userId
+                }
+            }
+        });
+
+        // Calculate total storage used across all spaces
+        const totalUsedMegabytes = spaces.data.reduce((total, space) => {
+            return total + space.usedMegabytes;
+        }, 0);
+
+        // Calculate storage usage percentage
+        const storageUsagePercentage = user.maxStorage > 0 
+            ? Math.round((totalUsedMegabytes / user.maxStorage) * 100) 
+            : 0;
+
+        // Calculate spaces usage percentage
+        const spacesUsagePercentage = user.maxSpaces > 0 
+            ? Math.round((spaces.data.length / user.maxSpaces) * 100) 
+            : 0;
+
+        return {
+            user: {
+                id: user.id!,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                confirmed: user.confirmed,
+                subscriptionPlanExpiresAt: user.subscriptionPlanExpiresAt
+            },
+            storage: {
+                usedMegabytes: totalUsedMegabytes,
+                maxStorage: user.maxStorage,
+                usagePercentage: storageUsagePercentage
+            },
+            spaces: {
+                totalSpaces: spaces.data.length,
+                maxSpaces: user.maxSpaces,
+                spacesUsagePercentage: spacesUsagePercentage
+            },
+            limits: {
+                maxUsers: user.maxUsers,
+                maxAiEnhancementsPerMonth: user.maxAiEnhancementsPerMonth
+            },
+            spaceDetails: spaces.data.map(space => ({
+                id: space.id!,
+                name: space.name,
+                usedMegabytes: space.usedMegabytes,
+                shareType: space.shareType,
+                createdAt: space.createdAt
+            }))
+        };
     }
     
 }

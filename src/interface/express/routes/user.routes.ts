@@ -1,4 +1,4 @@
-import { AUTH_PATH, CONFIRMATION_PATH, ME_PATH, RECOVER_PATH, SEND_CONFIRMATION_PATH, USER_PARAM, USER_PARAM_PATH, USER_PATH } from "../../../domain/constants/api.routes";
+import { AUTH_PATH, CONFIRMATION_PATH, ME_PATH, RECOVER_PATH, SEND_CONFIRMATION_PATH, SYSTEM_USAGE_PATH, USER_PARAM, USER_PARAM_PATH, USER_PATH } from "../../../domain/constants/api.routes";
 import { UserUsecase } from "../../../domain/usecases/user.usecase";
 import express, { Request } from "express";
 import authentication from "../middlewares/authentication.middleware";
@@ -77,6 +77,58 @@ export const UserRoutes = (usecase: UserUsecase) => {
      */
 
     router.post(USER_PATH + CONFIRMATION_PATH, validateBodyDTO(verifyConfirmationSchema), controller.confirm.bind(controller)); 
+
+    /**
+     * @swagger
+     * /user/system-usage:
+     *   get:
+     *     tags:
+     *       - User
+     *     summary: Get system usage statistics
+     *     description: Returns comprehensive usage statistics including storage, spaces, and limits for the authenticated user.
+     *     responses:
+     *       200:
+     *         description: Successfully retrieved system usage statistics.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/SystemUsageResponse'
+     *       401:
+     *         description: User not authenticated.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "User not authenticated"
+     *       404:
+     *         description: User not found.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "User not found"
+     *       500:
+     *         description: Internal server error.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Internal server error"
+     */
+
+    router.get(USER_PATH + SYSTEM_USAGE_PATH, 
+        authentication(TOKEN_SECRET!, new JwtTokenService()), 
+        controller.getSystemUsage.bind(controller)
+    );
 
     /**
      * @swagger
@@ -606,6 +658,8 @@ export const UserRoutes = (usecase: UserUsecase) => {
      */
 
     router.delete(USER_PATH + USER_PARAM_PATH, authentication(TOKEN_SECRET!, new JwtTokenService()), authorization(writeUserCheck), controller.deleteById.bind(controller));
+
+    
 
     return router;
 }
