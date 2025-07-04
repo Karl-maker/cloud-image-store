@@ -38,6 +38,7 @@ export const subscriptionPlanSchema = Joi.object({
     prices: Joi.array().items(priceSchema).min(1).required(),
     features: Joi.array().items(featureSchema).required(),
     highlighted: Joi.boolean().required(),
+    spaces: Joi.number().integer().positive().required(), // Added this field
 });
 
 export type CreateSubscriptionPlanDTO = SubscriptionPlan

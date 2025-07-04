@@ -12,8 +12,14 @@ export class StripePaymentLinkService implements PaymentLinkService {
 
     async generateLink(priceId: string, customerId: string, spaceId?: string): Promise<string> {
         try {
+            // First, retrieve the price to check if it's recurring or one-time
+            const price = await this.stripe.prices.retrieve(priceId);
+            
+            // Determine the mode based on whether the price has recurring configuration
+            const mode: 'subscription' | 'payment' = price.recurring ? 'subscription' : 'payment';
+            
             const params: Stripe.Checkout.SessionCreateParams = {
-                mode: 'subscription',
+                mode: mode,
                 line_items: [
                     {
                         price: priceId,
