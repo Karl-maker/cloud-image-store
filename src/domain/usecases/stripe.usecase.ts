@@ -277,7 +277,7 @@ export class StripeUsecase {
                 to: user.email,
                 from: EMAIL_NO_REPLY_USER!,
                 content,
-                subject: 'Payment Failed - Action Required (Link expires in 24 hours)',
+                subject: 'URGENT: Payment Failed - Action Required to Prevent Service Interruption',
                 id: null,
                 createdAt: new Date(),
                 updatedAt: new Date(),
