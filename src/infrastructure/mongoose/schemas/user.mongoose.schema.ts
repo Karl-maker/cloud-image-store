@@ -30,4 +30,21 @@ export const UserSchema = new Schema<UserDocument>(
     { timestamps: true }
 );
 
+// Add comprehensive indexes for optimal query performance
+UserSchema.index({ email: 1 }, { unique: true }); // Primary lookup by email
+UserSchema.index({ clientId: 1 }, { unique: true }); // Primary lookup by clientId
+UserSchema.index({ stripeId: 1 }); // Stripe customer lookup
+UserSchema.index({ confirmed: 1 }); // Filter by confirmation status
+UserSchema.index({ deactivatedAt: 1 }); // Filter active/inactive users
+UserSchema.index({ subscriptionStripeId: 1 }); // Subscription lookup
+UserSchema.index({ subscriptionPlanStripeId: 1 }); // Plan lookup
+UserSchema.index({ subscriptionPlanExpiresAt: 1 }); // Expired subscriptions
+UserSchema.index({ createdAt: -1 }); // Sort by creation date
+UserSchema.index({ updatedAt: -1 }); // Sort by update date
+
+// Compound indexes for common query patterns
+UserSchema.index({ confirmed: 1, deactivatedAt: 1 }); // Active confirmed users
+UserSchema.index({ stripeId: 1, confirmed: 1 }); // Confirmed users with Stripe
+UserSchema.index({ subscriptionPlanExpiresAt: 1, deactivatedAt: 1 }); // Expired active subscriptions
+
 export const UserModel = mongoose.model<UserDocument>(USER_SCHEMA, UserSchema);

@@ -21,4 +21,35 @@ export const SpaceSchema = new Schema<SpaceDocument>(
     { timestamps: true }
 );
 
+// Add comprehensive indexes for optimal query performance
+SpaceSchema.index({ clientId: 1 }, { unique: true }); // Primary lookup by clientId
+SpaceSchema.index({ createdByUserId: 1 }); // Spaces by creator (most common query)
+SpaceSchema.index({ deactivatedAt: 1 }); // Filter active/inactive spaces
+SpaceSchema.index({ shareType: 1 }); // Filter by share type
+SpaceSchema.index({ usedMegabytes: 1 }); // Sort by storage usage
+SpaceSchema.index({ createdAt: -1 }); // Sort by creation date
+SpaceSchema.index({ updatedAt: -1 }); // Sort by update date
+
+// Compound indexes for common query patterns
+SpaceSchema.index({ createdByUserId: 1, deactivatedAt: 1 }); // Active spaces by creator
+SpaceSchema.index({ createdByUserId: 1, shareType: 1 }); // Spaces by type and creator
+SpaceSchema.index({ createdByUserId: 1, createdAt: -1 }); // Recent spaces by creator
+SpaceSchema.index({ deactivatedAt: 1, shareType: 1 }); // Active spaces by type
+SpaceSchema.index({ usedMegabytes: 1, deactivatedAt: 1 }); // Storage usage of active spaces
+
+// Text search index for space names and descriptions
+SpaceSchema.index({ 
+    name: 'text', 
+    description: 'text' 
+}, { 
+    weights: { 
+        name: 10, 
+        description: 5 
+    },
+    name: 'space_text_search'
+});
+
+// Index for user membership queries (if you query by userId in userIds array)
+SpaceSchema.index({ userIds: 1 }); // Spaces containing a specific user
+
 export const SpaceModel = mongoose.model<SpaceDocument>(SPACE_SCHEMA, SpaceSchema);

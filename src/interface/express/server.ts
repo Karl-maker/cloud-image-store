@@ -33,6 +33,8 @@ import { OpenaiImageVariant } from "../../application/services/ai/openai.image.v
 import { S3GetBlobService } from "../../application/services/blob/aws.get.blob.service";
 import { DeepaiImageVariant } from "../../application/services/ai/deepai.image.variant";
 import { DEEP_AI_IMAGE_GEN_VARIATION } from "../../domain/constants/deep.ai";
+import { DatabaseIndexManager } from "../../utils/database.index.util";
+import { healthRoutes } from "./routes/health.routes";
 
 import "../events/content.events";
 import "../events/user.events";
@@ -46,7 +48,11 @@ export const app = express();
 
 // Initialize the server without starting it automatically
 export const initializeServer = async () => {
-    await Database.connect(MONGO_URI!); // Connect to MongoDB
+    await Database.connect(MONGO_URI!); // Connect to MongoDB with pooling
+    
+    // Create all database indexes
+    await DatabaseIndexManager.createAllIndexes();
+    
     const connection = Database.getConnection();
     const expDateForContent = 60 * 60 * 24 * 7;
     const userRepository : UserRepository = new UserMongooseRepository(connection);
@@ -99,6 +105,9 @@ export const initializeServer = async () => {
     }));
 
     app.use(express.json());
+
+    // Add health check route
+    app.use('/api/v1', healthRoutes);
 
     app.post('/api/v1' + CONTENT_PATH + UPLOAD_PATH, upload.array('files', 10), authentication(TOKEN_SECRET!, new JwtTokenService(), true), validateUploadEndpoint, verifyUploadContent(spaceRepository, userRepository), authorization(verifyUploadPermissions), contentController.upload.bind(contentController))
     app.options(CONTENT_VIEW_PATH + '/*', rateLimiter, (req, res) => {

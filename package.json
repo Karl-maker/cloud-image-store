@@ -8,7 +8,8 @@
     "start": "node dist/src/interface/express/server.js",
     "build": "tsc",
     "create:api-key": "ts-node src/bin/create.api.key.ts",
-    "create:swagger": "ts-node src/bin/create.swagger.yaml.ts"
+    "create:swagger": "ts-node src/bin/create.swagger.yaml.ts",
+    "test:database": "ts-node src/bin/test-database.ts"
   },
   "keywords": [],
   "author": "",
