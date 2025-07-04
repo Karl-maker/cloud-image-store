@@ -125,8 +125,26 @@ export class StripeUsecase {
             const result = await this.userUsecase.subscriptionResumed(subscription.customer as string);
             if(result instanceof Error || result instanceof NotFoundException) throw result;
         } else if(event.type === 'customer.subscription.updated') {
-            const subscription = event.data.object;
-            const updatedPlan = (event.data.previous_attributes as any).plan as undefined | {
+            const subscription = event.data.object as Stripe.Subscription;
+            const previousAttributes = event.data.previous_attributes as any;
+            
+            // Check if subscription was set to cancel at period end
+            if (previousAttributes?.cancel_at_period_end === false && subscription.cancel_at_period_end === true) {
+                console.log('Subscription set to cancel at period end:', subscription.id);
+                // Don't call subscriptionEnd yet - wait for the period to actually end
+            }
+            
+            // Check if subscription naturally ended (current_period_end is in the past and status is not active)
+            const now = Math.floor(Date.now() / 1000);
+            if (subscription.current_period_end < now && subscription.status !== 'active') {
+                console.log('Subscription naturally ended:', subscription.id);
+                const result = await this.userUsecase.subscriptionEnd(subscription.customer as string);
+                if(result instanceof Error || result instanceof NotFoundException) throw result;
+                return; // Exit early since subscription ended
+            }
+            
+            // Check for plan updates (existing logic)
+            const updatedPlan = previousAttributes?.plan as undefined | {
                 id: string
             };
 

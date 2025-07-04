@@ -255,6 +255,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
                 user.maxSpaces = subscriptionPlan.spaces;
                 user.maxAiEnhancementsPerMonth = subscriptionPlan.aiGenerationsPerMonth ?? 0;
                 user.deactivatedAt = undefined;
+                user.subscriptionPlanExpiresAt = undefined;
                 user.subscriptionPlanStripeId = subscriptionPlan.id ?? undefined;
                 user.subscriptionStripeId = subscription.id ?? undefined;
 
@@ -273,13 +274,14 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
         try {
             const mb = plan.megabytes;
             const maxUsers = plan.users;
+            const deactivationDate = new Date();
+
+            deactivationDate.setDate(deactivationDate.getDate() + 90);
 
             user.maxStorage = mb;
             user.maxUsers = maxUsers;
             user.maxSpaces = plan.spaces;
             user.maxAiEnhancementsPerMonth = plan.aiGenerationsPerMonth ?? 0;
-            const deactivationDate = new Date();
-            deactivationDate.setDate(deactivationDate.getDate() + 90);
             user.subscriptionPlanExpiresAt = deactivationDate;
             user.subscriptionPlanStripeId = plan.id ?? undefined;
             user.subscriptionStripeId = undefined;
