@@ -108,7 +108,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
             
             await this.uploadService.upload({
                 fileBuffer: item.buffer,
-                fileName: BUCKET_NAME_PRIVATE + '/' + name,
+                fileName: BUCKET_NAME_PRIVATE + '/' + data.spaceId + '/' + name,
                 mimeType: item.mimetype,
             }, 
 
@@ -152,7 +152,7 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
             const name = generateUuid();
             await this.uploadService.upload({
                 fileBuffer: img.buffer,
-                fileName: BUCKET_NAME_PRIVATE + '/' + name,
+                fileName: BUCKET_NAME_PRIVATE + '/' + content.spaceId + '/' + name,
                 mimeType: img.mimeType,
             }, 
             async (err: Error | null, data?: UploadServiceResponse) => {
