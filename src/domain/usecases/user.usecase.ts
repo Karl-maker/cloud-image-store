@@ -269,6 +269,30 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
     
     }
 
+    async receiveProduct(plan: SubscriptionPlan, user: User): Promise<User | NotFoundException | Error> {
+        try {
+            const mb = plan.megabytes;
+            const maxUsers = plan.users;
+
+            user.maxStorage = mb;
+            user.maxUsers = maxUsers;
+            user.maxSpaces = plan.spaces;
+            user.maxAiEnhancementsPerMonth = plan.aiGenerationsPerMonth ?? 0;
+            const deactivationDate = new Date();
+            deactivationDate.setDate(deactivationDate.getDate() + 90);
+            user.deactivatedAt = deactivationDate;
+            user.subscriptionPlanStripeId = plan.id ?? undefined;
+            user.subscriptionStripeId = undefined;
+
+            const saved = await this.repository.save(user);
+
+            return saved;
+        } catch(err: unknown) {
+            if(err instanceof Error) return err;
+            return new Error(`${err}`);
+        }
+    }
+
     async subscriptionEnd(
             stripeCustomerId: string,
         ): Promise<User | NotFoundException | Error> {

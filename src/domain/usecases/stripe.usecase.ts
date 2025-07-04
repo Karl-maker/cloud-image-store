@@ -55,6 +55,63 @@ export class StripeUsecase {
             if(result instanceof Error || result instanceof NotFoundException) throw result;
 
             eventBus.emit(USER_SUBSCRIBED_TO_PLAN, { plan, user: result })
+        } else if(event.type === 'payment_intent.succeeded') {
+            const paymentIntent = event.data.object as Stripe.PaymentIntent;
+            
+            // Check if this payment intent is NOT associated with a subscription
+            if (!paymentIntent.invoice) {
+                // This is a non-subscription charge - get product data
+                let productId: string | undefined;
+                let priceId: string | undefined;
+                
+                // Try to get product info from metadata first
+                productId = paymentIntent.metadata?.product_id;
+                priceId = paymentIntent.metadata?.price_id;
+                
+                // If not in metadata, try to get from the session
+                if (!productId && paymentIntent.metadata?.session_id) {
+                    try {
+                        const session = await this.stripe.checkout.sessions.retrieve(
+                            paymentIntent.metadata.session_id,
+                            { expand: ['line_items.data.price.product'] }
+                        );
+                        
+                        if (session.line_items?.data?.[0]?.price?.product) {
+                            productId = (session.line_items.data[0].price.product as Stripe.Product).id;
+                            priceId = session.line_items.data[0].price.id;
+                        }
+                    } catch (sessionError) {
+                        console.log('Could not retrieve session for payment intent:', paymentIntent.id);
+                    }
+                }
+                
+                console.log('Non-subscription charge detected:', {
+                    paymentIntentId: paymentIntent.id,
+                    customerId: paymentIntent.customer,
+                    amount: paymentIntent.amount,
+                    currency: paymentIntent.currency,
+                    status: paymentIntent.status,
+                    created: new Date(paymentIntent.created * 1000),
+                    metadata: paymentIntent.metadata,
+                    description: paymentIntent.description,
+                    productId: productId,
+                    priceId: priceId
+                });
+
+                const product = await this.subscriptionPlanService.findById(productId);
+
+                if(!product)  throw new Error('no product found');
+
+                const user = await this.userUsecase.findById(paymentIntent.customer as string);
+
+                if(!user) throw new NotFoundException('no user found');
+                if(user instanceof Error) throw user;
+
+                const result = await this.userUsecase.receiveProduct(product, user);
+                if(result instanceof Error) throw result;
+            }
+            // If paymentIntent.invoice exists, it's a subscription payment - we don't need to log it here
+            // Subscription payments are handled by the subscription events
         } else if(event.type === 'customer.subscription.deleted') {
             const subscription = event.data.object as Stripe.Subscription;
             const result = await this.userUsecase.subscriptionEnd(subscription.customer as string);

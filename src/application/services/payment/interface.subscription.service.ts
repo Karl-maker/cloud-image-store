@@ -1,4 +1,5 @@
 import { Subscription } from "../../../domain/entities/subscription";
+import { SubscriptionPlan } from "../../../domain/entities/subscription.plan";
 
 export interface SubscriptionService {
     /**
