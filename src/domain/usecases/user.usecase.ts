@@ -28,6 +28,7 @@ import { Subscription } from "../entities/subscription";
 import { SubscriptionPlan } from "../entities/subscription.plan";
 import { SystemUsageResponse } from "../interfaces/presenters/dtos/system.usage.dto";
 import { SpaceRepository } from "../repositories/space.repository";
+import { bytesToMB } from "../../utils/bytes.to.mb";
 
 export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRepository> {
     constructor (
@@ -401,10 +402,12 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
             }
         });
 
-        // Calculate total storage used across all spaces
-        const totalUsedMegabytes = spaces.data.reduce((total, space) => {
+        // Calculate total storage used across all spaces (convert from bytes to MB)
+        const totalUsedBytes = spaces.data.reduce((total, space) => {
             return total + space.usedMegabytes;
         }, 0);
+        
+        const totalUsedMegabytes = bytesToMB(totalUsedBytes);
 
         // Calculate storage usage percentage
         const storageUsagePercentage = user.maxStorage > 0 
@@ -442,7 +445,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
             spaceDetails: spaces.data.map(space => ({
                 id: space.id!,
                 name: space.name,
-                usedMegabytes: space.usedMegabytes,
+                usedMegabytes: bytesToMB(space.usedMegabytes),
                 shareType: space.shareType,
                 createdAt: space.createdAt
             }))
