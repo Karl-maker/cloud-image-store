@@ -58,6 +58,11 @@ import { Persistent } from "./persistent";
      *           type: string
      *           nullable: true
      *           description: id for stripe plan id
+     *         subscriptionPlanExpiresAt:
+     *           type: string
+     *           format: date-time
+     *           nullable: true
+     *           description: Timestamp when the subscription plan expires
      *       required:
      *         - id
      *         - createdAt
@@ -84,5 +89,6 @@ export interface User extends Persistent {
     maxAiEnhancementsPerMonth: number; 
     subscriptionStripeId?: string;
     subscriptionPlanStripeId?: string;
+    subscriptionPlanExpiresAt?: Date;
 }
 

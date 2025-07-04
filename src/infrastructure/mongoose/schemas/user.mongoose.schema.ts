@@ -25,6 +25,7 @@ export const UserSchema = new Schema<UserDocument>(
         maxAiEnhancementsPerMonth: { type: Number, required: false, default: 0 },
         subscriptionStripeId: { type: String, required: false },
         subscriptionPlanStripeId: { type: String, required: false },
+        subscriptionPlanExpiresAt: { type: Date, required: false },
     },
     { timestamps: true }
 );

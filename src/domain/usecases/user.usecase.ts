@@ -280,7 +280,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
             user.maxAiEnhancementsPerMonth = plan.aiGenerationsPerMonth ?? 0;
             const deactivationDate = new Date();
             deactivationDate.setDate(deactivationDate.getDate() + 90);
-            user.deactivatedAt = deactivationDate;
+            user.subscriptionPlanExpiresAt = deactivationDate;
             user.subscriptionPlanStripeId = plan.id ?? undefined;
             user.subscriptionStripeId = undefined;
 
@@ -309,7 +309,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
         
                 if(!user) return new NotFoundException('user not found by id');
     
-                user.deactivatedAt = new Date();
+                user.subscriptionPlanExpiresAt = new Date();
     
                 const saved = await this.repository.save(user);
         
@@ -337,7 +337,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
     
                 if(!user) return new NotFoundException('user not found by id');
     
-                user.deactivatedAt = new Date();
+                user.subscriptionPlanExpiresAt = new Date();
     
                 const saved = await this.repository.save(user);
         
@@ -365,7 +365,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
     
                 if(!user) return new NotFoundException('user not found by id');
     
-                user.deactivatedAt = undefined;
+                user.subscriptionPlanExpiresAt = undefined;
     
                 const saved = await this.repository.save(user);
         
