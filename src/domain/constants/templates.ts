@@ -1,5 +1,6 @@
 export enum Templates {
     CONFIRMATION = 'confirmation',
     RECOVERY = 'recover',
-    SUBSCRIPTION_SUCCESSFUL = 'subscription-successful'
+    SUBSCRIPTION_SUCCESSFUL = 'subscription-successful',
+    PAYMENT_FAILURE = 'payment-failure'
 }

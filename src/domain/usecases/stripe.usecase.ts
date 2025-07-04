@@ -17,6 +17,12 @@ import { UserUsecase } from "./user.usecase";
 import { StripeBillingPortalService } from "../../application/services/payment/stripe.billing.portal.service";
 import { BillingPortalService } from "../../application/services/payment/interface.billing.portal.service";
 import { ForbiddenException } from "../../application/exceptions/forbidden.exception";
+import { PaymentFailureEmailContent } from "../types/email";
+import { Templates } from "../constants/templates";
+import { SendEmail } from "../../application/services/send-email/nodemailer.email.service";
+import { EMAIL_NO_REPLY_SERVICE, EMAIL_NO_REPLY_USER, EMAIL_NO_REPLY_PASS, COMPANY_DOMAIN } from "../../application/configuration";
+import { SUPPORT_LINK_PATH } from "../constants/client.routes";
+import { User } from "../entities/user";
 
 
 export class StripeUsecase {
@@ -164,6 +170,35 @@ export class StripeUsecase {
             if(newUser instanceof Error || newUser instanceof NotFoundException) throw newUser;
 
             eventBus.emit(USER_SUBSCRIBED_TO_PLAN, { plan, user: newUser })
+        } else if(event.type === 'invoice.payment_failed') {
+            const invoice = event.data.object as Stripe.Invoice;
+            const customerId = invoice.customer as string;
+            
+            try {
+                // Generate customer portal link
+                const session = await this.stripe.billingPortal.sessions.create({
+                    customer: customerId,
+                    return_url: `${COMPANY_DOMAIN}`,
+                });
+                
+                const user = await this.userUsecase.findById(customerId);
+                if(!user) throw new NotFoundException('User not found');
+                if(user instanceof Error) throw user;
+                
+                // Send payment failure email
+                await this.sendPaymentFailureEmail(user, session.url, invoice);
+                
+                console.log('Payment failure handled:', {
+                    customerId,
+                    invoiceId: invoice.id,
+                    amount: invoice.amount_due,
+                    nextRetry: invoice.next_payment_attempt,
+                });
+                
+            } catch (error) {
+                console.error('Error handling payment failure:', error);
+                // Don't throw - let Stripe handle the retry logic
+            }
         }
     }
 
@@ -221,6 +256,42 @@ export class StripeUsecase {
 
     async createPaymentCustomer (name: string, email: string) : Promise<string> {
         return await this.paymentCustomerService.create(name, email);
+    }
+
+    private async sendPaymentFailureEmail(user: User, paymentUpdateUrl: string, invoice: Stripe.Invoice): Promise<void> {
+        try {
+            const nextRetryDate = invoice.next_payment_attempt 
+                ? new Date(invoice.next_payment_attempt * 1000).toLocaleDateString()
+                : 'within 24 hours';
+            
+            const content: PaymentFailureEmailContent = {
+                name: user.firstName,
+                paymentUpdateUrl: paymentUpdateUrl,
+                companySupportLink: `${COMPANY_DOMAIN}${SUPPORT_LINK_PATH}`,
+                expirationTime: '24 hours',
+                nextRetryDate: nextRetryDate,
+            };
+
+            const email = {
+                template: Templates.PAYMENT_FAILURE,
+                to: user.email,
+                from: EMAIL_NO_REPLY_USER!,
+                content,
+                subject: 'Payment Failed - Action Required (Link expires in 24 hours)',
+                id: null,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+
+            await new SendEmail(
+                EMAIL_NO_REPLY_SERVICE!,
+                EMAIL_NO_REPLY_USER!,
+                EMAIL_NO_REPLY_PASS!
+            ).send(email);
+            
+        } catch (error) {
+            console.error('Error sending payment failure email:', error);
+        }
     }
 
 }   

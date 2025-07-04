@@ -17,3 +17,11 @@ export type SubscriptionSuccessEmailContent = {
     name: string;
     albumLink: string;
 }
+
+export type PaymentFailureEmailContent = {
+    name: string;
+    paymentUpdateUrl: string;
+    companySupportLink: string;
+    expirationTime: string;
+    nextRetryDate: string;
+}
