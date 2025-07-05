@@ -280,7 +280,7 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
             const maxUsers = plan.users;
             const deactivationDate = new Date();
 
-            deactivationDate.setDate(deactivationDate.getDate() + 90);
+            deactivationDate.setDate(deactivationDate.getDate() + 30);
 
             user.maxStorage = mb;
             user.maxUsers = maxUsers;
