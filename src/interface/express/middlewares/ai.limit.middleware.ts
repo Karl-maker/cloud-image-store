@@ -5,7 +5,11 @@ import { UserRepository } from "../../../domain/repositories/user.repository";
 import { LimitReachedException } from "../../../application/exceptions/limit.reached.exception";
 import { InsufficentStorageException } from "../../../application/exceptions/insufficent.storage.exception";
 
-
+/**
+ * @TODO Use billing date as limit checker
+ * @author Karl-Johan Bailey
+ * @date 08/01/2025
+ */
 export const limitAiEnhancementMiddleware = (userRepository: UserRepository, contentRepository: ContentRepository) => async (
     req: Request,
     res: Response,

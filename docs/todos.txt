@@ -1,2 +1,1 @@
-
-3. Create templates
+1. Ensure wording for ai feature has a refresh rate

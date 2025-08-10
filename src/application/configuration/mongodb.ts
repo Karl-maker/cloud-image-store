@@ -7,8 +7,8 @@ export class Database {
         if (!this.connection) {
             try {
                 const options: ConnectOptions = {
-                    maxPoolSize: 10,           // Maximum number of connections in the pool
-                    minPoolSize: 2,            // Minimum number of connections in the pool
+                    maxPoolSize: 30,           // Maximum number of connections in the pool
+                    minPoolSize: 5,            // Minimum number of connections in the pool
                     maxIdleTimeMS: 30000,      // Close connections after 30 seconds of inactivity
                     serverSelectionTimeoutMS: 5000,  // Timeout for server selection
                     socketTimeoutMS: 45000,    // Socket timeout
