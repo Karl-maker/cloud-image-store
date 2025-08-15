@@ -13,7 +13,7 @@ const run = async () => {
         const config : TokenServiceConfiguration = {
             issuer: "admin-script",
             audience: 'cloud-photo-share',
-            exp: dateToJwtExp(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
+            exp: dateToJwtExp(new Date(Date.now() + 30 * 24 * 60 * 60 * 10000))
         }
         const token = await jwt.generate(
             payload,

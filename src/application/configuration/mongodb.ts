@@ -10,13 +10,14 @@ export class Database {
                     maxPoolSize: 30,           // Maximum number of connections in the pool
                     minPoolSize: 5,            // Minimum number of connections in the pool
                     maxIdleTimeMS: 30000,      // Close connections after 30 seconds of inactivity
-                    serverSelectionTimeoutMS: 5000,  // Timeout for server selection
+                    serverSelectionTimeoutMS: 10000,  // Timeout for server selection
                     socketTimeoutMS: 45000,    // Socket timeout
                     bufferCommands: false,     // Disable mongoose buffering
                     retryWrites: true,         // Enable retryable writes
                     retryReads: true,          // Enable retryable reads
                     w: 'majority',             // Write concern
                     readPreference: 'primary', // Read preference
+                    tls: true,
                 };
 
                 const conn = await mongoose.createConnection(uri, options).asPromise();
