@@ -87,7 +87,7 @@ const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: U
         results = await spaceRepository.findMany({
             filters: {
                 createdByUserId: {
-                    exact: act_on_behalf !== null ? act_on_behalf : user_id
+                    exact: act_on_behalf ?? user_id
                 }
             },
         });
