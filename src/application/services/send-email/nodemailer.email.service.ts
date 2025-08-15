@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 import { COMPANY_DOMAIN, COMPANY_NAME } from "../../configuration";
-import { COOKIE_POLICY_PATH, PRIVACY_POLICY_PATH, TERMS_OF_SERVICES_PATH } from "../../../domain/constants/client.routes";
+import { COOKIE_POLICY_PATH, PRIVACY_POLICY_PATH, SUPPORT_LINK_PATH, TERMS_OF_SERVICES_PATH } from "../../../domain/constants/client.routes";
 
 export class SendEmail {
 
@@ -37,7 +37,7 @@ export class SendEmail {
         const common = {
             year: new Date().getFullYear(),
             companyName: COMPANY_NAME,
-            companyWebsite: COMPANY_DOMAIN,
+            companyWebsite: COMPANY_DOMAIN + SUPPORT_LINK_PATH,
             privacyPolicy: COMPANY_DOMAIN + PRIVACY_POLICY_PATH,
             termsOfServices: COMPANY_DOMAIN + TERMS_OF_SERVICES_PATH,
             cookiePolicy: COMPANY_DOMAIN + COOKIE_POLICY_PATH
@@ -47,7 +47,8 @@ export class SendEmail {
         const template = handlebars.compile(templateSource);
 
         return `${header}${template({
-            ...content
+            ...content,
+            ...common
         })}${footer}`;
     }
 
