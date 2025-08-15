@@ -76,9 +76,10 @@ const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: U
         }
 
         if(req.body.spaceId) {
+            console.log('space id is found')
             const space = await spaceRepository.findById(req.body.spaceId);
             if(!space)throw new NotFoundException('space not found');
-
+            console.log('set act_on_behalf: ', space.createdByUserId)
             act_on_behalf = space.createdByUserId
         }
 
@@ -91,6 +92,8 @@ const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: U
                 }
             },
         });
+
+        console.log('spaces: ', results)
 
         let totalStorageUsed = 0;
 
