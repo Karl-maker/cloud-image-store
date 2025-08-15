@@ -50,6 +50,7 @@ const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: U
 ) => {
     try {
         const user_id = (req as any).user?.id;
+        let act_on_behalf: string | null = null;
         let user: User | null = null;
         let results: FindResponse<Space> = {
             data: [],
@@ -74,12 +75,19 @@ const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: U
             if(!user) throw new NotFoundException('user not found');
         }
 
+        if(req.body.spaceId) {
+            const space = await spaceRepository.findById(req.body.spaceId);
+            if(!space)throw new NotFoundException('space not found');
+
+            act_on_behalf = space.createdByUserId
+        }
+
         if(!user) throw new NotFoundException('user not found');
 
         results = await spaceRepository.findMany({
             filters: {
                 createdByUserId: {
-                    exact: user_id
+                    exact: act_on_behalf !== null ? act_on_behalf : user_id
                 }
             },
         });
