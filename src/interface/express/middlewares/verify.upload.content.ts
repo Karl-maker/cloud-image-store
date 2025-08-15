@@ -50,7 +50,7 @@ const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: U
 ) => {
     try {
         const user_id = (req as any).user?.id;
-        let act_on_behalf: string | null = null;
+        let act_on_behalf: User | null = null;
         let user: User | null = null;
         let results: FindResponse<Space> = {
             data: [],
@@ -76,11 +76,10 @@ const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: U
         }
 
         if(req.body.spaceId) {
-            console.log('space id is found')
             const space = await spaceRepository.findById(req.body.spaceId);
-            if(!space)throw new NotFoundException('space not found');
-            console.log('set act_on_behalf: ', space.createdByUserId)
-            act_on_behalf = space.createdByUserId
+            if(!space)throw new NotFoundException('space not found')
+            act_on_behalf = await userRepository.findById(space.createdByUserId)
+            if(!act_on_behalf) throw new NotFoundException('owner of space not found')
         }
 
         if(!user) throw new NotFoundException('user not found');
@@ -88,12 +87,10 @@ const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: U
         results = await spaceRepository.findMany({
             filters: {
                 createdByUserId: {
-                    exact: act_on_behalf ?? user_id
+                    exact: act_on_behalf?.id ?? user_id
                 }
             },
         });
-
-        console.log('spaces: ', results)
 
         let totalStorageUsed = 0;
 
@@ -101,7 +98,7 @@ const verifyUploadContent = (spaceRepository: SpaceRepository, userRepository: U
             totalStorageUsed += item.usedMegabytes;
         }
 
-        if(totalStorageUsed >= mBToBytes(user.maxStorage)) throw new InsufficentStorageException('no more storage available')
+        if(totalStorageUsed >= mBToBytes((act_on_behalf ?? user).maxStorage)) throw new InsufficentStorageException('no more storage available')
 
         next();
     } catch (error) {
