@@ -60,7 +60,6 @@ export const createUserSchema = Joi.object({
     password: Joi.string()
         .min(8)
         .max(32)
-        .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$"))
         .required()
         .messages({
             "string.base": "Password must be a string",
