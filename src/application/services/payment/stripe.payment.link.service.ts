@@ -27,6 +27,7 @@ export class StripePaymentLinkService implements PaymentLinkService {
                     }
                 ],
                 customer: customerId,
+                allow_promotion_codes: true,
                 success_url: spaceId ? `${COMPANY_DOMAIN}/album/${spaceId}/setup?p=1&session_id={CHECKOUT_SESSION_ID}` : `${COMPANY_DOMAIN}/albums`,
                 cancel_url: spaceId ? `${COMPANY_DOMAIN}/album/${spaceId}/setup` : `${COMPANY_DOMAIN}/pricing`
             }
