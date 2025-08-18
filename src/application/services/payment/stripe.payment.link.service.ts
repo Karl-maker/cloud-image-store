@@ -22,7 +22,7 @@ export class StripePaymentLinkService implements PaymentLinkService {
                 mode: mode,
                 line_items: [
                     {
-                        price: priceId,
+                        price: priceId, 
                         quantity: 1
                     }
                 ],

@@ -226,9 +226,9 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
 
         const loginResponse = await this.login({ email: data.email, password: data.password })
         
-        await this.sendConfirmationEmail({
-            userId: saved.id!
-        })
+        // await this.sendConfirmationEmail({
+        //     userId: saved.id!
+        // })
         return { ...loginResponse, user: saved };
     }
 
