@@ -11,9 +11,16 @@
     "create:swagger": "ts-node src/bin/create.swagger.yaml.ts",
     "test:database": "ts-node src/bin/test-database.ts",
     "test": "jest",
+    "test:unit": "jest --testPathPattern=src/tests/unit",
+    "test:integration": "jest --testPathPattern=src/tests/integration",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:integration": "ts-node src/tests/run-tests.ts"
+    "test:ci": "jest --ci --coverage --watchAll=false",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "type-check": "tsc --noEmit",
+    "audit": "pnpm audit --audit-level moderate",
+    "audit:fix": "pnpm audit fix"
   },
   "keywords": [],
   "author": "",
