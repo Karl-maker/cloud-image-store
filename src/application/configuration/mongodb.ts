@@ -17,7 +17,7 @@ export class Database {
                     retryReads: true,          // Enable retryable reads
                     w: 'majority',             // Write concern
                     readPreference: 'primary', // Read preference
-                    tls: true,
+                    //tls: true,
                 };
 
                 const conn = await mongoose.createConnection(uri, options).asPromise();
