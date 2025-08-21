@@ -7,6 +7,11 @@ export function convertToFilters<T>(obj: T): Filters<T> {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         const value = obj[key];
   
+        // Skip undefined, null, or empty string values
+        if (value === undefined || value === null || value === '') {
+          continue;
+        }
+  
         if (typeof value === "string") {
           if (key.endsWith("Id") || key.endsWith("Ids")) {
             filters[key] = { exact: value }; // Exact match for keys ending in "Id"
