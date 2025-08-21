@@ -31,8 +31,7 @@ export const UserSchema = new Schema<UserDocument>(
 );
 
 // Add comprehensive indexes for optimal query performance
-UserSchema.index({ email: 1 }, { unique: true }); // Primary lookup by email
-UserSchema.index({ clientId: 1 }, { unique: true }); // Primary lookup by clientId
+// Note: email and clientId uniqueness are handled by schema definition above
 UserSchema.index({ stripeId: 1 }); // Stripe customer lookup
 UserSchema.index({ confirmed: 1 }); // Filter by confirmation status
 UserSchema.index({ deactivatedAt: 1 }); // Filter active/inactive users
