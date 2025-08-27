@@ -106,14 +106,20 @@ export abstract class MongooseRepository<
     async delete(data: E): Promise<DeleteResponse<E>> {
         let error : Error | undefined = undefined;
 
-        const deleted = await this.model.findOneAndDelete({
-            clientId: data.id
-        });
+        const deleted = await this.model.findOneAndUpdate(
+            { clientId: data.id },
+            { deactivatedAt: new Date() },
+            { new: true }
+        );
 
         return {
             data,
             error
         }
+    }
+
+    async deleteMany(filters: any = {}): Promise<void> {
+        await this.model.deleteMany(filters);
     }
 
     private mapModelToEntity (d: any): E {

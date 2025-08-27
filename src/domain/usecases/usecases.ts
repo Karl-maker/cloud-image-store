@@ -24,7 +24,7 @@ export abstract class Usecases<Entity extends Persistent, SortByKeys, FilterByKe
         return saved;
     }
 
-    async findById <E extends Error>(id: string) : Promise<Entity | E> {
+    async findById (id: string) : Promise<Entity> {
         const data = await this.repository.findById(id);
 
         if(!data) throw new NotFoundException('Item not found with id');

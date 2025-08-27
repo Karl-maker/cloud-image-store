@@ -25,3 +25,8 @@ export type PaymentFailureEmailContent = {
     expirationTime: string;
     nextRetryDate: string;
 }
+
+export type ContentUploadedEmailContent = {
+    name: string;
+    spaceLink: string;
+}

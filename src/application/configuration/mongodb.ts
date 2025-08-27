@@ -6,6 +6,9 @@ export class Database {
     static async connect(uri: string): Promise<Connection> {
         if (!this.connection) {
             try {
+                // Detect if this is an in-memory MongoDB server (mongodb-memory-server)
+                const isInMemory = uri.includes('127.0.0.1') && uri.includes('mongodb://');
+                
                 const options: ConnectOptions = {
                     maxPoolSize: 30,           // Maximum number of connections in the pool
                     minPoolSize: 5,            // Minimum number of connections in the pool
@@ -17,7 +20,7 @@ export class Database {
                     retryReads: true,          // Enable retryable reads
                     w: 'majority',             // Write concern
                     readPreference: 'primary', // Read preference
-                    tls: true,
+                    tls: !isInMemory,          // Disable TLS for in-memory MongoDB
                 };
 
                 const conn = await mongoose.createConnection(uri, options).asPromise();

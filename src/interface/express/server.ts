@@ -74,7 +74,7 @@ export const initializeServer = async () => {
     const routes = new Routes(
         new UserUsecase(userRepository, spaceRepository),
         new SpaceUsecase(spaceRepository, userRepository),
-        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository), new DeepaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), new S3TemporaryLinkService(bucketName, s3Config, expDateForContent)),
+        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository), new DeepaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), new S3TemporaryLinkService(bucketName, s3Config, expDateForContent), new UserUsecase(userRepository, spaceRepository)),
         new StripeUsecase(stripe, new SpaceUsecase(spaceRepository, userRepository), new UserUsecase(userRepository, spaceRepository))
     )
 
@@ -84,7 +84,7 @@ export const initializeServer = async () => {
         STRIPE_WEBHOOK_SECRET!
     );
 
-    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository), new OpenaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), new S3TemporaryLinkService(bucketName, s3Config, expDateForContent)))
+    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository), new OpenaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), new S3TemporaryLinkService(bucketName, s3Config, expDateForContent), new UserUsecase(userRepository, spaceRepository)))
 
     const allowedOrigins = [
         new URL(COMPANY_DOMAIN!).origin!

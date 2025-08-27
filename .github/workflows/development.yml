@@ -1,0 +1,125 @@
+name: Development Checks
+
+on:
+  push:
+    branches: [ development ]
+
+jobs:
+  quick-dev-checks:
+    name: Quick Development Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: latest
+        
+    - name: Get pnpm store directory
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+        
+    - name: Setup pnpm cache
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+          
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
+    - name: Type check
+      run: pnpm type-check
+      
+    - name: Run unit tests
+      run: pnpm test:unit
+      env:
+        CI: true
+        
+    - name: Run integration tests
+      run: pnpm test:integration
+      env:
+        CI: true
+        
+    - name: Build application
+      run: pnpm build
+      env:
+        CI: true
+        NODE_ENV: development
+        
+    - name: Log build results
+      if: always()
+      run: |
+        echo "## Development Build Results ${{ job.status == 'success' && '✅' || '❌' }}"
+        echo ""
+        echo "**Status:** ${{ job.status }}"
+        echo "**Branch:** development"
+        echo "**Commit:** ${{ github.sha }}"
+        echo "**Message:** ${{ github.event.head_commit.message }}"
+        echo ""
+        echo "### Checks Completed:"
+        echo "- ${{ job.status == 'success' && '✅' || '❌' }} Type checking"
+        echo "- ${{ job.status == 'success' && '✅' || '❌' }} Unit tests"
+        echo "- ${{ job.status == 'success' && '✅' || '❌' }} Integration tests"
+        echo "- ${{ job.status == 'success' && '✅' || '❌' }} Build compilation"
+        echo ""
+        echo "${{ job.status == 'success' && '🎉 Development build successful! Ready for testing.' || '⚠️ Development build failed. Please check the logs.' }}"
+
+  development-deploy:
+    name: Development Deployment
+    runs-on: ubuntu-latest
+    needs: quick-dev-checks
+    if: needs.quick-dev-checks.result == 'success'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: latest
+        
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
+    - name: Build for development
+      run: pnpm build
+      env:
+        CI: true
+        NODE_ENV: development
+        
+    - name: Upload development build
+      uses: actions/upload-artifact@v3
+      with:
+        name: development-build-${{ github.run_number }}
+        path: |
+          dist/
+        retention-days: 7
+        
+    - name: Deploy to development environment
+      run: |
+        echo "🚀 Deploying to development environment..."
+        echo "📦 Build artifacts uploaded"
+        echo "🔗 Development URL: https://dev.cloud-image-server.com"
+        echo "📊 Monitoring: https://dev.cloud-image-server.com/health"
+      env:
+        DEPLOY_ENV: development
