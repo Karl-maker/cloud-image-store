@@ -25,6 +25,13 @@ import ITemporaryLinkService from "../../application/services/temporary-link/i.t
 import { GetObjectCommand, GetObjectCommandOutput, S3Client, S3ClientConfig } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { HttpException } from "../../application/exceptions/http.exception";
+import { UserUsecase } from "./user.usecase";
+import { COMPANY_DOMAIN, EMAIL_NO_REPLY_USER, EMAIL_NO_REPLY_SERVICE, EMAIL_NO_REPLY_PASS } from "../../application/configuration";
+import { SPACE_PATH } from "../constants/api.routes";
+import { ContentUploadedEmailContent } from "../types/email";
+import { ContentUploadedEmail } from "../entities/content.uploaded.email";
+import { Templates } from "../constants/templates";
+import { SendEmail } from "../../application/services/send-email/nodemailer.email.service";
 
 export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilterBy, ContentRepository> {
     constructor (
@@ -33,7 +40,8 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
         public spaceUsecase: SpaceUsecase,
         private imageVariantService: IImageVariant,
         public blobService: GetBlobService,
-        private temporaryLinkService: ITemporaryLinkService
+        private temporaryLinkService: ITemporaryLinkService,
+        private userUsecase: UserUsecase
     ) {
         super(repository);
     }
@@ -89,6 +97,24 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
         }
     }
     async upload(data: UploadContentDTO): Promise<void> {
+        const lastUploadedContent = await this.repository.findMany({
+            filters: {
+                spaceId: {
+                    exact: data.spaceId
+                }
+            },
+        })
+
+        let shouldSendEmail = true;
+
+        // check if it was uploaded in the last hour if so, send email to user
+        if(lastUploadedContent.data.length > 0) {
+            const lst = lastUploadedContent.data[0];
+            if(lst.createdAt > new Date(Date.now() - 1 * 60 * 60 * 1000)) {
+                shouldSendEmail = false;
+            }
+        } 
+
         for (const item of data.files) {
             const name = generateUuid();
             const spaceId = data.spaceId;
@@ -133,6 +159,57 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                 }
 
             })
+        
+        }
+
+        // send email to user
+
+        if(!shouldSendEmail) return;
+
+        const space = await this.spaceUsecase.findById(data.spaceId);
+
+        if(!space) return;
+
+        const user = await this.userUsecase.findById(space.createdByUserId);
+
+        if(user) {
+            const contentUploadedEmailContent : ContentUploadedEmailContent = {
+                name: user.firstName + " " + user.lastName,
+                spaceLink: `${COMPANY_DOMAIN}/album/${data.spaceId}`,
+            }
+
+            const email : ContentUploadedEmail = {
+                template: Templates.CONTENT_UPLOADED,
+                to: user.email,
+                from: EMAIL_NO_REPLY_USER!,
+                content: contentUploadedEmailContent,
+                subject: `${space.name} - Media Uploaded`,
+                id: null,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            }
+
+            await new SendEmail(
+                EMAIL_NO_REPLY_SERVICE!,
+                EMAIL_NO_REPLY_USER!,
+                EMAIL_NO_REPLY_PASS!
+            ).send(email);
+
+            const otherUsers = space.userIds.filter((id) => id !== user.id);
+
+            for(const otherUserId of otherUsers) {
+                const otherUser = await this.userUsecase.findById(otherUserId);
+                if(!otherUser) continue;
+
+                email.to = otherUser.email;
+                email.content.name = otherUser.firstName + " " + otherUser.lastName;
+
+                await new SendEmail(
+                    EMAIL_NO_REPLY_SERVICE!,
+                    EMAIL_NO_REPLY_USER!,
+                    EMAIL_NO_REPLY_PASS!
+                ).send(email);
+            }
         }
     }
     async generateContentVariant(data: CreateContentVariantDTO): Promise<void> {
