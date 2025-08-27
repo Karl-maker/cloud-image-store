@@ -60,7 +60,8 @@ export class TestServer {
             spaceUsecase,
             null as any, // AI service mock
             null as any, // Blob service mock
-            null as any  // Temporary link service mock
+            null as any,  // Temporary link service mock
+            userUsecase
         );
         const stripeUsecase = new StripeUsecase(
             this.mockStripeService as any,
