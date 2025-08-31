@@ -5,7 +5,7 @@ export const FREE_PLAN : SubscriptionPlan = {
     id: FREE_PLAN_ID,
     name: 'Lite Plan',
     description: 'Start for free and get access to basic features and functionality including unlimited guest collaboration and theater mode to view memories in beautiful quality.',
-    megabytes: 1024 / 2,
+    megabytes: 204,
     users: 1,
     spaces: 1,
     aiGenerationsPerMonth: 0,
@@ -33,7 +33,7 @@ export const FREE_PLAN : SubscriptionPlan = {
         {"name":"Theater mode","included":true},
         {"name":"Favorite moments","included":true},
         {"name":"AI touch-ups","included":false},
-        {"name":"Priority customer support","included":true},
+        {"name":"Basic customer support","included":true},
         {"name":"Regular system improvements","included":true}
     ],
     highlighted: false,
