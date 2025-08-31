@@ -3,7 +3,7 @@ import { SubscriptionPlan } from "../entities/subscription.plan";
 export const FREE_PLAN_ID = 'free';
 export const FREE_PLAN : SubscriptionPlan = {
     id: FREE_PLAN_ID,
-    name: 'Free Plan',
+    name: 'Lite Plan',
     description: 'Start for free and get access to basic features and functionality including unlimited guest collaboration and theater mode to view memories in beautiful quality.',
     megabytes: 1024 / 2,
     users: 1,
