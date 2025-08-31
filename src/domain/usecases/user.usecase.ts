@@ -29,6 +29,7 @@ import { SubscriptionPlan } from "../entities/subscription.plan";
 import { SystemUsageResponse } from "../interfaces/presenters/dtos/system.usage.dto";
 import { SpaceRepository } from "../repositories/space.repository";
 import { bytesToMB } from "../../utils/bytes.to.mb";
+import { FREE_PLAN, FREE_PLAN_ID } from "../constants/free.plan";
 
 export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRepository> {
     constructor (
@@ -272,6 +273,40 @@ export class UserUsecase extends Usecases<User, UserSortBy, UserFilterBy, UserRe
                 return new Error(`${err}`);
             }
     
+    }
+
+    async subscribedToFreePlan(stripeCustomerId: string): Promise<User | NotFoundException | Error> {
+        try {
+            const users = await this.repository.findMany({
+                filters: {
+                    stripeId: {
+                        exact: stripeCustomerId
+                    }
+                }
+            });
+
+            const user = users.data[0];
+    
+            if(!user) return new NotFoundException('user not found by id');
+
+            if(user.subscriptionPlanStripeId) return new Error('Cannot downgrade to free plan');
+    
+            user.maxStorage = FREE_PLAN.megabytes;
+            user.maxUsers = FREE_PLAN.users;
+            user.maxSpaces = FREE_PLAN.spaces;
+            user.maxAiEnhancementsPerMonth = FREE_PLAN.aiGenerationsPerMonth ?? 0;
+            user.deactivatedAt = undefined;
+            user.subscriptionPlanExpiresAt = undefined;
+            user.subscriptionPlanStripeId = FREE_PLAN.id ?? undefined;
+            user.subscriptionStripeId = FREE_PLAN.id ?? undefined;;
+    
+            const saved = await this.repository.save(user);
+    
+            return saved;
+        } catch(err: unknown) {
+            if(err instanceof Error) return err;
+            return new Error(`${err}`);
+        }
     }
 
     async receiveProduct(plan: SubscriptionPlan, user: User): Promise<User | NotFoundException | Error> {
