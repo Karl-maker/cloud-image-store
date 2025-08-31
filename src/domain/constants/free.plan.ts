@@ -5,7 +5,7 @@ export const FREE_PLAN : SubscriptionPlan = {
     id: FREE_PLAN_ID,
     name: 'Lite Plan',
     description: 'Start for free and get access to basic features and functionality including unlimited guest collaboration and theater mode to view memories in beautiful quality.',
-    megabytes: 52,
+    megabytes: 100,
     users: 1,
     spaces: 1,
     aiGenerationsPerMonth: 0,
