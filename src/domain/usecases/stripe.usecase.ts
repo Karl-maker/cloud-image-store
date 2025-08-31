@@ -23,6 +23,7 @@ import { SendEmail } from "../../application/services/send-email/nodemailer.emai
 import { EMAIL_NO_REPLY_SERVICE, EMAIL_NO_REPLY_USER, EMAIL_NO_REPLY_PASS, COMPANY_DOMAIN } from "../../application/configuration";
 import { SUPPORT_LINK_PATH } from "../constants/client.routes";
 import { User } from "../entities/user";
+import { FREE_PLAN } from "../constants/free.plan";
 
 
 export class StripeUsecase {
@@ -212,6 +213,12 @@ export class StripeUsecase {
         const customerId = user.stripeId;
 
         if(!customerId) throw new NotFoundException('no customer stripe id found');
+
+        if(priceId === FREE_PLAN.id) {
+            const result = await this.userUsecase.subscribedToFreePlan(customerId);
+            if(result instanceof Error || result instanceof NotFoundException) throw result;
+            return `${COMPANY_DOMAIN}/albums`;
+        }
         
         return this.paymentLinkService.generateLink(priceId, customerId, spaceId);
         
@@ -251,7 +258,11 @@ export class StripeUsecase {
     }
 
     async findAllSubscriptionPlans () : Promise<SubscriptionPlan[]> {
-        return await this.subscriptionPlanService.findMany();
+        const plans = await this.subscriptionPlanService.findMany();
+        return [
+            FREE_PLAN,
+            ...plans
+        ]
     }
 
     async createPaymentCustomer (name: string, email: string) : Promise<string> {
