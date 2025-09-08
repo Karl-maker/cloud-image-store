@@ -260,7 +260,7 @@ export class StripeUsecase {
     async findAllSubscriptionPlans () : Promise<SubscriptionPlan[]> {
         const plans = await this.subscriptionPlanService.findMany();
         return [
-            FREE_PLAN,
+            // FREE_PLAN,
             ...plans
         ]
     }
