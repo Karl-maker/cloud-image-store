@@ -2204,6 +2204,8 @@ paths:
 tags:
   - name: Content
     description: Endpoints related to content management and actions
+  - name: Link
+    description: Endpoints related to link management and actions
   - name: Space
     description: Endpoints related to space management and actions
   - name: Stripe

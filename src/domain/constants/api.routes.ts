@@ -17,6 +17,10 @@ export const CONTENT_PARAM = 'content_id';
 export const CONTENT_PARAM_PATH = '/:' + CONTENT_PARAM;
 export const CREATE_VARIANT_PATH = '/generate-variant'
 
+export const LINK_PATH = '/link';
+export const LINK_PARAM = 'link_id';
+export const LINK_PARAM_PATH = '/:' + LINK_PARAM;
+
 export const UPLOAD_PATH = '/upload'
 export const AUTH_PATH = '/auth'
 
