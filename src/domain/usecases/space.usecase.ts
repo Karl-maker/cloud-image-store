@@ -8,19 +8,23 @@ import { Usecases } from "./usecases";
 import { UserRepository } from "../repositories/user.repository";
 import { GenerateAccessTokenDTO } from "../interfaces/presenters/dtos/generate.space.access.token.dto";
 import { JwtTokenService } from "../../application/services/token/jwt.token.service";
-import { TOKEN_SECRET } from "../../application/configuration";
+import { MY_DOMAIN, TOKEN_SECRET } from "../../application/configuration";
 import { TokenServiceConfiguration } from "../types/token";
 import { dateToJwtExp } from "../../utils/jwt.time.util";
 import { toZonedTime } from 'date-fns-tz';
 import { VerifyAccessTokenDTO } from "../interfaces/presenters/dtos/verify.space.access.token.dto";
 import { UnauthorizedException } from "../../application/exceptions/unauthorized.exception";
 import { TokenService } from "../../application/services/token/interface.token.service";
+import { LinkRepository } from "../repositories/link.repository";
+import { Link } from "../entities/link";
+import { LINK_PATH } from "../constants/api.routes";
 
 export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, SpaceRepository> {
     
     constructor (
         repository: SpaceRepository, 
-        public userRepository: UserRepository
+        public userRepository: UserRepository,
+        public linkRepository: LinkRepository
     ) {
         super(repository);
     }
@@ -84,9 +88,22 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
           secret,
           config
         );
+
+        const dataLink : Link = {
+            token,
+            spaceId: data.spaceId,
+            id: null,
+            createdAt: new Date,
+            updatedAt: new Date
+        }
+
+        const link = await this.linkRepository.save(dataLink)
       
+        /**
+         * TODO: Rename to url from accessToken!
+         */
         return {
-          accessToken: token
+          accessToken: `${MY_DOMAIN}/api/v1${LINK_PATH}/${link.id}`!
         };
     }
 
@@ -102,6 +119,8 @@ export class SpaceUsecase extends Usecases<Space, SpaceSortBy, SpaceFilterBy, Sp
         if (!data.token) {
             throw new UnauthorizedException("No token provided");
         }
+        const getFullToken = await this.linkRepository.findById(data.token)
+
         const jwtService: TokenService<GenerateAccessTokenDTO> = new JwtTokenService();
         const payload = await jwtService.validate(data.token, TOKEN_SECRET!)
 

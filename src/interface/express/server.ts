@@ -43,6 +43,10 @@ import verifyUploadContent, { verifyUploadPermissions } from "./middlewares/veri
 import S3TemporaryLinkService from "../../application/services/temporary-link/aws.temporary.link.service";
 import { rateLimiter } from "./middlewares/rate.limit";
 import authorization from "./middlewares/authorization.middleware";
+import { LinkRepository } from "../../domain/repositories/link.repository";
+import { LinkMongooseRepository } from "../../infrastructure/mongoose/repositories/link.mongoose.repository";
+import { LinkRoutes } from "./routes/link.routes";
+import { LinkUsecase } from "../../domain/usecases/link.usecase";
 
 export const app = express();
 
@@ -57,6 +61,7 @@ export const initializeServer = async () => {
     const expDateForContent = 60 * 60 * 24 * 7;
     const userRepository : UserRepository = new UserMongooseRepository(connection);
     const spaceRepository : SpaceRepository = new SpaceMongooseRepository(connection);
+    const linkRepository : LinkRepository = new LinkMongooseRepository(connection);
     const contentRepository : ContentRepository = new ContentMongooseRepository(connection)
 
     const s3Config: S3ClientConfig = {
@@ -71,20 +76,21 @@ export const initializeServer = async () => {
     const stripe = new Stripe(STRIPE_KEY!, { apiVersion: '2025-02-24.acacia' });
     const uploadService : IUploadService = new S3UploadService(s3Config, bucketName);
     const upload = multer({ storage: multer.memoryStorage() });
+    const linkUsecase = new LinkUsecase(linkRepository)
     const routes = new Routes(
         new UserUsecase(userRepository, spaceRepository),
-        new SpaceUsecase(spaceRepository, userRepository),
-        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository), new DeepaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), new S3TemporaryLinkService(bucketName, s3Config, expDateForContent), new UserUsecase(userRepository, spaceRepository)),
-        new StripeUsecase(stripe, new SpaceUsecase(spaceRepository, userRepository), new UserUsecase(userRepository, spaceRepository))
+        new SpaceUsecase(spaceRepository, userRepository, linkRepository),
+        new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository, linkRepository), new DeepaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), new S3TemporaryLinkService(bucketName, s3Config, expDateForContent), new UserUsecase(userRepository, spaceRepository)),
+        new StripeUsecase(stripe, new SpaceUsecase(spaceRepository, userRepository, linkRepository), new UserUsecase(userRepository, spaceRepository))
     )
 
     const stripeController = new StripeController(
-        new StripeUsecase(stripe, new SpaceUsecase(spaceRepository, userRepository), new UserUsecase(userRepository)),
+        new StripeUsecase(stripe, new SpaceUsecase(spaceRepository, userRepository, linkRepository), new UserUsecase(userRepository)),
         stripe,
         STRIPE_WEBHOOK_SECRET!
     );
 
-    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository), new OpenaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), new S3TemporaryLinkService(bucketName, s3Config, expDateForContent), new UserUsecase(userRepository, spaceRepository)))
+    const contentController = new ContentController(new ContentUsecase(contentRepository, uploadService, new SpaceUsecase(spaceRepository, userRepository, linkRepository), new OpenaiImageVariant(DEEP_AI_KEY!, DEEP_AI_IMAGE_GEN_VARIATION), new S3GetBlobService(s3Config, bucketName), new S3TemporaryLinkService(bucketName, s3Config, expDateForContent), new UserUsecase(userRepository, spaceRepository)))
 
     const allowedOrigins = [
         new URL(COMPANY_DOMAIN!).origin!
@@ -106,9 +112,8 @@ export const initializeServer = async () => {
 
     app.use(express.json());
 
-    // Add health check route
     app.use('/api/v1', healthRoutes);
-
+    app.use('/api/v1/', LinkRoutes(linkUsecase))
     app.post('/api/v1' + CONTENT_PATH + UPLOAD_PATH, upload.array('files', 10), authentication(TOKEN_SECRET!, new JwtTokenService(), true), validateUploadEndpoint, verifyUploadContent(spaceRepository, userRepository), authorization(verifyUploadPermissions), contentController.upload.bind(contentController))
     app.options(CONTENT_VIEW_PATH + '/*', rateLimiter, (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', COMPANY_DOMAIN!);
@@ -140,7 +145,7 @@ if (process.env.NODE_ENV !== "test") {
 
 // CRON Job for upkeep
 
-cron.schedule("*/5 * * * *", async () => {
-    //
-});
+// cron.schedule("*/5 * * * *", async () => {
+//     //
+// });
   
