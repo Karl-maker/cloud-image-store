@@ -103,6 +103,8 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
                     exact: data.spaceId
                 }
             },
+            sortBy: 'createdAt',
+            sortOrder: 'desc'
         })
 
         let shouldSendEmail = true;
@@ -110,7 +112,8 @@ export class ContentUsecase extends Usecases<Content, ContentSortBy, ContentFilt
         // check if it was uploaded in the last hour if so, send email to user
         if(lastUploadedContent.data.length > 0) {
             const lst = lastUploadedContent.data[0];
-            if(lst.createdAt > new Date(Date.now() - 1 * 60 * 60 * 1000)) {
+            const lastCreatedAt = new Date(lst.createdAt);
+            if (lastCreatedAt > new Date(Date.now() - 60 * 60 * 1000 * 3)) {
                 shouldSendEmail = false;
             }
         } 
